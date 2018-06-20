@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
-import org.opentravel.schemas.controllers.repository.RepositoryIntegrationTestBase;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -44,6 +43,7 @@ import org.opentravel.schemas.node.typeProviders.CustomFacetNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.testUtils.BaseRepositoryTest;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryItemNode;
@@ -52,7 +52,7 @@ import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryItemNode
  * @author Pawel Jedruch / Dave Hollander
  * 
  */
-public class LoadDepenedLibrariesAndResolvedTypes extends RepositoryIntegrationTestBase {
+public class LoadDepenedLibrariesAndResolvedTypes extends BaseRepositoryTest {
 
 	private ProjectNode uploadProject;
 	private LibraryNode baseLib;

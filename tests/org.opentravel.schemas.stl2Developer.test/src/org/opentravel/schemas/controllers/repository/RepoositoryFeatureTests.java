@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.controllers;
+package org.opentravel.schemas.controllers.repository;
 
 import static org.junit.Assert.assertTrue;
 
@@ -34,7 +34,7 @@ import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
-import org.opentravel.schemas.controllers.repository.RepositoryIntegrationTestBase;
+import org.opentravel.schemas.controllers.LibraryModelManager;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
@@ -47,7 +47,7 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.resources.ParamGroup;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
-import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.BaseRepositoryTest;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,15 +56,15 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class RepoositoryFeatureTests extends RepositoryIntegrationTestBase {
+public class RepoositoryFeatureTests extends BaseRepositoryTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RepoositoryFeatureTests.class);
 
 	protected static boolean SKIP = true; // Skip these tests which can take 10 minutes or more
-	protected MockLibrary ml = new MockLibrary();
-	RepositoryNode localRepo = null;
-	ProjectNode project = null;
-	LibraryChainNode lcn = null;
-	LibraryNode ln = null;
+	// protected MockLibrary ml = new MockLibrary();
+	// RepositoryNode localRepo = null;
+	// ProjectNode project = null;
+	// LibraryChainNode lcn = null;
+	// LibraryNode ln = null;
 
 	@Override
 	public RepositoryNode getRepositoryForTest() {

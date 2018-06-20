@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.controllers.repository;
+package org.opentravel.schemas.functional;
 
 import static org.junit.Assert.assertTrue;
 
@@ -58,7 +58,7 @@ import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
-import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.BaseRepositoryTest;
 import org.opentravel.schemas.testers.GlobalSelectionTester;
 import org.opentravel.schemas.testers.NodeTester;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
@@ -67,10 +67,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 //@Ignore("Tests currently failing and need attention.")
-public class VersionsTest extends RepositoryIntegrationTestBase {
+public class VersionsTest extends BaseRepositoryTest {
 	static final Logger LOGGER = LoggerFactory.getLogger(VersionsTest.class);
 
-	MockLibrary ml = new MockLibrary();
+	// MockLibrary ml = new MockLibrary();
+
 	private BusinessObjectNode bo = null;
 	private CoreObjectNode co = null;
 	private ChoiceObjectNode ch = null;
@@ -188,6 +189,11 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// a minorLibrary created from the chain
 		// second major with an extension point
 		//
+	}
+
+	// @Test
+	public void VT_versionTestInitialized() {
+		assert false;
 	}
 
 	//

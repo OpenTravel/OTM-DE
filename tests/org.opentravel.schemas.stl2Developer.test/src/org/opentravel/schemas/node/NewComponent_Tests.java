@@ -39,9 +39,6 @@ import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.controllers.repository.RepositoryIntegrationTestBase;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -56,9 +53,7 @@ import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.BaseRepositoryTest;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
@@ -73,27 +68,28 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class NewComponent_Tests extends RepositoryIntegrationTestBase {
+public class NewComponent_Tests extends BaseRepositoryTest {
 	private final static Logger LOGGER = LoggerFactory.getLogger(NewComponent_Tests.class);
 
 	TestNode nt = new NodeTesters().new TestNode();
 	ModelNode model = null;
 	TestNode tn = new NodeTesters().new TestNode();
-	LoadFiles lf = new LoadFiles();
+
+	// LoadFiles lf = new LoadFiles();
 	Library_FunctionTests lt = new Library_FunctionTests();
-	MockLibrary ml = null;
-	LibraryNode ln = null;
-	MainController mc;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
+	// MockLibrary ml = null;
+	// LibraryNode ln = null;
+	// MainController mc;
+	// DefaultProjectController pc;
+	// ProjectNode defaultProject;
 	EditNode en;
 
 	@Before
 	public void beforeAllTests() {
-		mc = OtmRegistry.getMainController();
-		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
+		// mc = OtmRegistry.getMainController();
+		// ml = new MockLibrary();
+		// pc = (DefaultProjectController) mc.getProjectController();
+		// defaultProject = pc.getDefaultProject();
 
 		en = new EditNode(ln);
 		en.setName("SOME_Component");
@@ -102,14 +98,14 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 	}
 
 	public NewComponent_Tests() {
-		mc = OtmRegistry.getMainController();
-		lf = new LoadFiles();
+		// mc = OtmRegistry.getMainController();
+		// lf = new LoadFiles();
 	}
 
 	@Test
 	public void newComponentTests() throws Exception {
-		MainController mc = OtmRegistry.getMainController();
-		LoadFiles lf = new LoadFiles();
+		// MainController mc = OtmRegistry.getMainController();
+		// LoadFiles lf = new LoadFiles();
 		LibraryNode noService = lf.loadFile2(mc);
 		LibraryNode hasService = lf.loadFile1(mc);
 
@@ -141,8 +137,8 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		boolean locked = rc.lock(chain.getHead());
 		assertTrue("Repository must successfully lock library.", locked);
 		assertTrue("Library in repo must be editable.", majorLibrary.isEditable());
-		assertTrue("Head library must be managed WIP.", RepositoryItemState.MANAGED_WIP == chain.getHead()
-				.getProjectItem().getState());
+		assertTrue("Head library must be managed WIP.",
+				RepositoryItemState.MANAGED_WIP == chain.getHead().getProjectItem().getState());
 		LOGGER.debug("Managed major library in repository.");
 
 		// Given - an unmanaged Library to contain objects created to be extended.

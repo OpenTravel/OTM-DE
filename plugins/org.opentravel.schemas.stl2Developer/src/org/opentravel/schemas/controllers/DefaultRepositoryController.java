@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.swt.custom.BusyIndicator;
@@ -50,7 +49,6 @@ import org.opentravel.schemacompiler.version.MajorVersionHelper;
 import org.opentravel.schemacompiler.version.MinorVersionHelper;
 import org.opentravel.schemacompiler.version.PatchVersionHelper;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.ProjectNode;
@@ -684,75 +682,75 @@ public class DefaultRepositoryController implements RepositoryController {
 			throws RepositoryException {
 		// Map to return
 		HashMap<LibraryNode, LibraryNode> replacementMap = new HashMap<>();
-
-		HashMap<LibraryNode, RepositoryItem> itemMap = new HashMap<>();
-		List<RepositoryItem> ll;
-		// List<RepositoryItem> ll = new ArrayList<RepositoryItem>();
-
-		// For each of the passed libraries
-		for (LibraryNode lib : usedLibs) {
-			ProjectItem projItem = lib.getProjectItem();
-			Repository lRepo = lib.getProjectItem().getRepository();
-			String baseNS = projItem.getBaseNamespace();
-			if (projItem == null || lRepo == null || baseNS.isEmpty())
-				continue;
-
-			// For each used library, lookup the latest version.
-			// TODO - update listItems call to use libraryStatus
-			// baseNamespace the base namespace that does not include the trailing version component of the URI path
-			// includeStatus indicates the latest library status to include in the results (null = all statuses)
-			// latestVersionsOnly flag indicating whether the results should include all matching versions or just the
-			// latest version of each library
-			// ll.addAll(lRepo.listItems(baseNS, TLLibraryStatus.UNDER_REVIEW, true));
-			// ll.addAll(lRepo.listItems(baseNS, TLLibraryStatus.FINAL, true));
-			// if (includeDrafts)
-			// ll = lRepo.listItems(baseNS, TLLibraryStatus.DRAFT, true);
-			// // Now - how to find the latest?
-
-			ll = lRepo.listItems(baseNS, true, includeDrafts);
-			// list contains all library chains in that namespace
-			if (ll.size() > 0) {
-				for (RepositoryItem latest : ll)
-					if (latest != null && latest.getLibraryName().equals(projItem.getLibraryName())
-							&& !latest.getNamespace().equals(projItem.getNamespace()))
-						itemMap.put(lib, latest);
-			}
-		}
-
-		// Create library map of namespace to library node for all libraries open in the GUI
-		HashMap<String, LibraryNode> libraryMap = new HashMap<>();
-		for (LibraryNode lib : ModelNode.getAllUserLibraries())
-			libraryMap.put(lib.getNameWithPrefix(), lib);
-
-		// Now map the "latest versions" repository items to actual libraries.
-		for (Entry<LibraryNode, RepositoryItem> entry : itemMap.entrySet()) {
-			String entryNwPrefix = entry.getKey().getNameWithPrefix();
-			// Get the prefix for the repo item namespace for lookup in library map
-			String latestNS = entry.getValue().getNamespace();
-			String latestNwPrefix = entry.getKey().getNsHandler().getPrefix(latestNS) + ":"
-					+ entry.getValue().getLibraryName();
-
-			if (libraryMap.containsKey(latestNwPrefix))
-				replacementMap.put(libraryMap.get(entryNwPrefix), libraryMap.get(latestNwPrefix));
-			else {
-				String message = "Opening " + entry.getValue().getNamespace() + " - "
-						+ entry.getValue().getLibraryName() + " library.";
-				// LOGGER.debug(message);
-				mc.postStatus(message);
-
-				// Open the repository item into the entry key's project.
-				ProjectItem newPI = mc.getProjectController().add(entry.getKey().getProject(), entry.getValue());
-				// could open a lot of libraries, find the right one
-				for (LibraryNode lib : ModelNode.getAllUserLibraries())
-					if (lib.getNameWithPrefix().equals(latestNwPrefix))
-						replacementMap.put(libraryMap.get(entryNwPrefix), lib);
-			}
-		}
-
-		// Print out replacement map
-		for (Entry<LibraryNode, LibraryNode> entry : replacementMap.entrySet())
-			LOGGER.debug("ReplacementMap Entry: " + entry.getKey() + " value = " + entry.getValue());
-
+		//
+		// HashMap<LibraryNode, RepositoryItem> itemMap = new HashMap<>();
+		// List<RepositoryItem> ll;
+		// // List<RepositoryItem> ll = new ArrayList<RepositoryItem>();
+		//
+		// // For each of the passed libraries
+		// for (LibraryNode lib : usedLibs) {
+		// ProjectItem projItem = lib.getProjectItem();
+		// Repository lRepo = lib.getProjectItem().getRepository();
+		// String baseNS = projItem.getBaseNamespace();
+		// if (projItem == null || lRepo == null || baseNS.isEmpty())
+		// continue;
+		//
+		// // For each used library, lookup the latest version.
+		// // TODO - update listItems call to use libraryStatus
+		// // baseNamespace the base namespace that does not include the trailing version component of the URI path
+		// // includeStatus indicates the latest library status to include in the results (null = all statuses)
+		// // latestVersionsOnly flag indicating whether the results should include all matching versions or just the
+		// // latest version of each library
+		// // ll.addAll(lRepo.listItems(baseNS, TLLibraryStatus.UNDER_REVIEW, true));
+		// // ll.addAll(lRepo.listItems(baseNS, TLLibraryStatus.FINAL, true));
+		// // if (includeDrafts)
+		// // ll = lRepo.listItems(baseNS, TLLibraryStatus.DRAFT, true);
+		// // // Now - how to find the latest?
+		//
+		// ll = lRepo.listItems(baseNS, true, includeDrafts);
+		// // list contains all library chains in that namespace
+		// if (ll.size() > 0) {
+		// for (RepositoryItem latest : ll)
+		// if (latest != null && latest.getLibraryName().equals(projItem.getLibraryName())
+		// && !latest.getNamespace().equals(projItem.getNamespace()))
+		// itemMap.put(lib, latest);
+		// }
+		// }
+		//
+		// // Create library map of namespace to library node for all libraries open in the GUI
+		// HashMap<String, LibraryNode> libraryMap = new HashMap<>();
+		// for (LibraryNode lib : ModelNode.getAllUserLibraries())
+		// libraryMap.put(lib.getNameWithPrefix(), lib);
+		//
+		// // Now map the "latest versions" repository items to actual libraries.
+		// for (Entry<LibraryNode, RepositoryItem> entry : itemMap.entrySet()) {
+		// String entryNwPrefix = entry.getKey().getNameWithPrefix();
+		// // Get the prefix for the repo item namespace for lookup in library map
+		// String latestNS = entry.getValue().getNamespace();
+		// String latestNwPrefix = entry.getKey().getNsHandler().getPrefix(latestNS) + ":"
+		// + entry.getValue().getLibraryName();
+		//
+		// if (libraryMap.containsKey(latestNwPrefix))
+		// replacementMap.put(libraryMap.get(entryNwPrefix), libraryMap.get(latestNwPrefix));
+		// else {
+		// String message = "Opening " + entry.getValue().getNamespace() + " - "
+		// + entry.getValue().getLibraryName() + " library.";
+		// // LOGGER.debug(message);
+		// mc.postStatus(message);
+		//
+		// // Open the repository item into the entry key's project.
+		// ProjectItem newPI = mc.getProjectController().add(entry.getKey().getProject(), entry.getValue());
+		// // could open a lot of libraries, find the right one
+		// for (LibraryNode lib : ModelNode.getAllUserLibraries())
+		// if (lib.getNameWithPrefix().equals(latestNwPrefix))
+		// replacementMap.put(libraryMap.get(entryNwPrefix), lib);
+		// }
+		// }
+		//
+		// // Print out replacement map
+		// for (Entry<LibraryNode, LibraryNode> entry : replacementMap.entrySet())
+		// LOGGER.debug("ReplacementMap Entry: " + entry.getKey() + " value = " + entry.getValue());
+		//
 		return replacementMap;
 	}
 
@@ -944,10 +942,22 @@ public class DefaultRepositoryController implements RepositoryController {
 				LibraryModelManager libMrg = Node.getLibraryModelManager();
 				ProjectController pc = mc.getProjectController();
 				List<ProjectNode> pList = libMrg.findProjects(library);
-				for (ProjectNode pn : libMrg.findProjects(library)) {
-					assert library.getParent() instanceof LibraryNavNode;
-					pc.remove((LibraryNavNode) library.getParent());
-					// NavNode will be created with library is create in the original project
+				LibraryNavNode lnnToRemove = null;
+				for (ProjectNode pn : pList) {
+					// if (library.getParent() instanceof LibraryNavNode)
+					// lnnToRemove = (LibraryNavNode) library.getParent();
+					// else if (library.getChain() != null && library.getChain().getParent() instanceof LibraryNavNode)
+					// lnnToRemove = (LibraryNavNode) library.getChain().getParent();
+					// else
+					// LOGGER.debug("Unexpected parent type to remove from project");
+					// assert library.getParent() instanceof LibraryNavNode;
+
+					// 6/19/2018 dmh
+					// Removed code to remove chain from projects.
+					// A major version is NOT part of chain so must be left or all assignments will break.
+					// pc.remove(library.getLibraryNavNode());
+
+					// NavNode will be created with library in the original project(s)
 					if (pn != thisProject)
 						new LibraryNavNode(lcn, pn);
 				}
@@ -976,6 +986,11 @@ public class DefaultRepositoryController implements RepositoryController {
 	 */
 	// FIXME - make this into a wizard or progress monitor so the user can track progress
 	private boolean versionPreparation(LibraryNode library) {
+		if (library == null) {
+			LOGGER.warn("version preperation passed a null library.");
+			return false;
+		}
+
 		if (library.getProject() == null) {
 			postRepoError("noProject");
 			return false;

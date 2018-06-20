@@ -491,9 +491,9 @@ public class ResourceObjectTests extends BaseTest {
 			assert p instanceof ResourceParameter;
 			TLParameter tlParam = ((ResourceParameter) p).getTLModelObject();
 			assertTrue("Must have tl parameter.", tlParam != null);
-			TLModelElement tlRef = (TLModelElement) tlParam.getFieldRef();
-			assertTrue("Must have a field refernece.", tlRef != null);
-			assertTrue("TL Owning model of field reference must be null.", tlRef.getOwningModel() == null);
+			// TLModelElement tlRef = (TLModelElement) tlParam.getFieldRef();
+			// assertTrue("Must have a field refernece.", tlRef != null);
+			// assertTrue("TL Owning model of field reference must be null.", tlRef.getOwningModel() == null);
 			assertTrue("TL parameter must have field ref name.", !tlParam.getFieldRefName().isEmpty());
 		}
 

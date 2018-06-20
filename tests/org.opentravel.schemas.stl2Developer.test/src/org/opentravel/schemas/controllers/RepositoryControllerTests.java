@@ -18,46 +18,38 @@
  */
 package org.opentravel.schemas.controllers;
 
-import static org.junit.Assert.assertNull;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.opentravel.schemas.node.libraries.LibraryChainNode;
-import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.BaseTest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
  * 
  */
 //
-// FIXME - Move test into LibraryVersionUpdateTests
+// FIXME - Moved test into LibraryVersionUpdateTests
 //
 public class RepositoryControllerTests extends BaseTest {
-	static final Logger LOGGER = LoggerFactory.getLogger(RepositoryControllerTests.class);
-
-	LibraryNode ln_inChain;
-	LibraryChainNode lcn;
-
-	@Before
-	public void beforeEachOfTheseTests() {
-		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
-		ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
-		lcn = new LibraryChainNode(ln_inChain);
-	}
-
-	@Test
-	public void createVersionErrors() throws Exception {
-		// These creates should create NULL libraries because ln is not in a repository.
-		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
-		LOGGER.debug("Error Dialogs Expected.");
-		LibraryNode major = rc.createMajorVersion(ln);
-		assertNull(major);
-		LibraryNode minor = rc.createMinorVersion(ln);
-		assertNull(minor);
-		LibraryNode patch = rc.createPatchVersion(ln);
-		assertNull(patch);
-	}
+	// static final Logger LOGGER = LoggerFactory.getLogger(RepositoryControllerTests.class);
+	//
+	// LibraryNode ln_inChain;
+	// LibraryChainNode lcn;
+	//
+	// @Before
+	// public void beforeEachOfTheseTests() {
+	// ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
+	// ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
+	// lcn = new LibraryChainNode(ln_inChain);
+	// }
+	//
+	// @Test
+	// public void createVersionErrors() throws Exception {
+	// // These creates should create NULL libraries because ln is not in a repository.
+	// DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
+	// LOGGER.debug("Error Dialogs Expected.");
+	// LibraryNode major = rc.createMajorVersion(ln);
+	// assertNull(major);
+	// LibraryNode minor = rc.createMinorVersion(ln);
+	// assertNull(minor);
+	// LibraryNode patch = rc.createPatchVersion(ln);
+	// assertNull(patch);
+	// }
 }

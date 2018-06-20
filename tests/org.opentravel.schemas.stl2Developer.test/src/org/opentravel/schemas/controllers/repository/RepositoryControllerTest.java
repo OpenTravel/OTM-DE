@@ -34,7 +34,7 @@ import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.BaseRepositoryTest;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryItemNode;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
@@ -44,10 +44,10 @@ import org.osgi.framework.Version;
  * @author Pawel Jedruch
  * 
  */
-public abstract class RepositoryControllerTest extends RepositoryIntegrationTestBase {
+public abstract class RepositoryControllerTest extends BaseRepositoryTest {
 
 	protected static boolean SKIP = true; // Skip these tests which can take 10 minutes or more
-	protected MockLibrary ml = new MockLibrary();
+	// protected MockLibrary ml = new MockLibrary();
 
 	/**
 	 * Manage - Library Manage (publish) libraries (with and without errors) in repositories. Assure published library

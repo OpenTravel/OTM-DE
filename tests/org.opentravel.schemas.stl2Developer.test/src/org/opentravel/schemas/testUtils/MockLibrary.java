@@ -560,7 +560,7 @@ public class MockLibrary {
 	}
 
 	public CoreObjectNode addCoreObjectToLibrary(LibraryNode ln, String name) {
-		TypeProvider type = ((TypeProvider) NodeFinders.findNodeByName(XsdSTRING, ModelNode.XSD_NAMESPACE));
+		TypeProvider type = (getXsdString());
 		CoreObjectNode newNode = addCoreObjectToLibrary_Empty(ln, name);
 		new ElementNode(newNode.getFacet_Summary(), "TestElement" + name, type);
 		newNode.setAssignedType((TypeProvider) ModelNode.getEmptyNode());
@@ -577,8 +577,12 @@ public class MockLibrary {
 			name = "SimpleType";
 		SimpleTypeNode sn = new SimpleTypeNode(new TLSimple());
 		sn.setName(name);
-		sn.setAssignedType((TypeProvider) NodeFinders.findNodeByName(XsdINT, ModelNode.XSD_NAMESPACE));
+		sn.setAssignedType(getXsdInt());
 		ln.addMember(sn);
+
+		assert (sn != null);
+		assertTrue("New simple type must be in library.", sn.getLibrary() == ln);
+		assertTrue("New simple type must be assigned type.", sn.getAssignedType() != null);
 		return sn;
 	}
 

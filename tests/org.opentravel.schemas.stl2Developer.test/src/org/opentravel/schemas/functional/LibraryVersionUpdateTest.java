@@ -1,4 +1,3 @@
-package org.opentravel.schemas.controllers.repository;
 
 /**
  * Copyright (C) 2014 OpenTravel Alliance (info@opentravel.org)
@@ -15,7 +14,9 @@ package org.opentravel.schemas.controllers.repository;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.opentravel.schemas.functional;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
@@ -23,11 +24,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Test;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemas.commands.VersionUpdateHandler;
+import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
@@ -44,26 +48,24 @@ import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
+import org.opentravel.schemas.testUtils.BaseRepositoryTest;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
-import org.opentravel.schemas.utils.LibraryNodeBuilder;
-import org.osgi.framework.Version;
+import org.opentravel.schemas.types.whereused.LibraryProviderNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//@Ignore("Tests currently failing and need attention.")
-public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
+public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 	static final Logger LOGGER = LoggerFactory.getLogger(LibraryVersionUpdateTest.class);
 
-	MockLibrary ml = new MockLibrary();
 	private LibraryNode lib1 = null;
 	private LibraryNode lib2 = null;
 	private LibraryChainNode chain1 = null;
 	private LibraryChainNode chain2 = null;
 	private Node xsdString;
 	private ProjectNode uploadProject = null;
-	// from base class - protected static DefaultRepositoryController rc;
 
 	private BusinessObjectNode bo = null;
 	private CoreObjectNode co = null;
@@ -80,7 +82,7 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 	private CoreObjectNode mCo = null;
 	private ExtensionPointNode ePatch = null;
 
-	private LibraryNode versionedLib2;
+	private LibraryNode providerLib;
 
 	@Override
 	public RepositoryNode getRepositoryForTest() {
@@ -98,11 +100,18 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		xsdString = NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 		uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "Test");
 
-		lib1 = LibraryNodeBuilder.create("TestLibrary1", getRepositoryForTest().getNamespace() + "/Test/NS1", "prefix1",
-				new Version(1, 0, 0)).build(uploadProject, pc);
+		lib1 = ml.createNewLibrary_Empty(getRepositoryForTest().getNamespace() + "/Test/NS1", "TestLibrary1",
+				uploadProject);
+		lib2 = ml.createNewLibrary_Empty(getRepositoryForTest().getNamespace() + "/Test/NS2", "TestLibrary2",
+				uploadProject);
 
-		lib2 = LibraryNodeBuilder.create("TestLibrary2", getRepositoryForTest().getNamespace() + "/Test/NS2", "prefix2",
-				new Version(1, 0, 0)).build(uploadProject, pc);
+		// lib1 = LibraryNodeBuilder.create("TestLibrary1", getRepositoryForTest().getNamespace() + "/Test/NS1",
+		// "prefix1",
+		// new Version(1, 0, 0)).build(uploadProject, pc);
+		//
+		// lib2 = LibraryNodeBuilder.create("TestLibrary2", getRepositoryForTest().getNamespace() + "/Test/NS2",
+		// "prefix2",
+		// new Version(1, 0, 0)).build(uploadProject, pc);
 
 		chain1 = rc.manage(getRepositoryForTest(), Collections.singletonList(lib1)).get(0);
 		chain2 = rc.manage(getRepositoryForTest(), Collections.singletonList(lib2)).get(0);
@@ -130,50 +139,141 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		LOGGER.debug("Before tests done.");
 	}
 
-	// Create two libraries where one uses types from the other then version the type provider
-	// FIXME
-	// @Test
-	public void updateVersionTest_AssignedTypes() throws RepositoryException {
+	// Simply make sure the setup works
+	@Test
+	public void VF_versionFunctionTest() throws RepositoryException {
+
+		// Given - a simple type in library 2
+		SimpleTypeNode simpleType = ml.addSimpleTypeToLibrary(lib2, "simpleType");
+
+		// Given - all types in library 1 and all types assigned to simpleType
+		ml.addOneOfEach(lib1, "TypeUser");
+		for (TypeUser user : lib1.getDescendants_TypeUsers())
+			user.setAssignedType(simpleType);
+	}
+
+	@Test
+	public void VF_createVersionErrors() throws Exception {
+		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
+		LibraryNode ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
+		lcn = new LibraryChainNode(ln_inChain);
+
+		// These creates should create NULL libraries because ln is not in a repository.
+		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
+		LOGGER.debug("Error Dialogs Expected.");
+		LibraryNode major = rc.createMajorVersion(ln);
+		assertNull(major);
+		LibraryNode minor = rc.createMinorVersion(ln);
+		assertNull(minor);
+		LibraryNode patch = rc.createPatchVersion(ln);
+		assertNull(patch);
+	}
+
+	@Test
+	public void VF_minorVersionTest() throws RepositoryException {
 		// Given - two managed, locked and editable libraries.
 
 		// Given - a simple type in the provider library to assign
-		versionedLib2 = lib2;
-		SimpleTypeNode simpleType = ml.addSimpleTypeToLibrary(versionedLib2, "simpleType");
+		providerLib = lib2;
+		SimpleTypeNode simpleType = ml.addSimpleTypeToLibrary(providerLib, "simpleType");
 
 		// Given - user library containing the objects that will get updated and assign them to the found type
 		LibraryNode userLib = lib1;
 		ml.addOneOfEach(userLib, "User");
 		for (TypeUser user : userLib.getDescendants_TypeUsers())
-			user.setAssignedType(simpleType);
+			if (user.getRequiredType() == null) {
+				user.setAssignedType(simpleType);
+				LOGGER.debug("Assigned " + simpleType + " to: " + user);
+			}
+
+		verifyAssignments(userLib, simpleType);
 
 		// When - provider lib is Versioned
-		versionedLib2 = rc.createMajorVersion(versionedLib2);
-		// Then
-		assertTrue("Must have major version of provider library.", versionedLib2 != null);
-		assertTrue("Must have type providers", !versionedLib2.getDescendants_TypeProviders().isEmpty());
-		assertTrue("Must be new library.", versionedLib2 != lib2);
-		assertTrue("Major versions must be head of chain.", versionedLib2 == versionedLib2.getChain().getHead());
-		// Then - type users still use the type from the old version
-		assertTrue("Assigned type is NOT in major version.", simpleType.getLibrary() != versionedLib2);
-		for (TypeUser user : userLib.getDescendants_TypeUsers())
-			if (!(user.getAssignedType() instanceof ImpliedNode) && user.getRequiredType() == null)
-				if (user.getAssignedType() != simpleType)
-					LOGGER.debug("AssignedType = " + user.getAssignedType());
-				else
-					assertTrue("Type user must be assigned to simple type.", user.getAssignedType() == simpleType);
+		assertTrue("Library must be promoted to FINAL.", makeFinal(providerLib));
+		providerLib = rc.createMinorVersion(providerLib);
 
-		//
+		// Then - providerLib is correct new version
+		assertTrue("Must have version of provider library.", providerLib != null);
+		assertTrue("Must be new library.", providerLib != lib2);
+		assertTrue("Major versions must be head of chain.", providerLib == providerLib.getChain().getHead());
+		assertTrue("Must NOT have type providers", providerLib.getDescendants_TypeProviders().isEmpty());
+		assertTrue("Must have type providers", !lib2.getDescendants_TypeProviders().isEmpty());
+
+		// Then - type users still use the type from the old version
+		assertTrue("Assigned simple type is NOT in major version.", simpleType.getLibrary() != providerLib);
+		verifyAssignments(userLib, simpleType);
+	}
+
+	// Create two libraries where one uses types from the other then version the type provider
+	// FIXME
+	@Test
+	public void VF_updateVersionTest_AssignedTypes() throws RepositoryException {
+		// Given - two managed, locked and editable libraries.
+
+		// Given - a simple type in the provider library to assign
+		providerLib = lib2;
+		SimpleTypeNode simpleType = ml.addSimpleTypeToLibrary(providerLib, "simpleType");
+
+		// Given - user library containing the objects that will get updated and assign them to the found type
+		LibraryNode userLib = lib1;
+		ml.addOneOfEach(userLib, "User");
+		for (TypeUser user : userLib.getDescendants_TypeUsers())
+			if (user.getRequiredType() == null) {
+				user.setAssignedType(simpleType);
+				LOGGER.debug("Assigned " + simpleType + " to: " + user);
+			}
+
+		verifyAssignments(userLib, simpleType);
+
+		// When - provider lib is Versioned
+		assertTrue("Library must be promoted to FINAL.", makeFinal(providerLib));
+		providerLib = rc.createMajorVersion(providerLib);
+
+		// Then - providerLib is correct new version
+		assertTrue("Must have major version of provider library.", providerLib != null);
+		assertTrue("Must be new library.", providerLib != lib2);
+		assertTrue("Major versions must be head of chain.", providerLib == providerLib.getChain().getHead());
+		assertTrue("Must have type providers", !providerLib.getDescendants_TypeProviders().isEmpty());
+
+		// Then - type users still use the type from the old version
+		assertTrue("Assigned simple type is NOT in major version.", simpleType.getLibrary() != providerLib);
+		verifyAssignments(userLib, simpleType);
+
+		// Then - userLib whereUsed contains original provider lib (lib2)
+		List<LibraryNode> usedLibs = userLib.getAssignedLibraries(false);
+		assertTrue("Must have simple type library in list.", usedLibs.contains(simpleType.getLibrary()));
+
 		// Library level assigned type replacement Business Logic
 		// - setup the map and prepare for the call used by the Version Update Handler.
 		//
+
+		// Must have LibraryProviderNode to do version update
+		// LibraryUsesNode.getChildren() in whereUsedHandler on target library
+		assertTrue(userLib.getWhereUsedHandler() != null);
+		Node usedBy = userLib.getWhereUsedHandler().getUsedByNode();
+		assertTrue(userLib.getWhereUsedHandler().getUsedByNode() != null);
+		assertTrue(userLib.getWhereUsedHandler().getUsedByNode().getChildren() != null);
+		List<Node> providerLibs = userLib.getWhereUsedHandler().getUsedByNode().getChildren();
+
+		List<Node> kids = null;
+		// Must have simpleType in one of the provider libs
+		for (Node p : providerLibs)
+			if (p instanceof LibraryProviderNode)
+				if (((LibraryProviderNode) p).getOwner() == lib2)
+					// assertTrue("Provider libs must include lib2",
+					// ((LibraryProviderNode) p).getChildren().contains(lib2));
+					kids = ((LibraryProviderNode) p).getChildren_New();
+		assert kids != null;
+
+		VersionUpdateHandler handler = new VersionUpdateHandler();
+		assert false;
+
+		// 6/19/2018 - dmh - Replacement map is no longer used.
 		// Given - a replacement map of used libraries and their later versions.
-		// Walk selected library type users and collect all used libraries (type assignments and extensions)
 		// FIXME - changed 3/12/2017 to return head libraries
-		List<LibraryNode> usedLibs = userLib.getAssignedLibraries(false);
-		assertTrue("Must have simple type library in list.", usedLibs.contains(simpleType.getLibrary()));
 		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(usedLibs, true);
 		assertTrue("Replacement map must map simple type lib to major version.",
-				replacementMap.get(simpleType.getLibrary()) == versionedLib2);
+				replacementMap.get(simpleType.getLibrary()) == providerLib);
 
 		// When - call used by Version Update Handler t0 replace type users using the replacement map
 		userLib.replaceTypeUsers(replacementMap);
@@ -182,13 +282,28 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		assertTrue(simpleType.getWhereAssigned().isEmpty());
 		for (TypeUser user : userLib.getDescendants_TypeUsers()) {
 			if (!(user.getAssignedType() instanceof ImpliedNode) && user.getRequiredType() == null) {
-				if (user.getAssignedType().getLibrary() != versionedLib2)
+				if (user.getAssignedType().getLibrary() != providerLib)
 					LOGGER.debug("Error - " + user + " assigned type is in wrong library: "
 							+ ((Node) user.getAssignedType()).getNameWithPrefix());
-				assertTrue("Must be in providerLib.", user.getAssignedType().getLibrary() == versionedLib2);
+				assertTrue("Must be in providerLib.", user.getAssignedType().getLibrary() == providerLib);
 			}
 		}
 		// TODO - test with finalOnly set to true on getVersionUpdateMap()
+	}
+
+	/**
+	 * Verify assignments of type to all type users in library
+	 * 
+	 * @param ln
+	 * @param type
+	 */
+	private void verifyAssignments(LibraryNode ln, TypeProvider type) {
+		for (TypeUser user : ln.getDescendants_TypeUsers())
+			if (user.getRequiredType() == null)
+				if (user.getAssignedType() != type)
+					LOGGER.debug("AssignedType = " + user.getAssignedType());
+				else
+					assertTrue("Type user must be assigned to simple type.", user.getAssignedType() == type);
 	}
 
 	// FIXME

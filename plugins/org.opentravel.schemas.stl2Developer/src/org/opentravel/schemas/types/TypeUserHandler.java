@@ -243,6 +243,8 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		// Let the node handle assigning to the TL object.
 		boolean result = owner.setAssignedTLType(tlTarget);
 
+		// FIXME - make sure failed assignment to element ref is handled for whereAssigned.
+
 		if (result) {
 			// May be in unassigned node's where assigned if the old assignment was not found
 			ModelNode.getUnassignedNode().removeWhereAssigned(owner);
@@ -250,7 +252,8 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 			oldProvider.removeWhereAssigned(owner);
 			// Add where used and type assignment listener
 			target.addTypeUser(owner);
-		}
+		} else
+			LOGGER.debug("Failed to assign " + target + " to " + owner);
 
 		// Confirm results
 		if (get().getTLModelObject() != tlTarget) {

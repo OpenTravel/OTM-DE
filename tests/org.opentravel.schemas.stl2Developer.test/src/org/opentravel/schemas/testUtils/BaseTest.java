@@ -17,10 +17,14 @@ package org.opentravel.schemas.testUtils;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.opentravel.schemacompiler.model.TLModel;
+import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
@@ -29,6 +33,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.stl2Developer.reposvc.RepositoryTestUtils;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.osgi.framework.Version;
@@ -43,15 +48,17 @@ import org.slf4j.LoggerFactory;
 public abstract class BaseTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
 
-	protected static MainController mc;
-	protected static ProjectController pc;
-	protected static ProjectNode defaultProject;
+	// Public global variables make tests more consistent.
+
+	public static MainController mc;
+	public static ProjectController pc;
+	public static ProjectNode defaultProject;
+
+	public final LoadFiles lf = new LoadFiles();
+	public final MockLibrary ml = new MockLibrary();
+	public LibraryNode ln = null;
 
 	private static TLModel tlModel;
-
-	public LoadFiles lf = new LoadFiles();
-	public MockLibrary ml = new MockLibrary();
-	public LibraryNode ln = null;
 
 	// private static List<ProjectNode> projectsToClean = new ArrayList<>();
 	// protected static ArrayList<File> filesToClean = new ArrayList<>();
@@ -59,6 +66,7 @@ public abstract class BaseTest {
 	@BeforeClass
 	public static void beforeTests() throws Exception {
 		LOGGER.debug("Before class tests - base.");
+
 		mc = OtmRegistry.getMainController();
 		pc = mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
@@ -71,14 +79,14 @@ public abstract class BaseTest {
 	}
 
 	@After
-	public void afterEachTest() {
+	public void afterEachTest() throws RepositoryException, IOException {
 		// LOGGER.debug("After Each Test - starting clean up");
 		// clearAll();
 		// LOGGER.debug("After Each Test Complete");
 	}
 
 	@Before
-	public void beforeEachTest() {
+	public void beforeEachTest() throws RepositoryException {
 		LOGGER.debug("Before Each Test - starting clean up");
 		clearAll();
 		LOGGER.debug("Before Each Test Complete");
@@ -114,4 +122,14 @@ public abstract class BaseTest {
 		return local1;
 	}
 
+	/**
+	 * Utility for sub-classes to get temporary directory in users file space
+	 */
+	public static File getTempDir() {
+		// OtmRegistry.registerRepositoryView(Mockito.mock(RepositoryView.class));
+		File tmpWorkspace = new File(System.getProperty("user.dir"), "/target/test-workspace/");
+		RepositoryTestUtils.deleteContents(tmpWorkspace);
+		tmpWorkspace.deleteOnExit();
+		return tmpWorkspace;
+	}
 }

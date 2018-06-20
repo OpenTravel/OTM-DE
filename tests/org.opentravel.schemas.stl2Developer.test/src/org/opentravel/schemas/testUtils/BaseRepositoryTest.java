@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.controllers.repository;
+package org.opentravel.schemas.testUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,11 +24,10 @@ import java.util.List;
 import org.eclipse.core.runtime.FileLocator;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.mockito.Mockito;
 import org.opentravel.schemacompiler.index.FreeTextSearchService;
 import org.opentravel.schemacompiler.index.FreeTextSearchServiceFactory;
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.repository.Project;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RemoteRepository;
@@ -38,65 +37,87 @@ import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.controllers.ProjectController;
+import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2Developer.reposvc.JettyTestServer;
 import org.opentravel.schemas.stl2Developer.reposvc.RepositoryTestUtils;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryItemNode;
-import org.opentravel.schemas.utils.BaseProjectTest;
-import org.opentravel.schemas.views.RepositoryView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base class that defines common methods used during live repository testing.
+ * <p>
+ * This base class must be used when tests save, open and manage libraries in repositories.
+ * <p>
+ * This compute intensive base class creates a local repository in the file system, starts the Jetty server and cleans
+ * up on completion.
  * 
- * @author Pawel Jedruch
+ * @author Dave Hollander / Pawel Jedruch
  */
-public abstract class RepositoryIntegrationTestBase {
+// The @BeforeClass methods of superclasses will be run before those of the current class,
+// unless they are shadowed in the current class.
+public abstract class BaseRepositoryTest extends BaseTest {
+	private static final Logger LOGGER = LoggerFactory.getLogger(BaseRepositoryTest.class);
 
 	protected static RepositoryManager repositoryManager;
 	protected static RemoteRepository remoteRepository;
 	protected static JettyTestServer jettyServer;
 	protected static File tmpWorkspace;
+	private static List<ProjectNode> projectsToClean = new ArrayList<>();
 
-	protected static DefaultRepositoryController rc;
-	protected static MainController mc;
-	protected static ProjectController pc;
-	protected static ProjectNode defaultProject;
-	private static List<ProjectNode> projectsToClean = new ArrayList<ProjectNode>();
+	// Public global variables to make tests more consistent.
+	public static DefaultRepositoryController rc;
+	public RepositoryNode localRepo = null;
+	public ProjectNode project = null;
+	public LibraryChainNode lcn = null;
 
 	public abstract RepositoryNode getRepositoryForTest();
 
 	@BeforeClass
 	public final static void beforeTests() throws Exception {
-		OtmRegistry.registerRepositoryView(Mockito.mock(RepositoryView.class));
-		tmpWorkspace = new File(System.getProperty("user.dir"), "/target/test-workspace/");
-		RepositoryTestUtils.deleteContents(tmpWorkspace);
-		tmpWorkspace.deleteOnExit();
-		startEmptyServer();
+		// This method shadows the base class to allow the server to be started.
+		LOGGER.debug("Before class tests - base repository test.");
+
+		tmpWorkspace = BaseTest.getTempDir();
+		LOGGER.debug("Workspace created in: " + tmpWorkspace.getPath());
+
+		// OtmRegistry.registerRepositoryView(Mockito.mock(RepositoryView.class));
+		// tmpWorkspace = new File(System.getProperty("user.dir"), "/target/test-workspace/");
+		// RepositoryTestUtils.deleteContents(tmpWorkspace);
+		// tmpWorkspace.deleteOnExit();
+
+		repositoryManager = startEmptyServer(); // must be done before MC accessed
+
+		// Use new repository manager to create main controller
 		mc = new MainController(repositoryManager);
 		rc = (DefaultRepositoryController) mc.getRepositoryController();
 		pc = mc.getProjectController();
+		assert OtmRegistry.getMainController() == mc;
+		assert pc.getBuiltInProject() != null;
+		assert rc != null;
+		assert NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE) != null;
+
 		readdRemoteRepository();
-
+		LOGGER.debug("Before class complete - base repository test.");
 	}
 
-	@Before
-	public void beforeEachTest() throws RepositoryException {
-		defaultProject = createProject("Otm-Test-DefaultProject", rc.getLocalRepository(), "IT");
-	}
+	// @Override
+	// @Before
+	// public void beforeEachTest() throws RepositoryException {
+	// LOGGER.debug("Before class tests - base repository test.");
+	// defaultProject = createProject("Otm-Test-DefaultProject", rc.getLocalRepository(), "IT");
+	// }
 
-	/**
-	 * {@link BaseProjectTest#afterEachTest()}
-	 * 
-	 * @throws RepositoryException
-	 * @throws IOException
-	 */
+	// Different name to avoid shadowing the base class
 	@After
-	public void afterEachTest() throws RepositoryException, IOException {
+	public void afterEachRepositoryTest() throws RepositoryException, IOException {
 		pc.closeAll();
 		for (ProjectNode pn : projectsToClean) {
 			RepositoryTestUtils.deleteContents(pn.getTLProject().getProjectFile().getParentFile());
@@ -142,7 +163,7 @@ public abstract class RepositoryIntegrationTestBase {
 	}
 
 	private List<RepositoryItemNode> getItems(Node parent) {
-		List<RepositoryItemNode> nodes = new ArrayList<RepositoryItemNode>();
+		List<RepositoryItemNode> nodes = new ArrayList<>();
 		if (parent instanceof RepositoryItemNode) {
 			return Collections.singletonList((RepositoryItemNode) parent);
 		} else {
@@ -177,20 +198,25 @@ public abstract class RepositoryIntegrationTestBase {
 		repositoryManager.setCredentials(remoteRepository, "testuser", "password");
 	}
 
-	protected static void startEmptyServer() throws Exception {
+	/**
+	 * Create repositoryManager for local repository and start jetty server.
+	 * 
+	 * @throws Exception
+	 */
+	protected static RepositoryManager startEmptyServer() throws Exception {
 		System.setProperty("ota2.repository.realTimeIndexing", "true");
-		File emptySnapshot = new File(FileLocator.resolve(
-				RepositoryIntegrationTestBase.class.getResource("/Resources/repo-snapshots/empty-repository")).toURI());
-		File ota2config = new File(FileLocator.resolve(
-				RepositoryIntegrationTestBase.class.getResource("/Resources/repo-snapshots/ota2.xml")).toURI());
+		File emptySnapshot = new File(FileLocator
+				.resolve(BaseRepositoryTest.class.getResource("/Resources/repo-snapshots/empty-repository")).toURI());
+		File ota2config = new File(FileLocator
+				.resolve(BaseRepositoryTest.class.getResource("/Resources/repo-snapshots/ota2.xml")).toURI());
 		File tmpRepository = createFolder(tmpWorkspace, "ota-test-repository");
 		File localRepository = createFolder(tmpWorkspace, "local-repository");
-		repositoryManager = new RepositoryManager(localRepository);
+		RepositoryManager repoMgr = new RepositoryManager(localRepository);
 
 		int port = getIntProperty("org.opentravel.schemas.test.repository.port", 19191);
 		jettyServer = new JettyTestServer(port, emptySnapshot, tmpRepository, ota2config);
 		jettyServer.start();
-
+		return repoMgr;
 	}
 
 	private static int getIntProperty(String key, int def) {
@@ -269,6 +295,25 @@ public abstract class RepositoryIntegrationTestBase {
 			System.err.println("Error making directory " + parent + " " + folder + " " + e.getLocalizedMessage());
 		}
 		return file;
+	}
+
+	/**
+	 * Make the library finalized.
+	 * 
+	 * @param ln
+	 * @return true if the resulting library status is FINAL
+	 */
+	public boolean makeFinal(LibraryNode ln) {
+		boolean result = false;
+		ml.check(ln, true); // must be valid to promote
+
+		if (ln.getStatus().equals(TLLibraryStatus.DRAFT))
+			result = rc.promote(ln, TLLibraryStatus.UNDER_REVIEW);
+
+		if (ln.getStatus().equals(TLLibraryStatus.UNDER_REVIEW))
+			result = rc.promote(ln, TLLibraryStatus.FINAL);
+
+		return ln.getStatus().equals(TLLibraryStatus.FINAL);
 	}
 
 }
