@@ -44,7 +44,7 @@ public class ResourceDependencyListener extends BaseNodeListener implements INod
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-		LOGGER.debug("Value change event: " + event.getType());
+		// LOGGER.debug("Value change event: " + event.getType());
 		super.processValueChangeEvent(event);
 
 		switch (event.getType()) {

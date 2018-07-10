@@ -92,7 +92,7 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 
 	@Override
 	public void delete() {
-		LOGGER.debug("Deleting parameter: " + this);
+		// LOGGER.debug("Deleting parameter: " + this);
 		parent.getChildren().remove(this); // must be done first to force the correct path template
 		if (tlObj.getOwner() != null)
 			tlObj.getOwner().removeParameter(tlObj);

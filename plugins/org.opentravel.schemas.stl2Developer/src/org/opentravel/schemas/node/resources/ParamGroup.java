@@ -86,8 +86,8 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		// Check children
 		int tlKids = tlParamgroup.getParameters().size();
 		int kids = getChildren().size();
-		if (tlKids != kids)
-			LOGGER.warn("Missing parameters in " + this);
+		// if (tlKids != kids)
+		// LOGGER.warn("Missing parameters in " + this);
 		// assert tlKids == kids;
 	}
 
@@ -302,8 +302,8 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 				Node f = this.getNode(((TLModelElement) field).getListeners());
 				if (f != null)
 					fields.add(f);
-				else
-					LOGGER.debug("Error: null node from field: " + field.getName());
+				// else
+				// LOGGER.debug("Error: null node from field: " + field.getName());
 			}
 		return fields;
 	}
@@ -373,7 +373,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	}
 
 	public void clearParameters() {
-		LOGGER.debug("Clearing parameters from " + getName());
+		// LOGGER.debug("Clearing parameters from " + getName());
 		List<Node> params = new ArrayList<>(getChildren());
 		for (Node p : params)
 			p.delete();

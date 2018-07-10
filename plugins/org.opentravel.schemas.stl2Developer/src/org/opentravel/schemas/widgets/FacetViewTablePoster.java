@@ -99,7 +99,7 @@ public class FacetViewTablePoster {
 
 		@SuppressWarnings("unchecked")
 		// List<Node> sortedChildren = (List<Node>) curNode.getChildrenHandler().get();
-		List<Node> sortedChildren = new ArrayList<Node>(curNode.getChildren());
+		List<Node> sortedChildren = new ArrayList<>(curNode.getChildren());
 		sortedChildren = sort(sortedChildren);
 
 		// if (curNode instanceof ServiceNode) {
@@ -126,8 +126,8 @@ public class FacetViewTablePoster {
 				if (curNode instanceof BusinessObjectNode || curNode instanceof ChoiceObjectNode)
 					// These objects can have inherited facets.
 					if (showInherited(curNode) && curNode.getInheritedChildren() != null) {
-						sortedChildren.addAll(curNode.getInheritedChildren());
-						sortedChildren = sort(sortedChildren);
+					sortedChildren.addAll(curNode.getInheritedChildren());
+					sortedChildren = sort(sortedChildren);
 					}
 				for (final Node child : sortedChildren)
 					if (child instanceof FacetInterface)
@@ -142,7 +142,7 @@ public class FacetViewTablePoster {
 	}
 
 	private List<Node> sort(List<Node> children) {
-		ArrayList<Node> sorted = new ArrayList<Node>(children);
+		ArrayList<Node> sorted = new ArrayList<>(children);
 		Collections.sort(sorted, LibrarySorter.createComparator());
 		return sorted;
 	}
@@ -185,7 +185,7 @@ public class FacetViewTablePoster {
 			}
 
 			// Sort the table rows
-			List<Node> inherited = (List<Node>) n.getChildrenHandler().getInheritedChildren();
+			// List<Node> inherited = (List<Node>) n.getChildrenHandler().getInheritedChildren();
 			List<Node> children = n.getChildren_New();
 			if (showInherited(n))
 				children.addAll(n.getInheritedChildren());

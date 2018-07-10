@@ -119,8 +119,8 @@ public abstract class TypeProviders extends ComponentNode implements TypeProvide
 	@Override
 	public void deleteTL() {
 		if (getTLModelObject() instanceof LibraryMember)
-			((LibraryMember) getTLModelObject()).getOwningLibrary().removeNamedMember(
-					(LibraryMember) getTLModelObject());
+			((LibraryMember) getTLModelObject()).getOwningLibrary()
+					.removeNamedMember((LibraryMember) getTLModelObject());
 		else
 			LOGGER.debug("Unable to delete tl model object for: " + this);
 	}
@@ -138,7 +138,7 @@ public abstract class TypeProviders extends ComponentNode implements TypeProvide
 		if (!(this instanceof ContextualFacetOwnerInterface))
 			return Collections.emptyList();
 
-		ArrayList<AbstractContextualFacet> facets = new ArrayList<AbstractContextualFacet>();
+		ArrayList<AbstractContextualFacet> facets = new ArrayList<>();
 		for (Node n : getChildrenHandler().get())
 			if (n instanceof ContributedFacetNode)
 				facets.add(((ContributedFacetNode) n).getContributor());
@@ -168,7 +168,7 @@ public abstract class TypeProviders extends ComponentNode implements TypeProvide
 		if (!(this instanceof ContextualFacetOwnerInterface))
 			return Collections.emptyList();
 
-		ArrayList<ContributedFacetNode> facets = new ArrayList<ContributedFacetNode>();
+		ArrayList<ContributedFacetNode> facets = new ArrayList<>();
 		for (Node n : getChildrenHandler().get())
 			if (n instanceof ContributedFacetNode)
 				facets.add((ContributedFacetNode) n);
@@ -295,7 +295,7 @@ public abstract class TypeProviders extends ComponentNode implements TypeProvide
 
 	@Override
 	public void removeAll() {
-		Collection<TypeUser> users = new ArrayList<TypeUser>(getWhereAssigned());
+		Collection<TypeUser> users = new ArrayList<>(getWhereAssigned());
 		for (TypeUser user : users) {
 			removeWhereAssigned(user);
 			user.setAssignedType();
@@ -321,7 +321,8 @@ public abstract class TypeProviders extends ComponentNode implements TypeProvide
 	 * assignable descendant of sourceNode, find where the corresponding sourceNode children are used and change them as
 	 * well. See {@link #replaceWith(Node)}.
 	 * 
-	 * @param this - replace assignments to this node (sourceNode)
+	 * @param this
+	 *            - replace assignments to this node (sourceNode)
 	 * @param replacement
 	 *            - use replacement TypeProvider node to be assigned
 	 * @param scope
@@ -374,10 +375,11 @@ public abstract class TypeProviders extends ComponentNode implements TypeProvide
 		}
 
 		for (Node child : getChildren()) {
-			if (child instanceof ContributedFacetNode)
+			if (child instanceof ContributedFacetNode) {
 				child = ((ContributedFacetNode) child).getContributor();
-			for (TypeUser users : ((TypeProvider) child).getWhereAssigned())
-				((Node) users).visitAllNodes(new NodeVisitors().new FixNames());
+				for (TypeUser users : ((TypeProvider) child).getWhereAssigned())
+					((Node) users).visitAllNodes(new NodeVisitors().new FixNames());
+			}
 		}
 	}
 

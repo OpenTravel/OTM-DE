@@ -20,7 +20,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Before;
@@ -29,8 +28,6 @@ import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
-import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemas.commands.VersionUpdateHandler;
 import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
@@ -49,11 +46,11 @@ import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.testUtils.BaseRepositoryTest;
-import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.whereused.LibraryProviderNode;
+import org.opentravel.schemas.types.whereused.LibraryUsersToUpdateHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -235,6 +232,14 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 		assertTrue("Major versions must be head of chain.", providerLib == providerLib.getChain().getHead());
 		assertTrue("Must have type providers", !providerLib.getDescendants_TypeProviders().isEmpty());
 
+		TypeProvider simpleTypeV2 = (TypeProvider) providerLib.findLibraryMemberByName(simpleType.getName());
+		assertTrue("New version must have simple type with same name.", simpleTypeV2 != null);
+
+		// Then - the original library must still be in model
+		assertTrue(lib2 != null);
+		ml.check(lib2);
+		assertTrue(lib2.getTLModelObject().getOwningModel() != null);
+
 		// Then - type users still use the type from the old version
 		assertTrue("Assigned simple type is NOT in major version.", simpleType.getLibrary() != providerLib);
 		verifyAssignments(userLib, simpleType);
@@ -243,52 +248,48 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 		List<LibraryNode> usedLibs = userLib.getAssignedLibraries(false);
 		assertTrue("Must have simple type library in list.", usedLibs.contains(simpleType.getLibrary()));
 
-		// Library level assigned type replacement Business Logic
-		// - setup the map and prepare for the call used by the Version Update Handler.
+		// Library level assigned type replacement Business Logic in the Version Update Handler.
 		//
 
+		// Given - a provider node for lib2 which would be display as child of "Uses" for user library
 		// Must have LibraryProviderNode to do version update
-		// LibraryUsesNode.getChildren() in whereUsedHandler on target library
-		assertTrue(userLib.getWhereUsedHandler() != null);
-		Node usedBy = userLib.getWhereUsedHandler().getUsedByNode();
-		assertTrue(userLib.getWhereUsedHandler().getUsedByNode() != null);
-		assertTrue(userLib.getWhereUsedHandler().getUsedByNode().getChildren() != null);
-		List<Node> providerLibs = userLib.getWhereUsedHandler().getUsedByNode().getChildren();
+		LibraryProviderNode thisLPN = userLib.getLibraryProviderNode(lib2);
+		assert thisLPN != null;
 
-		List<Node> kids = null;
-		// Must have simpleType in one of the provider libs
-		for (Node p : providerLibs)
-			if (p instanceof LibraryProviderNode)
-				if (((LibraryProviderNode) p).getOwner() == lib2)
-					// assertTrue("Provider libs must include lib2",
-					// ((LibraryProviderNode) p).getChildren().contains(lib2));
-					kids = ((LibraryProviderNode) p).getChildren_New();
-		assert kids != null;
+		// Given - the update helper used by VersionUpdateHandler to do version updates
+		LibraryUsersToUpdateHelper helper = new LibraryUsersToUpdateHelper(thisLPN);
+		assert !helper.isEmpty();
 
-		VersionUpdateHandler handler = new VersionUpdateHandler();
-		assert false;
+		// When - the helper replaces current type assignments with those from new major version
+		helper.replace(providerLib);
 
-		// 6/19/2018 - dmh - Replacement map is no longer used.
-		// Given - a replacement map of used libraries and their later versions.
-		// FIXME - changed 3/12/2017 to return head libraries
-		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(usedLibs, true);
-		assertTrue("Replacement map must map simple type lib to major version.",
-				replacementMap.get(simpleType.getLibrary()) == providerLib);
+		// Then - types must be updated
+		verifyAssignments(userLib, simpleTypeV2);
 
-		// When - call used by Version Update Handler t0 replace type users using the replacement map
-		userLib.replaceTypeUsers(replacementMap);
-
-		// Then
-		assertTrue(simpleType.getWhereAssigned().isEmpty());
-		for (TypeUser user : userLib.getDescendants_TypeUsers()) {
-			if (!(user.getAssignedType() instanceof ImpliedNode) && user.getRequiredType() == null) {
-				if (user.getAssignedType().getLibrary() != providerLib)
-					LOGGER.debug("Error - " + user + " assigned type is in wrong library: "
-							+ ((Node) user.getAssignedType()).getNameWithPrefix());
-				assertTrue("Must be in providerLib.", user.getAssignedType().getLibrary() == providerLib);
-			}
-		}
-		// TODO - test with finalOnly set to true on getVersionUpdateMap()
+		// VersionUpdateHandler handler = new VersionUpdateHandler();
+		// assert false;
+		//
+		// // 6/19/2018 - dmh - Replacement map is no longer used.
+		// // Given - a replacement map of used libraries and their later versions.
+		// // FIXME - changed 3/12/2017 to return head libraries
+		// HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(usedLibs, true);
+		// assertTrue("Replacement map must map simple type lib to major version.",
+		// replacementMap.get(simpleType.getLibrary()) == providerLib);
+		//
+		// // When - call used by Version Update Handler t0 replace type users using the replacement map
+		// userLib.replaceTypeUsers(replacementMap);
+		//
+		// // Then
+		// assertTrue(simpleType.getWhereAssigned().isEmpty());
+		// for (TypeUser user : userLib.getDescendants_TypeUsers()) {
+		// if (!(user.getAssignedType() instanceof ImpliedNode) && user.getRequiredType() == null) {
+		// if (user.getAssignedType().getLibrary() != providerLib)
+		// LOGGER.debug("Error - " + user + " assigned type is in wrong library: "
+		// + ((Node) user.getAssignedType()).getNameWithPrefix());
+		// assertTrue("Must be in providerLib.", user.getAssignedType().getLibrary() == providerLib);
+		// }
+		// }
+		// // TODO - test with finalOnly set to true on getVersionUpdateMap()
 	}
 
 	/**
@@ -307,8 +308,21 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 	}
 
 	// FIXME
-	// @Test
+	@Test
+	public void updateVersionTest_ContextualFacets() throws RepositoryException {
+		assert false;
+	}
+
+	// FIXME
+	@Test
+	public void updateVersionTest_Resources() throws RepositoryException {
+		assert false;
+	}
+
+	// FIXME
+	@Test
 	public void updateVersionTest_BaseTypes() throws RepositoryException {
+
 		// Create two libraries where one extends types from the other then version the type provider
 
 		// Create Extension Owners in the provider library
@@ -346,19 +360,16 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 		assertTrue("baseLib must NOT have an assigned library.", baseLib.getAssignedLibraries(false).isEmpty());
 
 		// Given - both libraries are valid.
-		ValidationFindings findings1 = lib1.validate();
-		ValidationFindings findings2 = baseLib.validate();
-		MockLibrary.printFindings(findings1);
-		MockLibrary.printFindings(findings2);
-		assertTrue("Library must be valid.", lib1.validate().isEmpty());
-		assertTrue("Library must be valid.", baseLib.validate().isEmpty());
+		ml.check(baseLib);
+		ml.check(lib1);
 
 		AbstractLibrary tlLib = baseLib.getTLLibrary();
 
 		// When - create major version of library baseLib containing the base types
 		LibraryNode versionedbaseLib = rc.createMajorVersion(baseLib);
-		// After major version, the baseLib is no longer in the tlModel or LibraryModelManager
-		uploadProject.addToTL(tlLib);
+		// 6/20/2018 - no longer true
+		// // After major version, the baseLib is no longer in the tlModel or LibraryModelManager
+		// uploadProject.addToTL(tlLib);
 
 		// Then -
 		assertTrue("Must have major version of library 2.", versionedbaseLib != null);
@@ -370,23 +381,42 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 		Node newBase = boExtension.getExtensionBase();
 		assertTrue("BoExtension must still extend boType.", boExtension.getExtensionBase() == boType);
 
-		// When -
-		// Business Logic - setup the map and prepare for the call used by the Version Update Handler.
+		// Library level assigned type replacement Business Logic in the Version Update Handler.
 		//
-		// Create replacement map
-		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(lib1.getAssignedLibraries(false),
-				true);
-		// TODO - test with finalOnly set to true on getVersionUpdateMap()
 
+		// Given - a provider node for lib2 which would be display as child of "Uses" for user library
+		// Must have LibraryProviderNode to do version update
+		LibraryProviderNode thisLPN = baseLib.getLibraryProviderNode(lib2);
+		assert thisLPN != null;
+
+		// Given - the update helper used by VersionUpdateHandler to do version updates
+		LibraryUsersToUpdateHelper helper = new LibraryUsersToUpdateHelper(thisLPN);
+		assert !helper.isEmpty();
+
+		// When - the helper replaces current type assignments with those from new major version
+		helper.replace(providerLib);
+
+		// Then - types must be updated
+
+		assert false;
+
+		// // When -
+		// // Business Logic - setup the map and prepare for the call used by the Version Update Handler.
+		// //
+		// // Create replacement map
+		// HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(lib1.getAssignedLibraries(false),
+		// true);
+		// // TODO - test with finalOnly set to true on getVersionUpdateMap()
 		//
-		// FIXME - replace call with how version update handler does it now,
-		// then remove replaceAllUsers();
-		// Use calls used by Version Update Handler to replace type users using the replacement map
-		lib1.replaceAllUsers(replacementMap);
-
-		// Then - Make sure it worked
-		Node newBase2 = boExtension.getExtensionBase();
-		assertTrue("BoExtension must extend boType.", boExtension.getExtensionBase() == boType);
+		// //
+		// // FIXME - replace call with how version update handler does it now,
+		// // then remove replaceAllUsers();
+		// // Use calls used by Version Update Handler to replace type users using the replacement map
+		// lib1.replaceAllUsers(replacementMap);
+		//
+		// // Then - Make sure it worked
+		// Node newBase2 = boExtension.getExtensionBase();
+		// assertTrue("BoExtension must extend boType.", boExtension.getExtensionBase() == boType);
 
 		for (ExtensionOwner owner : lib1.getDescendants_ExtensionOwners()) {
 			Node base = owner.getExtensionBase();

@@ -263,9 +263,9 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	public boolean setParamGroup(String groupName) {
 		if (groupName == null || groupName.equals(ResourceField.NONE)) {
 			tlObj.setParamGroup(null);
-			LOGGER.debug("Set parameter group to null. " + groupName);
+			// LOGGER.debug("Set parameter group to null. " + groupName);
 		} else if (tlObj.getParamGroupName() != null && tlObj.getParamGroupName().equals(groupName)) {
-			LOGGER.debug("No change because names are the same. " + groupName);
+			// LOGGER.debug("No change because names are the same. " + groupName);
 			return false;
 		} else
 			// find the param group with this name then set it

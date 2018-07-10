@@ -118,7 +118,7 @@ public class DefaultProjectController implements ProjectController {
 				location = file.getCanonicalPath();
 			} catch (IOException e) {
 				LOGGER.error("Could not create project token due to bad path.");
-				// e.printStackTrace();
+				e.printStackTrace();
 			}
 		}
 
@@ -378,7 +378,7 @@ public class DefaultProjectController implements ProjectController {
 			for (ProjectItem item : pn.getTLProject().getProjectItems())
 				pn.getTLProject().remove(item);
 		} else {
-			LOGGER.debug("Closing project " + pn);
+			// LOGGER.debug("Closing project " + pn);
 			result = save(pn); // Try to save the project file
 			if (result) // If successful, try to close the TL Project
 				result = closeTL(pn.getTLProject().getProjectManager(), pn.getTLProject());
@@ -453,7 +453,7 @@ public class DefaultProjectController implements ProjectController {
 		while (tryCount < maxTries) {
 			try {
 				pm.closeProject(tlProject);
-				LOGGER.debug("Closed project " + tlProject.getName() + " on the " + tryCount + " try.");
+				// LOGGER.debug("Closed project " + tlProject.getName() + " on the " + tryCount + " try.");
 				return true;
 			} catch (ConcurrentModificationException e) {
 				LOGGER.error("ConcurrentModification error closing project - trying again " + tryCount);

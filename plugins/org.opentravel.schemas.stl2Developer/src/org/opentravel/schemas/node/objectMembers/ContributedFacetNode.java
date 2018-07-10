@@ -210,7 +210,7 @@ public class ContributedFacetNode extends FacadeBase implements FacetInterface {
 	 */
 	@Override
 	public String getNavigatorName() {
-		return getContributor().getNavigatorName();
+		return getContributor() != null ? getContributor().getNavigatorName() : "";
 	}
 
 	@Override

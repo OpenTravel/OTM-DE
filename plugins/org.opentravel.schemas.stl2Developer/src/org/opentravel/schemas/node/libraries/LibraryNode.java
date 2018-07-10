@@ -88,6 +88,7 @@ import org.opentravel.schemas.types.TypeProviderAndOwners;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.WhereUsedLibraryHandler;
+import org.opentravel.schemas.types.whereused.LibraryProviderNode;
 import org.opentravel.schemas.types.whereused.LibraryUsesNode;
 import org.opentravel.schemas.types.whereused.TypeUserNode;
 import org.slf4j.Logger;
@@ -1286,6 +1287,27 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 */
 	public ProjectItem getProjectItem() {
 		return projectItem;
+	}
+
+	/**
+	 * Get the library provider node that identifies types in this library that use types from the passed library.
+	 * 
+	 * @param ln
+	 *            library providing types to this library
+	 * @return library providing types or null if not found
+	 */
+	public LibraryProviderNode getLibraryProviderNode(LibraryNode ln) {
+		LibraryProviderNode thisLPN = null;
+		if (getWhereUsedHandler() == null || getWhereUsedHandler().getUsedByNode() == null
+				|| getWhereUsedHandler().getUsedByNode().getChildren() == null)
+			return null;
+
+		for (Node p : getWhereUsedHandler().getUsedByNode().getChildren())
+			if (p instanceof LibraryProviderNode)
+				if (((LibraryProviderNode) p).getOwner() == ln) {
+					thisLPN = (LibraryProviderNode) p;
+				}
+		return thisLPN;
 	}
 
 	/**

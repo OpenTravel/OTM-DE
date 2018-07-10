@@ -74,5 +74,10 @@ public class LibraryUsersToUpdateHelper {
 		replacement.replaceAllUsers(getUsersToUpdate());
 		replacement.replaceAllExtensions(getExtensionsToUpdate());
 		replacement.replaceAllContributors(getFacetsToUpdate());
+
+		// These are no longer correct so clear them.
+		getUsersToUpdate().clear();
+		getExtensionsToUpdate().clear();
+		getFacetsToUpdate().clear();
 	}
 }

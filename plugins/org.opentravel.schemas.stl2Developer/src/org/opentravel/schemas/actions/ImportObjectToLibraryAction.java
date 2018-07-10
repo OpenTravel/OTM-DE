@@ -97,7 +97,7 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 			return;
 		}
 
-		LOGGER.info("Importing " + sourceNodes.size() + " selected nodes to library " + destination);
+		// LOGGER.info("Importing " + sourceNodes.size() + " selected nodes to library " + destination);
 
 		// If a library is selected, get its named-type children and filter the other removing those
 		// in the destination library.
@@ -160,7 +160,7 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 			return;
 		}
 
-		LOGGER.info("Importing " + eligibleForImporting.size() + " eligible nodes to library.");
+		// LOGGER.info("Importing " + eligibleForImporting.size() + " eligible nodes to library.");
 		mc.postStatus("Ready to import " + eligibleForImporting.size() + " components.");
 
 		// TODO - where are already existing objects removed from list?
@@ -241,7 +241,7 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 	 * @param newNode
 	 */
 	public GlobalDialogResult askGlobalLocalNone(final List<Node> sourceNodes, final LibraryNode destLib) {
-		LOGGER.debug("Asking about global/local/none change of type assignments.");
+		// LOGGER.debug("Asking about global/local/none change of type assignments.");
 
 		// Now, ask the question.
 		//
