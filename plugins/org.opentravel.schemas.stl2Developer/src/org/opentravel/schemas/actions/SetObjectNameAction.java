@@ -47,11 +47,6 @@ public class SetObjectNameAction extends OtmAbstractAction {
 		super(mainWindow, props);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.Action#runWithEvent(org.eclipse.swt.widgets.Event)
-	 */
 	@Override
 	public void runWithEvent(Event event) {
 		String newName = "";
@@ -64,7 +59,6 @@ public class SetObjectNameAction extends OtmAbstractAction {
 
 		if (n != null && !newName.isEmpty()) {
 			n.setName(newName); // setName will assure they are correct
-			// NodeNameUtils.fixName(n);
 			getMainController().refresh();
 			// LOGGER.debug("Changed name to " + n);
 		}

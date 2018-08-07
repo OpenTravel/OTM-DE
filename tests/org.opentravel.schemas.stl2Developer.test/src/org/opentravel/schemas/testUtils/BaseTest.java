@@ -58,7 +58,8 @@ public abstract class BaseTest {
 	public final MockLibrary ml = new MockLibrary();
 	public LibraryNode ln = null;
 
-	private static TLModel tlModel;
+	// private static TLModel tlModel;
+	private static int projectCounter = 1;
 
 	// private static List<ProjectNode> projectsToClean = new ArrayList<>();
 	// protected static ArrayList<File> filesToClean = new ArrayList<>();
@@ -75,7 +76,7 @@ public abstract class BaseTest {
 		assert NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE) != null;
 		assert pc.getBuiltInProject() != null;
 
-		tlModel = new TLModel();
+		new TLModel();
 	}
 
 	@After
@@ -123,11 +124,32 @@ public abstract class BaseTest {
 	}
 
 	/**
-	 * Utility for sub-classes to get temporary directory in users file space
+	 * Create a new project in a temporary directory that will be deleted on completion.
+	 * 
+	 * @return
+	 */
+	public ProjectNode createProject() {
+		File file = getTempDir();
+		String ID = "TP-" + projectCounter;
+		String name = ID;
+		String description = "Test Project: " + ID;
+
+		ProjectNode pn = pc.create(file, ID, name, description);
+
+		assert pn != null;
+		return pn;
+	}
+
+	/**
+	 * Utility for sub-classes to get temporary directory in users file space. Directory will be deleted when virtual
+	 * machine terminates.
 	 */
 	public static File getTempDir() {
 		// OtmRegistry.registerRepositoryView(Mockito.mock(RepositoryView.class));
-		File tmpWorkspace = new File(System.getProperty("user.dir"), "/target/test-workspace/");
+		String parentDir = System.getProperty("user.dir");
+		String dirName = "/target/test-workspace/" + projectCounter++ + "/";
+		File tmpWorkspace = new File(parentDir, dirName);
+		LOGGER.debug("Created temporary directory " + dirName + "in " + parentDir);
 		RepositoryTestUtils.deleteContents(tmpWorkspace);
 		tmpWorkspace.deleteOnExit();
 		return tmpWorkspace;

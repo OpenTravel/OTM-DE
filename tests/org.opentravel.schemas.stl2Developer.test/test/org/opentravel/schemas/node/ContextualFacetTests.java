@@ -339,7 +339,7 @@ public class ContextualFacetTests {
 		// TL Structure
 		assertTrue(cf.getTLModelObject() instanceof TLContextualFacet);
 		if (cf.getWhereContributed() != null) {
-			assertTrue(cf.getTLModelObject().getOwningEntity() != null);
+			assertTrue("Contexutal facet must have TL owning entity.", cf.getTLModelObject().getOwningEntity() != null);
 			assertTrue(
 					cf.getWhereContributed().getParent().getTLModelObject() == cf.getTLModelObject().getOwningEntity());
 		} else {

@@ -76,14 +76,6 @@ public class NavNode extends Node implements FacadeInterface, TypeProviderAndOwn
 		return (NavNodeChildrenHandler) childrenHandler;
 	}
 
-	// @Override
-	// @Deprecated
-	// public void linkLibrary(LibraryNode lib) {
-	// // FIXME
-	// if (lib != null && !getChildren().contains(lib))
-	// getChildren().add(lib);
-	// }
-
 	@Override
 	public String getDecoration() {
 		return "  (" + getChildren().size() + " Objects)";
@@ -103,11 +95,6 @@ public class NavNode extends Node implements FacadeInterface, TypeProviderAndOwn
 	public LibraryNode getLibrary() {
 		return parent != null ? parent.getLibrary() : null;
 	}
-
-	// @Override
-	// public boolean isLibraryContainer() {
-	// return false;
-	// }
 
 	public boolean isComplexRoot() {
 		return this == getLibrary().getComplexRoot() ? true : false;
@@ -166,11 +153,6 @@ public class NavNode extends Node implements FacadeInterface, TypeProviderAndOwn
 		}
 		return members;
 	}
-
-	// @Override
-	// public boolean hasChildren_TypeProviders() {
-	// return getChildren().size() > 0;
-	// }
 
 	@Override
 	public void setName(final String name) {

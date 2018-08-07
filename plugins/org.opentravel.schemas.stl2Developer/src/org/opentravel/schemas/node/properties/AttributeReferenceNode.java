@@ -103,11 +103,6 @@ public class AttributeReferenceNode extends AttributeNode {
 		return Images.getImageRegistry().get(Images.ID_Attr_Reference);
 	}
 
-	// @Override
-	// public String getLabel() {
-	// return getName();
-	// }
-	//
 	@Override
 	public boolean isRenameable() {
 		return false;
@@ -133,7 +128,6 @@ public class AttributeReferenceNode extends AttributeNode {
 	@Override
 	public void setName(String name) {
 		// NO-OP
-		// getTLModelObject().setName(NodeNameUtils.fixAttributeRefName(getTypeName()));
 	}
 
 	// If the name is not set on the tlObj, set it.

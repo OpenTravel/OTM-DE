@@ -33,6 +33,8 @@ import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Property owner that can contain only attributes and indicators.
@@ -43,6 +45,7 @@ import org.opentravel.schemas.node.typeProviders.VWA_Node;
  * 
  */
 public class AttributeFacetNode extends FacadeBase implements FacetInterface {
+	private static final Logger LOGGER = LoggerFactory.getLogger(AttributeFacetNode.class);
 
 	private VWA_Node owner;
 
@@ -140,42 +143,30 @@ public class AttributeFacetNode extends FacadeBase implements FacetInterface {
 		add(facet.getProperties(), true);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#add(java.util.List, boolean)
-	 */
 	@Override
 	public void add(List<PropertyNode> properties, boolean clone) {
 		for (PropertyNode np : properties) {
 			if (clone)
-				np = np.clone(this, null); // add to clone not parent
-			else
-				add(np);
+				np = np.clone(this, null); // add clone not property
+			// else
+			if (!canOwn(np) && np.getChangeHandler() != null)
+				np = np.getChangeHandler().changePropertyRole(PropertyNodeType.ATTRIBUTE);
+
+			add(np);
 			assert this.contains(np);
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.opentravel.schemas.node.interfaces.FacetInterface#add(org.opentravel.schemas.node.properties.PropertyNode)
-	 */
 	@Override
 	public void add(PropertyNode property) {
 		add(property, -1);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.opentravel.schemas.node.interfaces.FacetInterface#add(org.opentravel.schemas.node.properties.PropertyNode,
-	 * int)
-	 */
 	@Override
 	public void add(PropertyNode pn, int index) {
+		if (pn == null)
+			return;
+
 		// Add to children list
 		pn.setParent(this);
 
@@ -193,32 +184,17 @@ public class AttributeFacetNode extends FacadeBase implements FacetInterface {
 				((InheritanceDependencyListener) l).run();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#createProperty(org.opentravel.schemas.node.Node)
-	 */
 	@Override
 	public PropertyNode createProperty(Node type) {
 		// TODO
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#findChildByName(java.lang.String)
-	 */
 	@Override
 	public PropertyNode findChildByName(String name) {
 		return get(name);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#get(java.lang.String)
-	 */
 	@Override
 	public PropertyNode get(String name) {
 		for (Node n : getChildrenHandler().get())
@@ -229,7 +205,7 @@ public class AttributeFacetNode extends FacadeBase implements FacetInterface {
 
 	@Override
 	public List<PropertyNode> getProperties() {
-		List<PropertyNode> pns = new ArrayList<PropertyNode>();
+		List<PropertyNode> pns = new ArrayList<>();
 		for (Node n : getChildrenHandler().get())
 			if (n instanceof PropertyNode)
 				pns.add((PropertyNode) n);

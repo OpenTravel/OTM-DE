@@ -96,11 +96,6 @@ public class ElementReferenceNode extends ElementNode {
 		return Images.getImageRegistry().get(Images.ID_Reference);
 	}
 
-	// @Override
-	// public String getLabel() {
-	// return getName();
-	// }
-
 	@Override
 	public String getName() {
 		if (getAssignedType() == null)

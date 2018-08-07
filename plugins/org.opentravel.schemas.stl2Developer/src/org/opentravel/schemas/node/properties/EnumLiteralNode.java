@@ -18,9 +18,7 @@ package org.opentravel.schemas.node.properties;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.ComponentNodeType;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
@@ -34,7 +32,6 @@ import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
 import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.properties.Images;
-import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents a enumeration literal. See {@link NodeFactory#newMemberOLD(INode, Object)}
@@ -117,11 +114,6 @@ public class EnumLiteralNode extends PropertyNode {
 	}
 
 	@Override
-	public TypeProvider getAssignedType() {
-		return getRequiredType();
-	}
-
-	@Override
 	public ComponentNodeType getComponentNodeType() {
 		return ComponentNodeType.ENUM_LITERAL;
 	}
@@ -132,11 +124,6 @@ public class EnumLiteralNode extends PropertyNode {
 			// The parent may have failed to rebuild children
 			parent = Node.GetNode(getTLModelObject().getOwningEnum());
 		return parent;
-	}
-
-	@Override
-	public ImpliedNode getRequiredType() {
-		return ModelNode.getUndefinedNode();
 	}
 
 	@Override
@@ -193,16 +180,6 @@ public class EnumLiteralNode extends PropertyNode {
 	public void setName(String name) {
 		if (isEditable_newToChain() && getTLModelObject() != null)
 			getTLModelObject().setLiteral(NodeNameUtils.fixEnumerationValue(name));
-	}
-
-	@Override
-	public void removeAssignedTLType() {
-		// NO-OP
-	}
-
-	@Override
-	public boolean setAssignedTLType(TLModelElement tlProvider) {
-		return false;
 	}
 
 }

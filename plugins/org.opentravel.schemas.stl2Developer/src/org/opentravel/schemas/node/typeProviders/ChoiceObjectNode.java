@@ -69,9 +69,6 @@ public class ChoiceObjectNode extends FacetOwners
 		childrenHandler = new ChoiceObjectChildrenHandler(this);
 		extensionHandler = new ExtensionHandler(this);
 
-		// SharedFacetNode sf = getSharedFacet();
-		// if (sf == null)
-		// LOGGER.debug("Missing shared facet in constructor.");
 		assert (getFacet_Shared() instanceof SharedFacetNode);
 	}
 

@@ -45,6 +45,7 @@ import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
@@ -277,10 +278,13 @@ public class VWA_Tests extends BaseProjectTest {
 
 		// Check all attributes/indicators
 		for (Node n : vwa.getFacet_Attributes().getChildren()) {
-			PropertyNode pn = (PropertyNode) n;
-			pn.setAssignedType(a);
-			if (pn instanceof AttributeNode)
-				assertTrue(pn.getAssignedType() == a);
+			// Can contain indicators which are not typed
+			if (n instanceof TypedPropertyNode) {
+				TypedPropertyNode pn = (TypedPropertyNode) n;
+				pn.setAssignedType(a);
+				if (pn instanceof AttributeNode)
+					assertTrue(pn.getAssignedType() == a);
+			}
 		}
 	}
 
@@ -435,7 +439,9 @@ public class VWA_Tests extends BaseProjectTest {
 		for (Node ap : vwa.getFacet_Attributes().getChildren()) {
 			assert ap instanceof PropertyNode;
 			assert Node.GetNode(ap.getTLModelObject()) == ap;
-			assertTrue("Attribute type must not be null.", ((PropertyNode) ap).getAssignedType() != null);
+			// Could be indicator which is not a TypeUser
+			if (ap instanceof TypeUser)
+				assertTrue("Attribute type must not be null.", ((TypeUser) ap).getAssignedType() != null);
 			assert ap.getLibrary() == vwa.getLibrary();
 		}
 
@@ -466,5 +472,39 @@ public class VWA_Tests extends BaseProjectTest {
 		// List<Node> attrs = v.getFacet_Attributes().getChildren();
 		assertTrue("Must have 100 attributes.", v.getFacet_Attributes().getChildren().size() == 100);
 		check(v);
+	}
+
+	/**
+	 * Add properties to the VWA.
+	 * <p>
+	 * Property Change Role was failing to get the right parent on the new attributes.
+	 */
+	@Test
+	public void VWA_AddAttributesTest() {
+		// Given - an editable library
+		ln = ml.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
+		assert ln.isEditable();
+
+		// Given - a VWA
+		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "Vwa");
+
+		AttributeNode attr1 = new AttributeNode(vwa.getFacet_Attributes(), "attr1");
+		AttributeNode attr2 = new AttributeNode(vwa.getFacet_Attributes(), "attr1");
+		assert attr1.getParent() == vwa.getFacet_Attributes();
+		assert attr2.getParent() == vwa.getFacet_Attributes();
+		assert vwa.getFacet_Attributes().contains(attr2);
+
+		// When - addToTL is used
+		attr2.removeProperty();
+		attr2.addToTL(vwa.getFacet_Attributes());
+		assert vwa.getFacet_Attributes().contains(attr2);
+		assert attr2.getParent() == vwa.getFacet_Attributes();
+
+		// When - swap() used as done in changePropertyRole()
+		attr2.setParent(null);
+		attr1.swap(attr2);
+
+		assert attr1.getParent() == null;
+		assert attr2.getParent() == vwa.getFacet_Attributes();
 	}
 }

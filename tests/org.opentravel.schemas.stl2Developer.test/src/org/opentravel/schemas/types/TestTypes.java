@@ -61,7 +61,7 @@ import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.AttributeReferenceNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
-import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ListFacetNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
@@ -381,7 +381,7 @@ public class TestTypes extends BaseProjectTest {
 		assertEquals(s2, core.getAssignedType());
 		assertEquals(1, getIdentityListenerCount(core.getFacet_Simple()));
 		// When - type assigned to a property of the core summary facet
-		PropertyNode p1 = (PropertyNode) core.getFacet_Summary().getChildren().get(0);
+		TypedPropertyNode p1 = (TypedPropertyNode) core.getFacet_Summary().getChildren().get(0);
 		p1.setAssignedType(s1);
 		// Then - assignment worked
 		assertEquals(s1, p1.getAssignedType());
@@ -394,7 +394,7 @@ public class TestTypes extends BaseProjectTest {
 		p1 = null;
 		for (Node t : bo.getFacet_Summary().getChildren())
 			if (t instanceof ElementNode) {
-				p1 = (PropertyNode) t;
+				p1 = (TypedPropertyNode) t;
 			}
 		assertTrue("Element property was found.", p1 != null);
 		p1.setAssignedType(s1); // a simple type

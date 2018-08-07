@@ -25,6 +25,8 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.objectMembers.VWA_SimpleFacetFacadeNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.types.TypeProvider;
 
 /**
@@ -39,8 +41,6 @@ import org.opentravel.schemas.types.TypeProvider;
  * 
  */
 
-// TODO - delegate as many methods as possible to PropertyNode
-//
 public class VWA_SimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(SimpleAttributeNode.class);
 
@@ -57,11 +57,6 @@ public class VWA_SimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 			assignedType = getEmptyNode();
 		return assignedType;
 	}
-
-	// @Override
-	// public VWA_Node getOwningComponent() {
-	// return getParent().getParent();
-	// }
 
 	// Only Simple, XSD Simple and VWA can be assigned as parent type
 	private boolean canAssign(TLModelElement type) {
@@ -80,6 +75,16 @@ public class VWA_SimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 	public void removeAssignedTLType() {
 		getTLModelObject().setParentType(null);
 		setAssignedType();
+	}
+
+	@Override
+	public boolean setAssignedType(TypeProvider provider) {
+		// Only assign other VWA or simple types, not all providers
+		if (provider instanceof SimpleTypeNode)
+			return getTypeHandler().set(provider);
+		if (provider instanceof VWA_Node)
+			return getTypeHandler().set(provider);
+		return false;
 	}
 
 	@Override

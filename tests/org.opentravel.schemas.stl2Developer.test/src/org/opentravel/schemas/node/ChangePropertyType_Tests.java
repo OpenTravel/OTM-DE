@@ -37,6 +37,7 @@ import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
@@ -110,43 +111,51 @@ public class ChangePropertyType_Tests extends BaseTest {
 		TypeProvider coreSummary = ((CoreObjectNode) core).getFacet_Summary();
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary_Empty(ln, "BOTest");
 		FacetProviderNode facet = bo.getFacet_Summary();
-		PropertyNode pn = new ElementNode(facet, "P1");
+		TypedPropertyNode pn = new ElementNode(facet, "P1");
 		pn.setAssignedType(core);
 		assertEquals("Assigned to core.", core, pn.getAssignedType());
-		PropertyNode an = new AttributeNode(facet, "a1");
+		TypedPropertyNode an = new AttributeNode(facet, "a1");
 		an.setAssignedType(core);
 		assertEquals("Assigned to core.", core, an.getAssignedType());
 
 		// When changed to attribute the attribute gets a type and pn is removed from where used
-		PropertyNode changed = pn.changePropertyRole(PropertyNodeType.ATTRIBUTE);
+		TypedPropertyNode changed = (TypedPropertyNode) pn.changePropertyRole(PropertyNodeType.ATTRIBUTE);
+		assertTrue("Must be an attribute.", changed instanceof AttributeNode);
 		assertEquals("Assigned to core.", core, changed.getAssignedType());
-		assertFalse("Must not be in where used.", core.getWhereAssigned().contains(pn));
+		assertTrue("Must be in where used.", core.getWhereAssigned().contains(changed));
+		assertTrue("Must not be in where used.", !core.getWhereAssigned().contains(pn));
 		assertTrue("Must be assigned to tl object.", core == pn.getAssignedType());
 
 		// When changed back to element the old type assignment should be restored.
 		changed.setAssignedType(aType);
-		PropertyNode pn2 = changed.changePropertyRole(PropertyNodeType.ELEMENT);
+		assertTrue("Must have parent.", changed.getParent() == facet);
+		assertTrue("Must  be in where used.", aType.getWhereAssigned().contains(changed));
+
+		TypedPropertyNode pn2 = (TypedPropertyNode) changed.changePropertyRole(PropertyNodeType.ELEMENT);
 		assertEquals("Must be assigned to core.", core, pn2.getAssignedType());
 		assertTrue("Must be in where used.", core.getWhereAssigned().contains(pn2));
-		assertFalse("Must not be in where used.", aType.getWhereAssigned().contains(changed));
+		assertTrue("Must not be in where used.", !aType.getWhereAssigned().contains(pn2));
+		// Make sure changed PN is not used
+		assertTrue("Must not be in where used.", !aType.getWhereAssigned().contains(changed));
+		assertTrue("Must not have parent.", changed.getParent() != facet);
 
 		// New property whose type can not be assigned to attribute
-		PropertyNode pn3 = new ElementNode(facet, "P3");
+		TypedPropertyNode pn3 = new ElementNode(facet, "P3");
 		pn3.setAssignedType(coreSummary);
-		PropertyNode changed3 = pn3.changePropertyRole(PropertyNodeType.ATTRIBUTE);
+		TypedPropertyNode changed3 = (TypedPropertyNode) pn3.changePropertyRole(PropertyNodeType.ATTRIBUTE);
 		assertEquals("Facet is not assignable.", changed3.getAssignedType(), ModelNode.getUnassignedNode());
 		assertFalse("Must not be in where used.", core.getWhereAssigned().contains(pn3));
 
 		// Implied types must not be restored.
-		PropertyNode pn4 = new ElementNode(facet, "P3");
+		TypedPropertyNode pn4 = new ElementNode(facet, "P3");
 		pn4.setAssignedType(core);
 		PropertyNode changed4 = pn4.changePropertyRole(PropertyNodeType.INDICATOR);
-		assertEquals("Assigned to required type.", changed4.getRequiredType(), changed4.getAssignedType());
-		PropertyNode changed42 = changed4.changePropertyRole(PropertyNodeType.ELEMENT);
+		// assertEquals("Assigned to required type.", changed4.getRequiredType(), changed4.getAssignedType());
+		TypedPropertyNode changed42 = (TypedPropertyNode) changed4.changePropertyRole(PropertyNodeType.ELEMENT);
 		assertTrue("Must be in where used.", core.getWhereAssigned().contains(pn4));
 
 		pn.setAssignedType(core);
-		PropertyNode changed5 = pn.changePropertyRole(PropertyNodeType.ID_REFERENCE);
+		TypedPropertyNode changed5 = (TypedPropertyNode) pn.changePropertyRole(PropertyNodeType.ID_REFERENCE);
 		assertEquals("Assigned to required type.", core, changed5.getAssignedType());
 		assertFalse("Must not be in where used.", core.getWhereAssigned().contains(pn));
 	}
@@ -168,19 +177,18 @@ public class ChangePropertyType_Tests extends BaseTest {
 		// Converting to attribute must create new property
 		PropertyNode changedAttr = property.changePropertyRole(PropertyNodeType.ATTRIBUTE);
 		Assert.assertNotEquals(property, changedAttr);
-		// nt.visit(changedAttr);
-		ml.check(changedAttr);
+		ml.check(changedAttr, false); // not valid because no type is assigned
 
 		// These all should fail and and change property to an attribute
-		changed = property.changePropertyRole(PropertyNodeType.INDICATOR_ELEMENT);
+		changed = changedAttr.changePropertyRole(PropertyNodeType.INDICATOR_ELEMENT);
 		Assert.assertEquals(changedAttr, changed);
-		changed = property.changePropertyRole(PropertyNodeType.ELEMENT);
+		changed = changed.changePropertyRole(PropertyNodeType.ELEMENT);
 		Assert.assertEquals(changedAttr, changed);
-		changed = property.changePropertyRole(PropertyNodeType.ENUM_LITERAL);
+		changed = changed.changePropertyRole(PropertyNodeType.ENUM_LITERAL);
 		Assert.assertEquals(changedAttr, changed);
-		changed = property.changePropertyRole(PropertyNodeType.ROLE);
+		changed = changed.changePropertyRole(PropertyNodeType.ROLE);
 		Assert.assertEquals(changedAttr, changed);
-		changed = property.changePropertyRole(PropertyNodeType.ALIAS);
+		changed = changed.changePropertyRole(PropertyNodeType.ALIAS);
 		Assert.assertEquals(changedAttr, changed);
 		assert property.getPropertyType().equals(PropertyNodeType.INDICATOR);
 
@@ -188,17 +196,15 @@ public class ChangePropertyType_Tests extends BaseTest {
 		property = changed;
 		changed = property.changePropertyRole(PropertyNodeType.INDICATOR);
 		Assert.assertNotEquals(property, changed);
-		// nt.visit(changed);
-		ml.check(changed);
+		ml.check(changed, false);
 
 		// Attribute on VWA
-		property = new AttributeNode(parent, "Attr1");
-		property.setAssignedType(aType);
+		TypedPropertyNode tpn = new AttributeNode(parent, "Attr1");
+		tpn.setAssignedType(aType);
 		int whereUsedCount = aType.getWhereAssignedCount();
-		changed = property.changePropertyRole(PropertyNodeType.INDICATOR);
-		Assert.assertNotEquals(property, changed);
-		// nt.visit(changed);
-		ml.check(changed);
+		changed = tpn.changePropertyRole(PropertyNodeType.INDICATOR);
+		Assert.assertNotEquals(tpn, changed);
+		ml.check(changed, false);
 		Assert.assertTrue(whereUsedCount > aType.getWhereAssignedCount()); // attribute should
 
 		// TODO - add more use cases
@@ -243,13 +249,16 @@ public class ChangePropertyType_Tests extends BaseTest {
 			}
 
 			for (PropertyNodeType t : PropertyNodeType.values()) {
+				assert p.getParent() instanceof FacetInterface;
+				if (p.getName().equals("agentDuty"))
+					LOGGER.debug("Agent duty caused errors.");
 				switch (t) {
 				case ELEMENT:
 				case ID_REFERENCE:
 				case ATTRIBUTE:
 				case INDICATOR:
 				case INDICATOR_ELEMENT:
-					// LOGGER.debug("Changing " + p.getPropertyType() + " " + n.getNameWithPrefix() + " to " + t);
+					LOGGER.debug("Changing " + p.getPropertyType() + " " + n.getNameWithPrefix() + " to " + t);
 					p = p.changePropertyRole(t);
 					nt.visit(p);
 					break;

@@ -40,7 +40,7 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
@@ -122,7 +122,7 @@ public class DefaultProjectControllerTest extends BaseProjectTest {
 		// .build();
 		CoreObjectNode co = new CoreObjectNode(new TLCoreObject());
 		co.setName("CO");
-		PropertyNode property = new ElementNode(co.getFacet_Summary(), "e1", so);
+		TypedPropertyNode property = new ElementNode(co.getFacet_Summary(), "e1", so);
 		// CoreObjectNode co = ComponentNodeBuilder.createCoreObject("CO").addToSummaryFacet(property).get();
 		local2.addMember(co);
 		assertTrue("Property must be assigned so as type.", property.getAssignedType() == so);

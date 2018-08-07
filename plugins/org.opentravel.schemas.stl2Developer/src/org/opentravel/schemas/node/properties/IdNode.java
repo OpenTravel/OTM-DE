@@ -36,14 +36,25 @@ public class IdNode extends AttributeNode {
 
 	public IdNode(FacetInterface parent, String name) {
 		super(parent, name);
+		if (parent != null)
+			changeHandler = new PropertyRoleChangeHandler(this);
+
 		if (name == null || name.isEmpty())
 			name = "id";
 		setName(name);
+
+		// Set the required type - done only at initialization
+		getRequiredType().getWhereAssignedHandler().addUser(this);
 		getTLModelObject().setType((TLAttributeType) getRequiredType().getTLModelObject());
 	}
 
 	public IdNode(TLAttribute tlObj, FacetInterface parent) {
 		super(tlObj, parent);
+		if (parent != null)
+			changeHandler = new PropertyRoleChangeHandler(this);
+
+		// Set the required type - done only at initialization
+		getRequiredType().getWhereAssignedHandler().addUser(this);
 		getTLModelObject().setType((TLAttributeType) getRequiredType().getTLModelObject());
 	}
 
@@ -59,8 +70,4 @@ public class IdNode extends AttributeNode {
 		assert idType != null;
 		return idType;
 	}
-	// @Override
-	// public boolean setAssignedType(TLModelElement tla) {
-	// return false; // You can't assign to ID
-	// }
 }

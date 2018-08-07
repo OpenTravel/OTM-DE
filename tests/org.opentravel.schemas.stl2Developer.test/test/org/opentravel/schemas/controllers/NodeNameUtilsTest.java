@@ -40,6 +40,7 @@ import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -84,8 +85,8 @@ public class NodeNameUtilsTest {
 		// Given - a library with one of each object type in it.
 		MockLibrary ml = new MockLibrary();
 		ModelNode root = mc.getModelNode();
-		LibraryNode ln = ml.createNewLibrary_Empty("http://example.com/test", "TestLib", mc.getProjectController()
-				.getDefaultProject());
+		LibraryNode ln = ml.createNewLibrary_Empty("http://example.com/test", "TestLib",
+				mc.getProjectController().getDefaultProject());
 		ml.addOneOfEach(ln, "OneOf");
 		// TODO - service and resource - role for core
 
@@ -230,7 +231,8 @@ public class NodeNameUtilsTest {
 	@Test
 	public void elementWithDetailList() {
 		String typeName = "CO";
-		PropertyNode pn = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).makeDetailList(typeName).build();
+		TypedPropertyNode pn = (TypedPropertyNode) PropertyNodeBuilder.create(PropertyNodeType.ELEMENT)
+				.makeDetailList(typeName).build();
 		String actual = NodeNameUtils.fixElementName(pn);
 		// will append Detail suffix
 		String expected = XsdCodegenUtils.getGlobalElementName(pn.getAssignedTLNamedEntity()).getLocalPart();

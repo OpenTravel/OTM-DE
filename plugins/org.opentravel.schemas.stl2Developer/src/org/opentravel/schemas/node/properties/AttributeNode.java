@@ -40,14 +40,18 @@ import org.opentravel.schemas.types.TypeProvider;
  * @author Dave Hollander
  * 
  */
-public class AttributeNode extends PropertyNode {
+public class AttributeNode extends TypedPropertyNode {
 
 	public AttributeNode() {
 		super();
+		if (parent != null)
+			changeHandler = new PropertyRoleChangeHandler(this);
 	}
 
 	public AttributeNode(FacetInterface parent, String name) {
 		this(parent, name, ModelNode.getUnassignedNode());
+		if (parent != null)
+			changeHandler = new PropertyRoleChangeHandler(this);
 	}
 
 	/**
@@ -62,10 +66,14 @@ public class AttributeNode extends PropertyNode {
 		super(new TLAttribute(), parent, name);
 		setAssignedType(type);
 		setName(name); // super.setName will not work if missing type
+		if (parent != null)
+			changeHandler = new PropertyRoleChangeHandler(this);
 	}
 
 	public AttributeNode(TLAttribute tlObj, FacetInterface parent) {
 		super(tlObj, parent);
+		if (parent != null)
+			changeHandler = new PropertyRoleChangeHandler(this);
 	}
 
 	@Override
@@ -78,6 +86,8 @@ public class AttributeNode extends PropertyNode {
 					((TLAttributeOwner) owner.getTLModelObject()).addAttribute(getTLModelObject());
 				}
 		owner.getChildrenHandler().clear();
+		// Sometimes the parent is not the TLModelObject owner, so set it now
+		setParent((Node) owner);
 	}
 
 	@Override
@@ -184,7 +194,8 @@ public class AttributeNode extends PropertyNode {
 	@Override
 	public boolean setAssignedType(TypeProvider provider) {
 		if (provider instanceof AliasNode)
-			provider = (TypeProvider) ((Node) provider).getOwningComponent();
+			if (provider.getParent() instanceof TypeProvider)
+				provider = (TypeProvider) ((Node) provider).getParent();
 		return getTypeHandler().set(provider);
 	}
 

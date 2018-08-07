@@ -28,6 +28,8 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Run across all nodes in the model and resolve types.
@@ -51,7 +53,7 @@ import org.opentravel.schemas.node.typeProviders.AliasNode;
  *
  */
 public class TypeResolver {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(TypeResolver.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TypeResolver.class);
 
 	public TypeResolver() {
 	}
@@ -60,12 +62,12 @@ public class TypeResolver {
 	 * Resolved types across entire model.
 	 */
 	public void resolveTypes() {
-		ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>(Node.getAllLibraries());
+		ArrayList<LibraryNode> libs = new ArrayList<>(Node.getAllLibraries());
 		resolveTypes(libs);
 	}
 
 	public void resolveTypes(LibraryNode lib) {
-		ArrayList<LibraryNode> newLibs = new ArrayList<LibraryNode>();
+		ArrayList<LibraryNode> newLibs = new ArrayList<>();
 		newLibs.add(lib);
 		resolveTypes(newLibs);
 	}
@@ -96,8 +98,9 @@ public class TypeResolver {
 			lib.setEditable(wasEditable);
 		}
 
-		// LOGGER.debug("Visitor Resolver visited: " + typeUsers + "  Resolved: " + resolvedTypes + "  UnResolved: "
-		// + unResolvedTypes + "  Unassigned: " + ModelNode.getUnassignedNode().getTypeUsersCount());
+		// LOGGER.debug("Visitor Resolver visited: " + newLibs);
+		// LOGGER.debug("Visitor Resolver visited: " + typeUsers + " Resolved: " + resolvedTypes + " UnResolved: "
+		// + unResolvedTypes + " Unassigned: " + ModelNode.getUnassignedNode().getTypeUsersCount());
 	}
 
 	private class resolveBaseTypes implements NodeVisitor {

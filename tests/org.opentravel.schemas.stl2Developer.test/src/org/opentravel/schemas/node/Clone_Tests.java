@@ -257,7 +257,8 @@ public class Clone_Tests extends BaseTest {
 		// Check each property as they are cloned. Clones have no owner.
 		List<PropertyNode> kids = new ArrayList<>(facet.getProperties()); // list get added to by clone
 		for (PropertyNode n : kids) {
-			n.setAssignedType(builtin);
+			if (n instanceof TypeUser)
+				((TypeUser) n).setAssignedType(builtin);
 			LibraryElement clone = n.cloneTLObj();
 			assert clone != null;
 			if (clone instanceof TLProperty) {
@@ -265,7 +266,7 @@ public class Clone_Tests extends BaseTest {
 				if (((TLProperty) clone).getName() != null)
 					assert ((TLProperty) clone).getName().equals(n.getName());
 				if (((TLProperty) clone).getType() != null)
-					assert ((TLProperty) clone).getType().equals(n.getAssignedTLObject());
+					assert ((TLProperty) clone).getType().equals(((TypeUser) n).getAssignedTLObject());
 				assert ((TLProperty) clone).getOwner() == null;
 			}
 		}

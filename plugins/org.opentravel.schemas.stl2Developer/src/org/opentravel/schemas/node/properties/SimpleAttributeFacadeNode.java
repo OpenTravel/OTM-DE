@@ -41,7 +41,7 @@ import org.opentravel.schemas.types.TypeUserHandler;
  * @author Dave Hollander
  * 
  */
-public abstract class SimpleAttributeFacadeNode extends PropertyNode implements FacadeInterface {
+public abstract class SimpleAttributeFacadeNode extends TypedPropertyNode implements FacadeInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(SimpleAttributeNode.class);
 
 	protected TypeProvider emptyNode = null;

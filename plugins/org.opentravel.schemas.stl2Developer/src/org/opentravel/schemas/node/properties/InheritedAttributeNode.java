@@ -44,6 +44,7 @@ public class InheritedAttributeNode extends AttributeNode implements InheritedIn
 		super();
 		inheritedFrom = from;
 		this.parent = (Node) parent;
+		changeHandler = null;
 	}
 
 	@Override
@@ -53,54 +54,22 @@ public class InheritedAttributeNode extends AttributeNode implements InheritedIn
 
 	@Override
 	public TypeProvider getAssignedType() {
-		return getInheritedFrom().getAssignedType();
+		return getInheritedFrom() != null ? getInheritedFrom().getAssignedType() : null;
 	}
-
-	// @Override
-	// public ComponentNodeType getComponentNodeType() {
-	// return ComponentNodeType.ATTRIBUTE;
-	// }
-
-	// @Override
-	// public IValueWithContextHandler getEquivalentHandler() {
-	// if (equivalentHandler == null)
-	// equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
-	// return equivalentHandler;
-	// }
-	//
-	// @Override
-	// public IValueWithContextHandler getExampleHandler() {
-	// if (exampleHandler == null)
-	// exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
-	// return exampleHandler;
-	// }
-
-	// @Override
-	// public Image getImage() {
-	// return Images.getImageRegistry().get(Images.XSDAttribute);
-	// }
 
 	@Override
 	public String getLabel() {
-		// String label = getName();
-		// if (getAssignedType() != null)
-		// label += " [" + getTypeNameWithPrefix() + "]";
-		return getInheritedFrom().getLabel();
+		return getInheritedFrom() != null ? getInheritedFrom().getLabel() : "";
 	}
 
 	@Override
 	public String getName() {
-		return getInheritedFrom().getName();
+		return getInheritedFrom() != null ? getInheritedFrom().getName() : "";
 	}
-
-	// @Override
-	// public Node getParent() {
-	// return parent;
-	// }
 
 	@Override
 	public TLAttribute getTLModelObject() {
-		return getInheritedFrom().getTLModelObject();
+		return getInheritedFrom() != null ? getInheritedFrom().getTLModelObject() : null;
 	}
 
 	/**
@@ -108,30 +77,8 @@ public class InheritedAttributeNode extends AttributeNode implements InheritedIn
 	 */
 	@Override
 	public TypeUserHandler getTypeHandler() {
-		return getInheritedFrom().getTypeHandler();
+		return getInheritedFrom() != null ? getInheritedFrom().getTypeHandler() : null;
 	}
-
-	// @Override
-	// public int indexOfTLProperty() {
-	// return getTLModelObject() != null ? getTLModelObject().getOwner().getAttributes().indexOf(getTLModelObject())
-	// : 0;
-	// }
-
-	// @Override
-	// public boolean isMandatory() {
-	// return getTLModelObject() != null ? getTLModelObject().isMandatory() : false;
-	// }
-
-	// @Override
-	// public boolean isOnlySimpleTypeUser() {
-	// // allow VWAs to be assigned to VWA Attributes.
-	// return parent != null && parent instanceof AttributeFacetNode ? false : true;
-	// }
-
-	// @Override
-	// public boolean isRenameable() {
-	// return isEditable() && !isInherited();
-	// }
 
 	/**
 	 * Override to provide GUI assist: Since attributes can be renamed, there is no need to use the alias. Aliases are
@@ -139,9 +86,6 @@ public class InheritedAttributeNode extends AttributeNode implements InheritedIn
 	 */
 	@Override
 	public boolean setAssignedType(TypeProvider provider) {
-		// if (provider instanceof AliasNode)
-		// provider = (TypeProvider) ((Node) provider).getOwningComponent();
-		// return typeHandler.set(provider);
 		return false;
 	}
 
@@ -157,48 +101,8 @@ public class InheritedAttributeNode extends AttributeNode implements InheritedIn
 		return getInheritedFrom().getExampleHandler();
 	}
 
-	// /**
-	// * Allowed in major versions and on objects new in a minor.
-	// */
-	// @Override
-	// public void setMandatory(final boolean selection) {
-	// if (getTLModelObject() != null)
-	// if (isEditable_newToChain())
-	// if (getOwningComponent().isNewToChain() || !getLibrary().isInChain())
-	// getTLModelObject().setMandatory(selection);
-	// }
-	//
-	// @Override
-	// public void setName(String name) {
-	// if (getTLModelObject() != null)
-	// getTLModelObject().setName(NodeNameUtils.fixAttributeName(name));
-	// }
-
-	// @Override
-	// protected void moveDownTL() {
-	// if (getTLModelObject() != null)
-	// getTLModelObject().moveDown();
-	// }
-	//
-	// @Override
-	// protected void moveUpTL() {
-	// if (getTLModelObject() != null)
-	// getTLModelObject().moveUp();
-	// }
-
-	// @Override
-	// protected void removeFromTL() {
-	// if (getParent() != null && getParent().getTLModelObject() instanceof TLAttributeOwner)
-	// ((TLAttributeOwner) getParent().getTLModelObject()).removeAttribute(getTLModelObject());
-	// }
-	//
 	@Override
 	public boolean setAssignedTLType(TLModelElement tla) {
-		// if (tla == getTLModelObject().getType())
-		// return false;
-		// if (tla instanceof TLAttributeType)
-		// getTLModelObject().setType((TLAttributeType) tla);
-		// return getTLModelObject().getType() == tla;
 		return false;
 	}
 

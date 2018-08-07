@@ -26,14 +26,16 @@ import java.util.Collection;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.listeners.TypeUserAssignmentListener;
 import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
@@ -96,9 +98,9 @@ public class ChangeTo_Tests extends BaseTest {
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "A");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "B");
 		CoreObjectNode user = ml.addCoreObjectToLibrary(ln, "User");
-		PropertyNode p1 = new ElementNode(user.getFacet_Summary(), "P1", bo);
-		PropertyNode p2 = new ElementNode(user.getFacet_Summary(), "P2", core);
-		PropertyNode p3 = new ElementNode(user.getFacet_Summary(), "P3", core.getFacet_Detail());
+		TypedPropertyNode p1 = new ElementNode(user.getFacet_Summary(), "P1", bo);
+		TypedPropertyNode p2 = new ElementNode(user.getFacet_Summary(), "P2", core);
+		TypedPropertyNode p3 = new ElementNode(user.getFacet_Summary(), "P3", core.getFacet_Detail());
 
 		int boCount = bo.getFacet_ID().getChildren().size() + bo.getFacet_Summary().getChildren().size()
 				+ bo.getFacet_Detail().getChildren().size();
@@ -120,11 +122,11 @@ public class ChangeTo_Tests extends BaseTest {
 
 		// When - VWA replaces BO. BO is assigned to an element and elementRef
 		bo.replaceWith(vwa);
-		ml.check(vwa);
+		ml.check(vwa, false);
 		assertEquals("Replace assignments on non-referene users.", boWhereAssignedCount - 1,
 				vwa.getWhereUsedAndDescendantsCount());
 		assertEquals(vwa, p1.getAssignedType());
-		ml.check(vwa);
+		ml.check(vwa, false);
 
 		//
 		// When - a new VWA is created from Core
@@ -138,9 +140,9 @@ public class ChangeTo_Tests extends BaseTest {
 
 		// When - VWA replaces core.
 		core.replaceWith(vwa);
-		tn.visit(vwa);
+		// tn.visit(vwa);
 		// Then
-		ml.check(vwa);
+		ml.check(vwa, false);
 		assertEquals(coreWhereAssignedCount, vwa.getWhereUsedAndDescendantsCount());
 		assertEquals(vwa, p2.getAssignedType());
 		assertEquals(vwa, p3.getAssignedType());
@@ -191,7 +193,7 @@ public class ChangeTo_Tests extends BaseTest {
 	@Test
 	public void changeCheckUsersCounts() {
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "C");
-		PropertyNode p1 = new ElementNode(core.getFacet_Summary(), "P1");
+		TypedPropertyNode p1 = new ElementNode(core.getFacet_Summary(), "P1");
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "B");
 		tn.visit(ln);
 		tn.visit(lcn);
@@ -214,7 +216,7 @@ public class ChangeTo_Tests extends BaseTest {
 	public void changeAsInMainController() {
 		VWA_Node nodeToReplace = ml.addVWA_ToLibrary(ln, "B");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "C");
-		PropertyNode p1 = new ElementNode(core.getFacet_Summary(), "P1");
+		TypedPropertyNode p1 = new ElementNode(core.getFacet_Summary(), "P1");
 		p1.setAssignedType(nodeToReplace);
 
 		// NodeToReplace is input param
@@ -264,13 +266,26 @@ public class ChangeTo_Tests extends BaseTest {
 
 	@Test
 	public void changeTestGroupA_Tests() throws Exception {
-		// MainController mc = OtmRegistry.getMainController();
-		// LoadFiles lf = new LoadFiles();
-		ModelNode model = mc.getModelNode();
-		// LibraryChainNode lcn;
 
 		lf.loadTestGroupA(mc);
-		for (LibraryNode ln : model.getUserLibraries()) {
+		// Age is troublesome -- a VWA in Test5c assigned to two elements in Test4
+		LibraryMemberInterface age = null;
+		for (LibraryMemberInterface lm : mc.getModelNode().getDescendants_LibraryMembers())
+			if (lm.getName().equals("Age"))
+				age = lm;
+		assert age != null;
+		Collection<TypeUser> ageUsers = ((TypeProvider) age).getWhereAssigned();
+		// Verify the users' listeners are correct
+		Collection<ModelElementListener> listeners = null;
+		Node p = null;
+		for (TypeUser u : ageUsers) {
+			listeners = u.getTLModelObject().getListeners();
+			for (ModelElementListener li : listeners)
+				if (li instanceof TypeUserAssignmentListener)
+					assert ((TypeUserAssignmentListener) li).getNode() == age;
+		}
+
+		for (LibraryNode ln : mc.getModelNode().getUserLibraries()) {
 			if (!ln.isInChain())
 				lcn = new LibraryChainNode(ln);
 			else
@@ -278,7 +293,7 @@ public class ChangeTo_Tests extends BaseTest {
 
 			changeMembers(ln);
 
-			ln.visitAllNodes(tn);
+			// ln.visitAllNodes(tn);
 		}
 	}
 
@@ -288,12 +303,16 @@ public class ChangeTo_Tests extends BaseTest {
 	 * @param ln
 	 */
 	private void changeMembers(LibraryNode ln) {
-
+		LOGGER.debug("Changing members in " + ln);
 		LibraryMemberInterface nn = null;
 		int equCount = 0, newEquCount = 0;
-		PropertyNode aProperty = null;
-		PropertyNode newProperty = null;
+		TypedPropertyNode aProperty = null;
+		TypedPropertyNode newProperty = null;
 		ln.setEditable(true);
+
+		// Do not validate - name changes and base object type changes may invalidate library
+		boolean validate = false;
+		ml.check(ln, validate);
 
 		// Get all library members and change them.
 		for (LibraryMemberInterface lm : ln.getDescendants_LibraryMembers()) {
@@ -301,11 +320,13 @@ public class ChangeTo_Tests extends BaseTest {
 
 			if (lm instanceof ComponentNode && !lm.isDeleted()) {
 				ComponentNode cn = (ComponentNode) lm;
+				assert cn.isDeleteable();
+				ml.check(cn, validate);
+
 				if (lm instanceof BusinessObjectNode) {
 					// LOGGER.debug("When - Changing " + lm + " from business object to core.");
 					nn = new CoreObjectNode((BusinessObjectNode) lm);
 					cn.replaceWith(nn);
-					cn.delete();
 					// Then
 					assertEquals(equCount, countEquivelents(nn));
 
@@ -315,7 +336,7 @@ public class ChangeTo_Tests extends BaseTest {
 					// Pick last summary property for testing.
 					aProperty = null;
 					if (((FacetOwner) lm).getFacet_Summary().getChildren_TypeUsers().size() > 0)
-						aProperty = (PropertyNode) ((FacetOwner) lm).getFacet_Summary().getChildren_TypeUsers()
+						aProperty = (TypedPropertyNode) ((FacetOwner) lm).getFacet_Summary().getChildren_TypeUsers()
 								.get(((FacetOwner) lm).getFacet_Summary().getChildren_TypeUsers().size() - 1);
 
 					// Do not test assignment if the core is used as a type
@@ -328,11 +349,9 @@ public class ChangeTo_Tests extends BaseTest {
 					nn = new BusinessObjectNode((CoreObjectNode) lm);
 					cn.replaceWith(nn);
 
-					ml.check((Node) nn, false);
-
 					// Find the property with the same name for testing.
 					if (aProperty != null)
-						newProperty = (PropertyNode) ((BusinessObjectNode) nn).getFacet_Summary()
+						newProperty = (TypedPropertyNode) ((BusinessObjectNode) nn).getFacet_Summary()
 								.findChildByName(aProperty.getName());
 					if (aProperty != null && newProperty != null) {
 						TypeProvider npAT = newProperty.getAssignedType();
@@ -341,20 +360,19 @@ public class ChangeTo_Tests extends BaseTest {
 							LOGGER.debug("Assigned types do not match.");
 						assertTrue(newProperty.getAssignedType() == aProperty.getAssignedType());
 					}
-					cn.delete();
-					tn.visit(nn);
 				}
 
 				else if (lm instanceof VWA_Node) {
 					// LOGGER.debug("Changing " + lm + " from VWA to core.");
+					if (lm.getName().equals("Age"))
+						LOGGER.debug("Check assignement listeners.");
 					nn = new CoreObjectNode((VWA_Node) lm);
-					cn.replaceWith(nn);
-					cn.delete();
+					cn.replaceWith(nn); // types not re-assigned if target lib is not editable
 				} else
 					nn = lm;
 
 			}
-			ml.check((Node) nn, false);
+			ml.check((Node) nn, validate);
 			if (nn != null) {
 				newEquCount = countEquivelents(nn);
 				if (newEquCount != equCount) {

@@ -35,6 +35,7 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -237,7 +238,7 @@ public class OtmActions {
 			}
 		}
 
-		ArrayList<Node> list = new ArrayList<Node>();
+		ArrayList<Node> list = new ArrayList<>();
 		list.add(n);
 		final TypeSelectionWizard wizard = new TypeSelectionWizard(list);
 		if (wizard.run(OtmRegistry.getActiveShell())) {
@@ -290,7 +291,7 @@ public class OtmActions {
 	}
 
 	private void typeSelector(final OtmEventData wd) {
-		ArrayList<Node> list = new ArrayList<Node>();
+		ArrayList<Node> list = new ArrayList<>();
 		Node n = wd.getNode();
 		if (n != null)
 			list.add(n);
@@ -617,8 +618,8 @@ public class OtmActions {
 
 	private void setPropertyType(final OtmEventData ed) {
 		final INode pNode = mc.getCurrentNode_PropertiesView();
-		if (pNode != null)
-			((PropertyNode) pNode).setAssignedType((TypeProvider) NodeFinders.findNodeByID(ed.getText()));
+		if (pNode != null && pNode instanceof TypedPropertyNode)
+			((TypedPropertyNode) pNode).setAssignedType((TypeProvider) NodeFinders.findNodeByID(ed.getText()));
 		mc.refresh(pNode);
 	}
 

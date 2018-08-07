@@ -18,17 +18,13 @@ package org.opentravel.schemas.node.properties;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLIndicatorOwner;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.ComponentNodeType;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.properties.Images;
-import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents a boolean XML attribute with the semantics of "False unless present and true". See
@@ -42,14 +38,20 @@ public class IndicatorNode extends PropertyNode {
 
 	public IndicatorNode() {
 		super();
+		if (parent != null)
+			changeHandler = new PropertyRoleChangeHandler(this);
 	}
 
 	public IndicatorNode(FacetInterface parent, String name) {
 		super(new TLIndicator(), parent, name);
+		if (parent != null)
+			changeHandler = new PropertyRoleChangeHandler(this);
 	}
 
 	public IndicatorNode(TLIndicator tlObj, FacetInterface parent) {
 		super(tlObj, parent);
+		if (parent != null)
+			changeHandler = new PropertyRoleChangeHandler(this);
 	}
 
 	@Override
@@ -61,6 +63,7 @@ public class IndicatorNode extends PropertyNode {
 				((TLIndicatorOwner) owner.getTLModelObject()).addIndicator(getTLModelObject());
 			}
 		owner.getChildrenHandler().clear();
+		setParent((Node) owner);
 	}
 
 	@Override
@@ -84,38 +87,9 @@ public class IndicatorNode extends PropertyNode {
 	}
 
 	@Override
-	public TypeProvider getAssignedType() {
-		return getRequiredType();
-	}
-
-	@Override
 	public ComponentNodeType getComponentNodeType() {
 		return ComponentNodeType.INDICATOR;
 	}
-
-	// @Override
-	// public String getEquivalent(String context) {
-	// return getEquivalentHandler().get(context);
-	// }
-	//
-	// @Override
-	// public IValueWithContextHandler getEquivalentHandler() {
-	// if (equivalentHandler == null)
-	// equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
-	// return equivalentHandler;
-	// }
-	//
-	// @Override
-	// public String getExample(String context) {
-	// return getExampleHandler().get(context);
-	// }
-	//
-	// @Override
-	// public IValueWithContextHandler getExampleHandler() {
-	// if (exampleHandler == null)
-	// exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
-	// return exampleHandler;
-	// }
 
 	@Override
 	public Image getImage() {
@@ -133,11 +107,6 @@ public class IndicatorNode extends PropertyNode {
 			// The parent may have failed to rebuild children
 			parent = Node.GetNode(getTLModelObject().getOwner());
 		return parent;
-	}
-
-	@Override
-	public ImpliedNode getRequiredType() {
-		return ModelNode.getIndicatorNode();
 	}
 
 	@Override
@@ -183,16 +152,6 @@ public class IndicatorNode extends PropertyNode {
 	protected void removeFromTL() {
 		if (getTLModelObject() != null && getTLModelObject().getOwner() != null)
 			getTLModelObject().getOwner().removeIndicator(getTLModelObject());
-	}
-
-	@Override
-	public void removeAssignedTLType() {
-		// NO-OP
-	}
-
-	@Override
-	public boolean setAssignedTLType(TLModelElement tlProvider) {
-		return false;
 	}
 
 }

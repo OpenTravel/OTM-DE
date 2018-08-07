@@ -50,6 +50,7 @@ import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
@@ -795,9 +796,9 @@ public class VersionsTest extends BaseRepositoryTest {
 		Assert.assertNotNull(nbo);
 		Assert.assertNotNull(nbo.getVersionNode().getPreviousVersion());
 		Assert.assertEquals(1, nbo.getFacet_Summary().getChildren().size());
-		Assert.assertTrue(chain.getDescendants_LibraryMembersAsNodes().contains(nbo));
-		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembersAsNodes().contains(nbo));
-		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembersAsNodes().contains(nbo));
+		Assert.assertTrue(chain.getDescendants_LibraryMembers().contains(nbo));
+		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembers().contains(nbo));
+		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembers().contains(nbo));
 
 		return nbo;
 	}
@@ -805,7 +806,7 @@ public class VersionsTest extends BaseRepositoryTest {
 	private VWA_Node createVWA_InMinor() {
 		VWA_Node nVwa = (VWA_Node) vwa.createMinorVersionComponent();
 		Assert.assertNotNull(nVwa);
-		PropertyNode newProp = new AttributeNode(nVwa.getFacet_Attributes(), "te2");
+		TypedPropertyNode newProp = new AttributeNode(nVwa.getFacet_Attributes(), "te2");
 		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 		Assert.assertEquals(1, bo.getFacet_Summary().getChildren().size());
 		TotalDescendents += 1;
@@ -814,9 +815,9 @@ public class VersionsTest extends BaseRepositoryTest {
 		// Make sure a new was created in the newMinor library.
 		Assert.assertNotNull(nVwa);
 		Assert.assertEquals(1, nVwa.getFacet_Attributes().getChildren().size());
-		Assert.assertTrue(chain.getDescendants_LibraryMembersAsNodes().contains(nVwa));
-		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembersAsNodes().contains(nVwa));
-		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembersAsNodes().contains(nVwa));
+		Assert.assertTrue(chain.getDescendants_LibraryMembers().contains(nVwa));
+		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembers().contains(nVwa));
+		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembers().contains(nVwa));
 
 		return nVwa;
 	}

@@ -77,6 +77,7 @@ import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.utils.FacetNodeBuilder;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.osgi.framework.Version;
@@ -929,40 +930,36 @@ public class FacetsTests extends BaseTest {
 	public void checkBaseFacet(FacetInterface facetNode) {
 		assertTrue("Must have owning component.", facetNode.getOwningComponent() != null);
 		assertTrue("Must have owning library.", ((Node) facetNode).getLibrary() != null);
-		// if (node instanceof ContextualFacetNode) {
-		// assertTrue("Must have same owning library as TL object.",
-		// ((Node) node).getLibrary() == Node.GetNode(((Node) node).getLibrary().getTLModelObject()));
-		// } else
-		// assertTrue("Must have same owning library as TL object.",
-		// node.getLibrary() == Node.GetNode(node.getLibrary().getTLModelObject()));
 
-		if (!facetNode.isInherited())
+		if (!facetNode.isInherited()) {
 			// Check children
 			for (Node property : facetNode.getChildren()) {
-			PropertyNodeTest pnTests = new PropertyNodeTest();
-			if (facetNode instanceof ContributedFacetNode) {
-			assertTrue(OTM16Upgrade.otm16Enabled);
-			assertTrue(property.getParent() == ((ContributedFacetNode) facetNode).getContributor());
-			continue;
+				PropertyNodeTest pnTests = new PropertyNodeTest();
+				if (facetNode instanceof ContributedFacetNode) {
+					assertTrue(OTM16Upgrade.otm16Enabled);
+					assertTrue(property.getParent() == ((ContributedFacetNode) facetNode).getContributor());
+					continue;
+				}
+				if (property instanceof AliasNode)
+					continue;
+				if (property instanceof ContributedFacetNode) {
+					assertTrue(property.getParent() == facetNode);
+					continue;
+				}
+				if (property instanceof ContextualFacetNode) {
+					assertTrue(OTM16Upgrade.otm16Enabled);
+					continue;
+				}
+				if (property instanceof PropertyNode) {
+					assertTrue(property.getParent() == facetNode);
+					pnTests.check((PropertyNode) property);
+				} else {
+					LOGGER.debug(
+							"ERROR - invalid property type: " + property + " " + property.getClass().getSimpleName());
+					assertTrue(false);
+				}
 			}
-			if (property instanceof AliasNode)
-			continue;
-			if (property instanceof ContributedFacetNode) {
-			assertTrue(property.getParent() == facetNode);
-			continue;
-			}
-			if (property instanceof ContextualFacetNode) {
-			assertTrue(OTM16Upgrade.otm16Enabled);
-			continue;
-			}
-			if (property instanceof PropertyNode) {
-			assertTrue(property.getParent() == facetNode);
-			pnTests.check((PropertyNode) property);
-			} else {
-			LOGGER.debug("ERROR - invalid property type: " + property + " " + property.getClass().getSimpleName());
-			assertTrue(false);
-			}
-			}
+		}
 
 		assertTrue("Must be valid parent to attributes.", facetNode.canOwn(PropertyNodeType.ATTRIBUTE));
 		assertTrue("Must be valid parent to elements.", facetNode.canOwn(PropertyNodeType.ELEMENT));
@@ -1011,10 +1008,15 @@ public class FacetsTests extends BaseTest {
 			for (Node child : ((Node) facetNode).getChildren_New()) {
 				if (child.getName().endsWith(locatingSuffix)) {
 					found++;
+					Node un = ModelNode.getUnassignedNode();
 					child.delete();
-					if (((Node) facetNode).contains(child))
-						child.delete();
 					assertTrue("Must be able to delete added child.", !facetNode.contains(child));
+
+					TypeProvider type = ((TypeUser) child).getAssignedType();
+					assertTrue("Must no longer be in type assigned where used list.",
+							!((TypeUser) child).getAssignedType().getWhereAssigned().contains(child));
+					assertTrue("Must not be in unassigned where used list.",
+							!ModelNode.getUnassignedNode().getWhereAssigned().contains(child));
 				}
 			}
 			assert found == 4;

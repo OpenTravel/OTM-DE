@@ -47,6 +47,7 @@ import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.InheritedElementNode;
 import org.opentravel.schemas.node.properties.InheritedEnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacet15Node;
@@ -61,6 +62,7 @@ import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +109,8 @@ public class InheritedChildren_Tests {
 		assertTrue("Must inherit from base", ie.getInheritedFrom() == baseElement);
 		assertTrue("Must not have same parent.", ie.getParent() != baseElement.getParent());
 		assertTrue("Must have same name.", ie.getName().equals(baseElement.getName()));
-		assertTrue("Must have same type.", ie.getAssignedType() == baseElement.getAssignedType());
+		if (baseElement instanceof TypeUser)
+			assertTrue("Must have same type.", ie.getAssignedType() == ((TypeUser) baseElement).getAssignedType());
 		assertTrue("Must have same TLModelObject.", ie.getTLModelObject() == baseElement.getTLModelObject());
 
 		new PropertyNodeTest().check(ie);
@@ -194,8 +197,8 @@ public class InheritedChildren_Tests {
 		extensionBO = ml.addBusinessObjectToLibrary_Empty(ln, "ExtensionBO");
 		extensionBO.setExtension(baseBO);
 		assertTrue("Must extension must extend base.", !extensionBO.getExtendsTypeName().isEmpty());
-		assertTrue("Base where extended must contain extension.", baseBO.getWhereExtendedHandler().getWhereExtended()
-				.contains(extensionBO));
+		assertTrue("Base where extended must contain extension.",
+				baseBO.getWhereExtendedHandler().getWhereExtended().contains(extensionBO));
 		assertTrue("Extension base type must be baseBO.", extensionBO.getExtensionBase() == baseBO);
 	}
 
@@ -312,7 +315,7 @@ public class InheritedChildren_Tests {
 		String elementName = baseElement.getName();
 
 		// Constructor
-		PropertyNode ie = new InheritedElementNode(baseElement, extensionBO.getFacet_Summary());
+		TypedPropertyNode ie = new InheritedElementNode(baseElement, extensionBO.getFacet_Summary());
 		assertTrue("Must inherit from base", ((FacadeInterface) ie).get() == baseElement);
 		assertTrue("Must have correct parent.", ie.getParent() == extensionBO.getFacet_Summary());
 		assertTrue("Must have same name.", ie.getName().equals(elementName));
@@ -320,7 +323,7 @@ public class InheritedChildren_Tests {
 		ml.check(ie);
 
 		// Factory
-		ie = (PropertyNode) NodeFactory.newInheritedProperty(baseElement, extensionBO.getFacet_Summary());
+		ie = (TypedPropertyNode) NodeFactory.newInheritedProperty(baseElement, extensionBO.getFacet_Summary());
 		ml.check(ie);
 	}
 
@@ -380,7 +383,7 @@ public class InheritedChildren_Tests {
 		// Given - two BO, baseBO and extensionBO
 		setUpExtendedBO();
 		// Given - a template to simulate adding properties by DND
-		PropertyNode template = new ElementNode(baseBO.getFacet_Summary(), "Template");
+		TypedPropertyNode template = new ElementNode(baseBO.getFacet_Summary(), "Template");
 		template.setAssignedType(ml.getXsdDecimal());
 
 		// Then - no child may be deleted
@@ -510,7 +513,7 @@ public class InheritedChildren_Tests {
 
 		// Then - make sure contextual facets are in the tree kids.
 		List<?> exTreeKids = extensionBO.getChildrenHandler().getTreeChildren(false);
-		List<ContributedFacetNode> exCFs = new ArrayList<ContributedFacetNode>();
+		List<ContributedFacetNode> exCFs = new ArrayList<>();
 		assert !exTreeKids.isEmpty();
 		for (Object n : exTreeKids)
 			if (n instanceof ContributedFacetNode)

@@ -54,6 +54,7 @@ import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.trees.library.LibrarySorter;
 import org.opentravel.schemas.trees.library.LibraryTreeContentProvider;
 import org.opentravel.schemas.trees.library.LibraryTreeInheritedFilter;
@@ -117,10 +118,10 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 			final List<PropertyNodeType> enabledTypes, final FacetInterface actOnNode, final Node scope) {
 		super(pageName, title, null);
 		this.validator = validator;
-		this.enabledPropertyTypes = new ArrayList<PropertyNodeType>(enabledTypes);
+		this.enabledPropertyTypes = new ArrayList<>(enabledTypes);
 		this.owningFacet = actOnNode;
 		this.scopeNode = scope;
-		this.newProperties = new LinkedList<PropertyNode>();
+		this.newProperties = new LinkedList<>();
 	}
 
 	@Override
@@ -391,7 +392,8 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 		final PropertyNode copy = (PropertyNode) NodeFactory.newChild((Node) owningFacet,
 				(TLModelElement) srcProperty.cloneTLObj());
 		// Should not be needed, but in case clone does not assign, assign type now
-		copy.setAssignedType(srcProperty.getAssignedType());
+		if (copy instanceof TypedPropertyNode && srcProperty instanceof TypedPropertyNode)
+			((AttributeNode) copy).setAssignedType(((TypedPropertyNode) srcProperty).getAssignedType());
 		// Add newly created copy to list
 		getNewProperties().add(copy);
 		return copy;
@@ -406,8 +408,8 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 			node = ((FacadeInterface) node).get();
 		final PropertyNode newProperty = newProperty();
 		newProperty.setName(NodeNameUtils.adjustCaseOfName(newProperty.getPropertyType(), node.getName()));
-		if (node.isAssignable() && node instanceof TypeProvider)
-			newProperty.setAssignedType((TypeProvider) node);
+		if (node.isAssignable() && node instanceof TypeProvider && newProperty instanceof TypedPropertyNode)
+			((TypedPropertyNode) newProperty).setAssignedType((TypeProvider) node);
 		else
 			setMessage(node + " is not assigable as type. No type assigned.", WARNING);
 		return newProperty;
@@ -453,9 +455,8 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 		final TypeSelectionWizard wizard = new TypeSelectionWizard(node);
 		wizard.run(getShell(), true); // let the user select type then assign it
 		// Use the type name as the property name if the user has not already set one.
-		if (wizard.getSelection() != null
-				&& (getSelectedNode().getName().startsWith("Property") || getSelectedNode().getName().startsWith(
-						"property")))
+		if (wizard.getSelection() != null && (getSelectedNode().getName().startsWith("Property")
+				|| getSelectedNode().getName().startsWith("property")))
 			getSelectedNode().setName(wizard.getSelection().getName());
 		updateView();
 		propertyTree.update(node, null);
@@ -526,8 +527,9 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 		if (selectedNode != null) {
 			nameText.setText(selectedNode.getName());
 
-			if (selectedNode.getAssignedTLNamedEntity() != null)
-				typeText.setText(selectedNode.getAssignedTLNamedEntity().getLocalName());
+			if (selectedNode instanceof TypedPropertyNode)
+				if (((TypedPropertyNode) selectedNode).getAssignedTLNamedEntity() != null)
+					typeText.setText(((TypedPropertyNode) selectedNode).getAssignedTLNamedEntity().getLocalName());
 			// final ModelObject<?> modelObject = selectedNode.getModelObject();
 			// typeText.setText(modelObject == null || modelObject.getTLType() == null ? "" : modelObject.getTLType()
 			// .getLocalName());
@@ -620,7 +622,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	}
 
 	private List<PropertyNode> getSelectedValidPropertiesFromLibraryTree() {
-		final List<PropertyNode> ret = new ArrayList<PropertyNode>();
+		final List<PropertyNode> ret = new ArrayList<>();
 		final ISelection selection = libraryTree.getSelection();
 		if (selection instanceof StructuredSelection) {
 			final StructuredSelection strSel = (StructuredSelection) selection;

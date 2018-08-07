@@ -45,7 +45,7 @@ public class WhereAssignedHandler {
 	private static final Logger LOGGER = LoggerFactory.getLogger(WhereAssignedHandler.class);
 
 	// nodes that use this node as a type definition.
-	protected ArrayList<Node> users = new ArrayList<Node>();
+	protected ArrayList<Node> users = new ArrayList<>();
 	protected WhereUsedNode<?> whereUsedNode = null;
 	protected TypeProvider owner = null;
 
@@ -130,7 +130,7 @@ public class WhereAssignedHandler {
 	 * @return
 	 */
 	public List<TypeUserAssignmentListener> getAssignmentListeners(TypeUser user) {
-		List<TypeUserAssignmentListener> listeners = new ArrayList<TypeUserAssignmentListener>();
+		List<TypeUserAssignmentListener> listeners = new ArrayList<>();
 		Collection<ModelElementListener> userListeners = Collections.emptyList();
 		if (user != null && user.getTLModelObject() != null)
 			userListeners = user.getTLModelObject().getListeners();
@@ -161,7 +161,7 @@ public class WhereAssignedHandler {
 	@Deprecated
 	public Collection<Node> getWhereUsed() {
 		// Safety check - remove any deleted users
-		ArrayList<Node> whereused = new ArrayList<Node>();
+		ArrayList<Node> whereused = new ArrayList<>();
 		for (Node n : whereused)
 			if (n.isDeleted()) {
 				users.remove(n);
@@ -174,7 +174,7 @@ public class WhereAssignedHandler {
 	 * @return the unmodifiable collection of users of this type.
 	 */
 	public Collection<TypeUser> getWhereAssigned() {
-		ArrayList<TypeUser> whereused = new ArrayList<TypeUser>();
+		ArrayList<TypeUser> whereused = new ArrayList<>();
 		for (Node n : users)
 			if (n instanceof TypeUser)
 				whereused.add((TypeUser) n);
@@ -194,8 +194,14 @@ public class WhereAssignedHandler {
 		return users.size();
 	}
 
+	/**
+	 * Get all the users of this owner type provider as well as all the users of all the type providers under the
+	 * owningComponent()
+	 * 
+	 * @return
+	 */
 	public Collection<TypeUser> getWhereAssignedIncludingDescendants() {
-		List<TypeUser> ul = new ArrayList<TypeUser>();
+		List<TypeUser> ul = new ArrayList<>();
 		for (Node n : users)
 			if (n instanceof TypeUser)
 				ul.add((TypeUser) n);
@@ -233,7 +239,7 @@ public class WhereAssignedHandler {
 	 * @param replacement
 	 */
 	public void replace(TypeProvider replacement) {
-		List<TypeUser> users = new ArrayList<TypeUser>(getWhereAssigned());
+		List<TypeUser> users = new ArrayList<>(getWhereAssigned());
 		for (TypeUser n : users)
 			n.setAssignedType(replacement);
 	}
@@ -249,16 +255,11 @@ public class WhereAssignedHandler {
 	public void replace(TypeProvider replacement, LibraryNode scopeLibrary) {
 		if (replacement == null)
 			return;
-		List<TypeUser> users = new ArrayList<TypeUser>(getWhereAssigned());
+		List<TypeUser> users = new ArrayList<>(getWhereAssigned());
 		for (TypeUser n : users)
 			if (n.isEditable())
 				if (scopeLibrary == null || (n.getLibrary() != null && n.getLibrary().equals(scopeLibrary))) {
 					n.setAssignedType(replacement);
-					// if (n.setAssignedType(replacement))
-					// LOGGER.debug("replace " + ((Node) n).getNameWithPrefix() + " with "
-					// + ((Node) replacement).getNameWithPrefix());
-					// else
-					// LOGGER.debug("Failed to replace " + n + " with " + replacement);
 				}
 	}
 
@@ -284,13 +285,13 @@ public class WhereAssignedHandler {
 	public void replaceAll(TypeProvider replacement, LibraryNode scopeLibrary) {
 
 		// Create map of replacement candidates being all descendants of the replacement
-		java.util.HashMap<String, TypeProvider> replacementTypes = new java.util.HashMap<String, TypeProvider>();
+		java.util.HashMap<String, TypeProvider> replacementTypes = new java.util.HashMap<>();
 		for (TypeProvider r : ((Node) replacement).getDescendants_TypeProviders())
 			replacementTypes.put(r.getName(), r);
 
 		// Replace where each type-provider child of this owner is used with it equivalent from replacement
 		for (TypeProvider child : owner.getDescendants_TypeProviders()) {
-			Collection<TypeUser> kids = new ArrayList<TypeUser>(child.getWhereAssigned());
+			Collection<TypeUser> kids = new ArrayList<>(child.getWhereAssigned());
 			// FIXME - Doing core_simpleFacetFacetNode causes errors
 			for (TypeUser n : kids) {
 				// Try to find a replacement equivalent from replacement object

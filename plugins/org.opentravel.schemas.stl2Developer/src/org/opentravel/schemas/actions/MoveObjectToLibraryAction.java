@@ -82,7 +82,8 @@ public class MoveObjectToLibraryAction extends OtmAbstractAction {
 		}
 	}
 
-	private void moveNode(final ComponentNode source, final LibraryNode destination) {
+	// Allow junit to access this method
+	protected void moveNode(final ComponentNode source, final LibraryNode destination) {
 		String warning = null;
 		if (destination == null)
 			warning = "Destination library is missing.";
@@ -101,7 +102,7 @@ public class MoveObjectToLibraryAction extends OtmAbstractAction {
 		else if (source.getChain() != null && source.getChain() == destination.getChain())
 			warning = "You can not move object within the same library version chain.";
 
-		if (!source.getVersionNode().getOlderVersions().isEmpty())
+		if (source.getVersionNode() != null && !source.getVersionNode().getOlderVersions().isEmpty())
 			LOGGER.debug("User will be confused.");
 
 		if (warning == null)

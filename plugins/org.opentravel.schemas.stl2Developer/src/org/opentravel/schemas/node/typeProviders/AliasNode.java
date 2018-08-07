@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class AliasNode extends TypeProviders implements TypeProvider {
+public class AliasNode extends TypeProviders {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AliasNode.class);
 
 	private AliasOwner owner = null;

@@ -17,17 +17,15 @@ package org.opentravel.schemas.functional;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collection;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemacompiler.saver.LibrarySaveException;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeFinders;
-import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
+import org.opentravel.schemas.node.properties.AttributeNode;
+import org.opentravel.schemas.node.properties.IdNode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
@@ -38,19 +36,15 @@ import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.types.TypeUser;
-import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.FacetNodeBuilder;
-import org.opentravel.schemas.utils.LibraryNodeBuilder;
-import org.osgi.framework.Version;
 
-public class TypeAssignmentTests {
+public class TypeAssignmentTests extends BaseTest {
 
-	private LibraryNode ln = null;
+	// private LibraryNode ln = null;
 	BusinessObjectNode bo = null;
 	CoreObjectNode co = null;
 	ChoiceObjectNode ch = null;
@@ -61,39 +55,83 @@ public class TypeAssignmentTests {
 	SimpleTypeNode so = null;
 	AliasNode ao = null;
 	ImpliedNode un = null;
+
 	SimpleTypeNode builtin = null;
+	TypeProvider emptyNode = null;
+	TypeProvider sType = null;
+	TypeProvider intType = null;
 
 	@Before
-	public void beforeEachTest() throws LibrarySaveException {
-		MainController mc = OtmRegistry.getMainController();
-		MockLibrary mockLibrary = new MockLibrary();
-		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
-		// ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
-		ln = LibraryNodeBuilder.create("Example", "http://example.org", "p", new Version(1, 1, 1)).build(defaultProject,
-				pc);
-		ln.setEditable(true);
+	public void beforeEachEachOfTheseTests() {
+		ln = ml.createNewLibrary_Empty(defaultProject.getNamespace(), "Test1", defaultProject);
+		assert ln.isEditable();
 
-		builtin = (SimpleTypeNode) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
-		TypeProvider tp;
-		// Consistent set of all type providers
-		bo = ComponentNodeBuilder.createBusinessObject("boBase").get(ln);
-		co = ComponentNodeBuilder.createCoreObject("coBase").get(ln);
-		ch = ComponentNodeBuilder.createChoiceObject("chBase").get(ln);
-		vo = ComponentNodeBuilder.createVWA("vwaBase").get(ln);
-		ep = ComponentNodeBuilder.createExtensionPoint("epBase").get(ln);
-		eo = ComponentNodeBuilder.createEnumerationOpen("eoBase").get(ln);
+		emptyNode = (TypeProvider) ModelNode.getEmptyNode();
+		sType = ml.getXsdDate();
+		intType = ml.getXsdInt();
 
-		ec = ComponentNodeBuilder.createEnumerationClosed("ecBase").get(ln);
-		so = ComponentNodeBuilder.createSimpleObject("simpleBase").assignType(builtin).get(ln);
+		bo = ml.addBusinessObjectToLibrary(ln, "boBase", true);
+		co = ml.addCoreObjectToLibrary(ln, "coBase");
+		ch = ml.addChoice(ln, "chBase");
+		vo = ml.addVWA_ToLibrary(ln, "vwaBase");
+		// ep = ml.addExtensionPoint(ln, facet)"epBase");
+		eo = ml.addOpenEnumToLibrary(ln, "eoBase");
+
+		ec = ml.addClosedEnumToLibrary(ln, "ecBase");
+		so = ml.addSimpleTypeToLibrary(ln, "simpleBase");
+
 		ao = new AliasNode(bo, "boAlias");
 		un = ModelNode.getUnassignedNode();
+
 	}
 
-	// See TestTypes
+	// @See TestTypes
+	@Test
+	public void assignBuiltInTests() {
+		Collection<TypeUser> whereAssigned = intType.getWhereAssigned();
+
+		// When assigned to VWA
+		vo.setAssignedType(intType);
+		Collection<TypeUser> whereAssigned2 = intType.getWhereAssigned();
+		// Then - must have additional where used
+		assertTrue("Int msut be assigned.", vo.getAssignedType() == intType);
+		assertTrue("Must be assigned to more places.", whereAssigned.size() < whereAssigned2.size());
+		assertTrue(intType.getWhereAssigned().contains(vo.getSimpleAttribute()));
+
+		// When assigned to Core
+		co.setAssignedType(intType);
+		Collection<TypeUser> whereAssigned3 = intType.getWhereAssigned();
+		// Then - must have additional where used
+		assertTrue("Int msut be assigned.", co.getAssignedType() == intType);
+		assertTrue("Must be assigned to more places.", whereAssigned2.size() < whereAssigned3.size());
+		assertTrue(intType.getWhereAssigned().contains(co.getSimpleAttribute()));
+
+		// When assigned to core properties
+		AttributeNode a = new AttributeNode(co.getFacet_Summary(), "attr1", sType);
+		for (TypeUser u : co.getDescendants_TypeUsers()) {
+			ml.check(co);
+			u.setAssignedType(intType);
+			assertTrue(intType.getWhereAssigned().contains(u));
+			ml.check(co);
+		}
+	}
+
+	@Test
+	public void assignToID() {
+
+		// Given - an ID node added to a business object
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "MyBO");
+		TypeUser id = new IdNode(bo.getFacet_ID(), "ThisID");
+
+		// Then
+		TypeProvider type = id.getAssignedType();
+		assertTrue("ID must have type.", type != null);
+		assertTrue("ID must be in types where used.", type.getWhereAssigned().contains(id));
+	}
+
+	// @See TestTypes
 	@Test
 	public void assignToElements() {
-		FacetProviderNode facetNode = FacetNodeBuilder.create(ln).addElements("E1", "E2", "E3").build();
 	}
 
 	@Test
@@ -125,7 +163,7 @@ public class TypeAssignmentTests {
 			// then assign a different one.
 			user.setAssignedType(ec);
 			assertTrue("Is assigned.", user.getAssignedType() == ec);
-			assertTrue("New type ust have this as where assigned.", ec.getWhereAssigned().contains(user));
+			assertTrue("New type must have this as where assigned.", ec.getWhereAssigned().contains(user));
 			assertTrue("Unassigned type must not have this as were assigned.", !un.getWhereAssigned().contains(user));
 		}
 

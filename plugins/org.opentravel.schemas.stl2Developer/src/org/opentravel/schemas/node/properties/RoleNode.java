@@ -19,11 +19,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLRole;
 import org.opentravel.schemacompiler.model.TLRoleEnumeration;
 import org.opentravel.schemas.node.ComponentNodeType;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
@@ -31,7 +29,6 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.node.typeProviders.RoleFacetNode;
 import org.opentravel.schemas.properties.Images;
-import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents a role enumeration value in a core object. See
@@ -45,12 +42,12 @@ public class RoleNode extends PropertyNode {
 
 	public RoleNode(RoleFacetNode parent, String name) {
 		super(new TLRole(), parent, name);
-		setAssignedType(getRequiredType());
+		// setAssignedType(getRequiredType());
 	}
 
 	public RoleNode(TLRole tlObj, RoleFacetNode parent) {
 		super(tlObj, parent);
-		setAssignedType(getRequiredType());
+		// setAssignedType(getRequiredType());
 	}
 
 	@Override
@@ -83,11 +80,6 @@ public class RoleNode extends PropertyNode {
 	}
 
 	@Override
-	public TypeProvider getAssignedType() {
-		return getRequiredType();
-	}
-
-	@Override
 	public ComponentNodeType getComponentNodeType() {
 		return ComponentNodeType.ROLE;
 	}
@@ -96,11 +88,6 @@ public class RoleNode extends PropertyNode {
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.RoleValue);
 	}
-
-	// @Override
-	// public String getLabel() {
-	// return getName();
-	// }
 
 	@Override
 	public String getName() {
@@ -118,11 +105,6 @@ public class RoleNode extends PropertyNode {
 			// The parent may have failed to rebuild children
 			parent = Node.GetNode(getTLModelObject().getRoleEnumeration());
 		return (RoleFacetNode) parent;
-	}
-
-	@Override
-	public ImpliedNode getRequiredType() {
-		return ModelNode.getUndefinedNode();
 	}
 
 	@Override
@@ -172,16 +154,6 @@ public class RoleNode extends PropertyNode {
 	protected void removeFromTL() {
 		if (getParent() != null && getParent().getTLModelObject() instanceof TLRoleEnumeration)
 			getParent().getTLModelObject().removeRole(getTLModelObject());
-	}
-
-	@Override
-	public void removeAssignedTLType() {
-		// NO-OP
-	}
-
-	@Override
-	public boolean setAssignedTLType(TLModelElement tlProvider) {
-		return false;
 	}
 
 }

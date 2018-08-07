@@ -26,10 +26,15 @@ import java.util.List;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAliasOwner;
+import org.opentravel.schemas.node.interfaces.AliasOwner;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.objectMembers.FacetOMNode;
+import org.opentravel.schemas.node.properties.AttributeNode;
+import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.testUtils.BaseTest;
@@ -151,6 +156,57 @@ public class AliasTests extends BaseTest {
 			if (!facet.getChildren().isEmpty())
 				assertTrue("Facets must have an alias as child node.", fa != null);
 			check(fa);
+		}
+	}
+
+	@Test
+	public void Alias_asTypeTests() {
+		// Given - one of each type with an alias
+		ArrayList<AliasNode> aliases = new ArrayList<>();
+		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
+		ml.addOneOfEach(ln, "AsType");
+		for (LibraryMemberInterface lm : ln.get_LibraryMembers())
+			if (lm instanceof AliasOwner) {
+				aliases.add(new AliasNode((AliasOwner) lm, lm.getName() + "_Alias"));
+
+				// Get all aliases on the children of LM
+				for (Node n : lm.getChildren())
+					for (Node cn : n.getChildren())
+						if (cn instanceof AliasNode)
+							aliases.add((AliasNode) cn);
+			}
+
+		// Given - an element to assign to
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "bo");
+		ElementNode ele = new ElementNode(bo.getFacet_Summary(), "E1");
+
+		// When - alias assigned
+		TypeProvider tp = null;
+		for (AliasNode a : aliases) {
+			ele.setAssignedType(a);
+			assertTrue("Must be assigned a TLAlias.", ele.getAssignedTLObject() instanceof TLAlias);
+			// All the names are modified a little bit.
+			// if (!ele.getName().equals(a.getName()))
+			// LOGGER.debug("Name change: " + ele + " " + a);
+			assertTrue("Element must have aliasNode as assigned type.", ele.getAssignedType() instanceof AliasNode);
+			tp = ele.getAssignedType();
+			// LOGGER.debug(ele.getAssignedType().getName());
+		}
+
+		// When - alias assigned to attributes
+		// Then - if allowed, the actual type is assigned and the alias is not
+		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "TestVWA");
+		AttributeNode attr = new AttributeNode(vwa.getFacet_Attributes(), "a1");
+		for (AliasNode a : aliases) {
+			// LOGGER.debug("Testing assigning " + a + " to attribute; parent is " + a.getParent());
+			// if (a.getOwningComponent() instanceof CoreObjectNode)
+			// LOGGER.debug("Ready to assign core alias");
+			if (attr.setAssignedType(a)) {
+				assertTrue("Must NOT be assigned a TLAlias.", !(attr.getAssignedTLObject() instanceof TLAlias));
+				// tp = attr.getAssignedType();
+				assertTrue("Must be assigned a to alias parent.", attr.getAssignedType() == a.getParent());
+				// LOGGER.debug(attr.getAssignedType().getName());
+			}
 		}
 	}
 

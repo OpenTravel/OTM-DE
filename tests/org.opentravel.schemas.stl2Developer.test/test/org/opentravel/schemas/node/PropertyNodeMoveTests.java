@@ -35,6 +35,7 @@ import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.RoleNode;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
@@ -203,7 +204,7 @@ public class PropertyNodeMoveTests extends BaseTest {
 			assertTrue("Uneditable property must not be renameable.", !pn.isRenameable());
 		else if (pn.isInherited())
 			assertTrue("Inherited property must not be renameable.", !pn.isRenameable());
-		else if (!pn.getAssignedType().isRenameableWhereUsed())
+		else if (pn instanceof TypedPropertyNode && !((TypedPropertyNode) pn).getAssignedType().isRenameableWhereUsed())
 			assertTrue("Property's assigned type requires it to not be renameable.", !pn.isRenameable());
 		else
 			assertTrue("Property must be renameable.", pn.isRenameable());

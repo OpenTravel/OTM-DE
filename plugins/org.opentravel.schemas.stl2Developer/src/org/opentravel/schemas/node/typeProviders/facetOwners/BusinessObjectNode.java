@@ -50,6 +50,7 @@ import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.TypeProviderListener;
 import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.node.objectMembers.FacetOMNode;
+import org.opentravel.schemas.node.properties.IdNode;
 import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
@@ -100,6 +101,7 @@ public class BusinessObjectNode extends FacetOwners
 		if (core.isDeleted())
 			return;
 
+		new IdNode(getFacet_ID(), "newID"); // BO must have at least one ID facet property
 		getFacet_Summary().copy(core.getFacet_Summary());
 		getFacet_Detail().copy(core.getFacet_Detail());
 	}
@@ -302,6 +304,11 @@ public class BusinessObjectNode extends FacetOwners
 				ret.add((CustomFacet15Node) f);
 
 		return ret;
+	}
+
+	@Override
+	public NavNode getParent() {
+		return (NavNode) parent;
 	}
 
 	// FIXME - make return abstractContextualFacet

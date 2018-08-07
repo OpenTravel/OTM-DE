@@ -21,6 +21,7 @@ import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
@@ -105,6 +106,10 @@ public class NodeVisitors {
 			Node node = (Node) n;
 			String nodeName = n.getName();
 
+			if (node instanceof ImpliedNode) {
+				LOGGER.debug("DeleteVisitor: deleting implied " + n);
+				return;
+			}
 			if (node instanceof ServiceNode) {
 				node.delete();
 				// // this has a entry in the service aggregate but no version node!
@@ -120,6 +125,8 @@ public class NodeVisitors {
 				// LOGGER.debug("DeleteVisitor: not delete-able " + n);
 				return;
 			}
+
+			node.deleted = true;
 
 			// Remove from where used list
 			if (node instanceof TypeProvider)
@@ -141,7 +148,6 @@ public class NodeVisitors {
 				node.getVersionNode().remove(node);
 
 			// Unlink from tree
-			node.deleted = true;
 			if (node.getParent() != null && node.getParent().getChildrenHandler() != null)
 				node.getParent().getChildrenHandler().clear(node);
 
@@ -152,8 +158,7 @@ public class NodeVisitors {
 			if (node instanceof LibraryMemberInterface)
 				((LibraryMemberInterface) node).setLibrary(null);
 
-			LOGGER.debug("DeleteVisitor: deleted  " + nodeName);
-
+			// LOGGER.debug("DeleteVisitor: deleted " + nodeName);
 		}
 	}
 

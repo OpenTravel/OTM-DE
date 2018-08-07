@@ -314,12 +314,14 @@ public class PropertyNodeTest extends BaseTest {
 			if (n instanceof PropertyNode) {
 				// Then - check with different type assignments
 				propertyRenameableCheck((PropertyNode) n);
-				if (vwa.canAssign(n))
-					((PropertyNode) n).setAssignedType(vwa);
-				propertyRenameableCheck((PropertyNode) n);
-				if (core.canAssign(n))
-					((PropertyNode) n).setAssignedType(core);
-				propertyRenameableCheck((PropertyNode) n);
+				if (n instanceof TypeUser) {
+					if (vwa.canAssign(n))
+						((TypeUser) n).setAssignedType(vwa);
+					propertyRenameableCheck((PropertyNode) n);
+					if (core.canAssign(n))
+						((TypeUser) n).setAssignedType(core);
+					propertyRenameableCheck((PropertyNode) n);
+				}
 			}
 	}
 
@@ -329,20 +331,28 @@ public class PropertyNodeTest extends BaseTest {
 			assertTrue("Uneditable property must not be renameable.", !pn.isRenameable());
 		else if (pn.isInherited())
 			assertTrue("Inherited property must not be renameable.", !pn.isRenameable());
-		else if (!pn.getAssignedType().isRenameableWhereUsed()
-				&& !(pn.getAssignedType() instanceof SimpleTypeProviders))
-			assertTrue("Property's assigned type requires it to not be renameable.", !pn.isRenameable());
-		else
-			assertTrue("Property must be renameable.", pn.isRenameable());
+		else if (pn instanceof TypeUser)
+			if (!((TypeUser) pn).getAssignedType().isRenameableWhereUsed()
+					&& !(((TypeUser) pn).getAssignedType() instanceof SimpleTypeProviders))
+				assertTrue("Property's assigned type requires it to not be renameable.", !pn.isRenameable());
+			else
+				assertTrue("Property must be renameable.", pn.isRenameable());
 	}
 
 	public void check(PropertyNode pn) {
-		TypeProvider at = pn.getAssignedType(); // type from tl model
-		if (at != null)
-			if (!at.getWhereAssigned().contains(pn))
-				LOGGER.debug("Property must be in where assigned list. " + pn + " " + at);
-		// else
-		// LOGGER.debug("OK - Property assigned list. " + pn + " " + nt);
+		if (pn instanceof TypeUser) {
+			TypeProvider at = ((TypeUser) pn).getAssignedType();
+			if (at != null) {
+				if (((TypeUser) pn).getAssignedTLObject() == null)
+					// Null may or may not be assigned to missing but will return missing implied node
+					LOGGER.debug("Null assigned type found on tl object. " + pn);
+				else if (!at.getWhereAssigned().contains(pn)) {
+					Collection<TypeUser> u = at.getWhereAssigned();
+					LOGGER.debug("Property must be in where assigned list. " + pn + " " + at);
+				}
+			} // else
+				// LOGGER.debug("OK - Property assigned list. " + pn + " " + nt);
+		}
 
 		// assertTrue("Property must be in where assigned list.", nt.getWhereAssigned().contains(pn));
 		assertTrue("Property must have tlObj.", pn.getTLModelObject() != null);

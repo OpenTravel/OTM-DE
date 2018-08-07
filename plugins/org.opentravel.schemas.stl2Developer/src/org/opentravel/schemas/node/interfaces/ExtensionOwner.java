@@ -71,11 +71,6 @@ public interface ExtensionOwner {
 	/**
 	 * @return
 	 */
-	ExtensionHandler getExtensionHandler();
-
-	/**
-	 * @return
-	 */
 	public TLModelElement getTLModelObject();
 
 	/**
@@ -83,14 +78,14 @@ public interface ExtensionOwner {
 	 */
 	public Object getOwningComponent();
 
+	/**
+	 * Get the handler for this extension owner if any.
+	 *
+	 * @return the handler if this owner extends a base, otherwise null.
+	 */
+	public ExtensionHandler getExtensionHandler();
+
 	// // NOT Part of extension
-	// /**
-	// * Get the handler for this extension owner if any.
-	// *
-	// * @return the handler if this owner extends a base, otherwise null.
-	// */
-	// public ExtensionHandler getExtensionHandler();
-	//
 	// public LibraryNode getLibrary();
 	//
 	// // /**

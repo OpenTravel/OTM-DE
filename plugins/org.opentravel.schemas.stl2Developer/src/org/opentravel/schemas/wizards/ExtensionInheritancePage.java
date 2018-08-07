@@ -45,6 +45,7 @@ import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.trees.library.LibraryTreeLabelProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,15 +69,15 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 	private ComponentNode treeNode;
 	private TableViewer fieldTable;
 	private TableViewer fieldSelectionTable;
-	private List<TableEditor> fieldSelectionButtons = new ArrayList<TableEditor>();
+	private List<TableEditor> fieldSelectionButtons = new ArrayList<>();
 	private TreeViewer treeViewer;
 
-	private List<PropertyNode> extensionProperties = new ArrayList<PropertyNode>();
-	private Map<PropertyNode, TLFacet> propertyFacetOwners = new HashMap<PropertyNode, TLFacet>();
-	private Map<PropertyNode, List<ComponentNode>> inheritanceOptions = new HashMap<PropertyNode, List<ComponentNode>>();
-	private Map<PropertyNode, ComponentNode> originalOptions = new HashMap<PropertyNode, ComponentNode>();
-	private Map<PropertyNode, ComponentNode> selectedOptions = new HashMap<PropertyNode, ComponentNode>();
-	private Map<NamedEntity, List<NamedEntity>> inheritanceHierarchyInfo = new HashMap<NamedEntity, List<NamedEntity>>();
+	private List<PropertyNode> extensionProperties = new ArrayList<>();
+	private Map<PropertyNode, TLFacet> propertyFacetOwners = new HashMap<>();
+	private Map<PropertyNode, List<ComponentNode>> inheritanceOptions = new HashMap<>();
+	private Map<PropertyNode, ComponentNode> originalOptions = new HashMap<>();
+	private Map<PropertyNode, ComponentNode> selectedOptions = new HashMap<>();
+	private Map<NamedEntity, List<NamedEntity>> inheritanceHierarchyInfo = new HashMap<>();
 
 	protected ExtensionInheritancePage(final String pageName, final String title, String description,
 			final ImageDescriptor titleImage, final Node n) {
@@ -110,14 +111,14 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 		//
 		// // Ignore options that were not modified by the user
 		// if (originalOption == selectedOption) {
-		// LOGGER.info("  No Change to Property: " + property.getName());
+		// LOGGER.info(" No Change to Property: " + property.getName());
 		// continue;
 		// }
 		//
 		// if (isInheritedProperty(property)) {
 		// // The original inherited property will be eclipsed by a new
 		// // declared property
-		// LOGGER.info("  Creating Property to Eclipse Inherited Property: " + selectedOption.getName());
+		// LOGGER.info(" Creating Property to Eclipse Inherited Property: " + selectedOption.getName());
 		// FacetNode currentNodeFacet = getCurrentNodeFacet(property);
 		//
 		// if (currentNodeFacet != null) {
@@ -126,7 +127,7 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 		//
 		// } else {
 		// // The existing declared property must be deleted
-		// LOGGER.info("  Deleting Property: " + property.getName());
+		// LOGGER.info(" Deleting Property: " + property.getName());
 		// property.delete();
 		// // property.getParent().deleteChild(property);
 		//
@@ -134,7 +135,7 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 		// // The original declared property will be replaced by a
 		// // declared property of a
 		// // different type
-		// LOGGER.info("  Creating Property to Replace the Deleted Property: " + selectedOption.getName());
+		// LOGGER.info(" Creating Property to Replace the Deleted Property: " + selectedOption.getName());
 		// FacetNode currentNodeFacet = getCurrentNodeFacet(property);
 		//
 		// if (currentNodeFacet != null) {
@@ -290,7 +291,7 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 		// List<PropertyNode> declaredProperties = new ArrayList<PropertyNode>();
 		// List<PropertyNode> inheritedProperties = new ArrayList<PropertyNode>();
 		// List<Object> inheritanceHierarchies = new ArrayList<Object>();
-		List<PropertyNode> extensionProperties = new ArrayList<PropertyNode>();
+		List<PropertyNode> extensionProperties = new ArrayList<>();
 		//
 		// getPropertyNodes(curNode, false, declaredProperties);
 		// getPropertyNodes(extensionNode, true, inheritedProperties);
@@ -380,7 +381,8 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 		return inheritanceOptions;
 	}
 
-	private ComponentNode getInitiallySelectedOption(PropertyNode propertyNode, List<ComponentNode> inheritanceHierarchy) {
+	private ComponentNode getInitiallySelectedOption(PropertyNode propertyNode,
+			List<ComponentNode> inheritanceHierarchy) {
 		TLProperty tlProperty = (TLProperty) propertyNode.getTLModelObject();
 		// TLProperty tlProperty = (TLProperty) propertyNode.getModelObject().getTLModelObj();
 		// NamedEntity propertyType = tlProperty.getType();
@@ -797,7 +799,7 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 			if (treeNode == null) {
 				initTreeNode();
 			}
-			List<Node> nodeChildren = new ArrayList<Node>();
+			List<Node> nodeChildren = new ArrayList<>();
 
 			// TODO - 3/26/13 dmh - make sure these changes didn't break the 2nd extension page
 			// before deleting them.
@@ -809,7 +811,9 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 
 				if (node instanceof PropertyNode) {
 					final PropertyNode prop = (PropertyNode) node;
-					final NamedEntity elem = prop.getAssignedTLNamedEntity();
+					NamedEntity elem = null;
+					if (prop instanceof TypedPropertyNode)
+						elem = ((TypedPropertyNode) prop).getAssignedTLNamedEntity();
 					// final NamedEntity elem = prop.getModelObject().getTLType();
 
 					if (elem != null)

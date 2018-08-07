@@ -21,8 +21,6 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
-import org.opentravel.schemas.types.TypeProvider;
-import org.opentravel.schemas.types.TypeUserHandler;
 
 /**
  * A property node that represents an inherited indicator. It is simply a facade for the underlying indicator from which
@@ -62,117 +60,13 @@ public class InheritedIndicatorNode extends IndicatorNode implements InheritedIn
 	}
 
 	@Override
-	public TypeProvider getAssignedType() {
-		return getInheritedFrom().getRequiredType();
-	}
-
-	// @Override
-	// public ComponentNodeType getComponentNodeType() {
-	// return ComponentNodeType.INDICATOR;
-	// }
-
-	// @Override
-	// public String getEquivalent(String context) {
-	// return getEquivalentHandler().get(context);
-	// }
-	//
-	// @Override
-	// public IValueWithContextHandler getEquivalentHandler() {
-	// if (equivalentHandler == null)
-	// equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
-	// return equivalentHandler;
-	// }
-	//
-	// @Override
-	// public String getExample(String context) {
-	// return getExampleHandler().get(context);
-	// }
-	//
-	// @Override
-	// public IValueWithContextHandler getExampleHandler() {
-	// if (exampleHandler == null)
-	// exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
-	// return exampleHandler;
-	// }
-
-	// @Override
-	// public Image getImage() {
-	// return Images.getImageRegistry().get(Images.Indicator);
-	// }
-
-	// @Override
-	// public String getName() {
-	// if (deleted)
-	// return "";
-	// return emptyIfNull(getTLModelObject().getName());
-	// }
-
-	@Override
 	public Node getParent() {
 		return parent;
-	}
-
-	// @Override
-	// public ImpliedNode getRequiredType() {
-	// return ModelNode.getIndicatorNode();
-	// }
-
-	/**
-	 * @return the typeHandler
-	 */
-	@Override
-	public TypeUserHandler getTypeHandler() {
-		return getInheritedFrom().getTypeHandler();
 	}
 
 	@Override
 	public TLIndicator getTLModelObject() {
 		return getInheritedFrom().getTLModelObject();
 	}
-
-	// @Override
-	// public int indexOfTLProperty() {
-	// return getTLModelObject() != null ? getTLModelObject().getOwner().getIndicators().indexOf(getTLModelObject())
-	// : 0;
-	// }
-	//
-	// @Override
-	// public boolean isEnabled_AssignType() {
-	// return false;
-	// }
-	//
-	// @Override
-	// public boolean isRenameable() {
-	// return isEditable() && !isInherited();
-	// }
-	//
-	// @Override
-	// public void setName(String name) {
-	// if (getTLModelObject() != null)
-	// getTLModelObject().setName(NodeNameUtils.fixIndicatorName(name));
-	// }
-	//
-	// @Override
-	// protected void moveDownTL() {
-	// if (getTLModelObject() != null)
-	// getTLModelObject().moveDown();
-	// }
-	//
-	// @Override
-	// protected void moveUpTL() {
-	// if (getTLModelObject() != null)
-	// getTLModelObject().moveUp();
-	// }
-
-	// @Override
-	// protected void removeFromTL() {
-	// if (getTLModelObject() != null)
-	// getTLModelObject().getOwner().removeIndicator(getTLModelObject());
-	// }
-	//
-	// @Override
-	// public boolean setAssignedType(TLModelElement tlProvider) {
-	// return false;
-	// }
 
 }

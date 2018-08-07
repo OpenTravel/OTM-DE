@@ -71,10 +71,10 @@ public abstract class TypeProviders extends ComponentNode implements TypeProvide
 
 	@Override
 	public void addTypeUser(TypeUser user) {
-		whereAssignedHandler.addUser(user);
-		// whereAssignedHandler.add(user);
-		// whereAssignedHandler.setListener(user);
-		// add also does library where used
+		if (!((Node) user).isDeleted())
+			whereAssignedHandler.addUser(user);
+		else
+			whereAssignedHandler.remove(user); // Safety check also does library where used
 	}
 
 	/**
@@ -241,13 +241,6 @@ public abstract class TypeProviders extends ComponentNode implements TypeProvide
 		return xsdObjectHandler;
 	}
 
-	// @Override
-	// public boolean hasTreeChildren(boolean deep) {
-	// if (getNavChildren(deep).isEmpty() && getInheritedChildren().isEmpty() && getWhereUsedCount() < 1)
-	// return false; // allow where used nodes
-	// return true;
-	// }
-
 	// TODO - as this question either to the provider or user but not both
 	/**
 	 * @return true if this node can be assigned to an element reference
@@ -368,18 +361,17 @@ public abstract class TypeProviders extends ComponentNode implements TypeProvide
 	 * @param name
 	 */
 	protected void updateNames(String name) {
-		// FIXME
 		for (TypeUser user : getWhereAssigned()) {
 			if (user instanceof PropertyNode)
 				user.setName(NodeNameUtils.fixBusinessObjectName(name));
 		}
-
+		// Fix name for all facets of this provider
 		for (Node child : getChildren()) {
-			if (child instanceof ContributedFacetNode) {
+			if (child instanceof ContributedFacetNode)
 				child = ((ContributedFacetNode) child).getContributor();
+			if (child instanceof TypeProvider)
 				for (TypeUser users : ((TypeProvider) child).getWhereAssigned())
 					((Node) users).visitAllNodes(new NodeVisitors().new FixNames());
-			}
 		}
 	}
 

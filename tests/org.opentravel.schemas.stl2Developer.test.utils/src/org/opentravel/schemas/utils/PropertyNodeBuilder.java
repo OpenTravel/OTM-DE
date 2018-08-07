@@ -77,13 +77,15 @@ public class PropertyNodeBuilder {
 
 	public PropertyNodeBuilder makeSimpleList(String name) {
 		CoreObjectNode coreObject = ComponentNodeBuilder.createCoreObject(name).get();
-		this.propertyNode.setAssignedType((TypeProvider) coreObject.getSimpleListFacet());
+		if (this.propertyNode instanceof TypeUser)
+			((TypeUser) this.propertyNode).setAssignedType((TypeProvider) coreObject.getSimpleListFacet());
 		return this;
 	}
 
 	public PropertyNodeBuilder makeDetailList(String name) {
 		CoreObjectNode coreObject = ComponentNodeBuilder.createCoreObject(name).get();
-		this.propertyNode.setAssignedType((TypeProvider) coreObject.getDetailListFacet());
+		if (this.propertyNode instanceof TypeUser)
+			((TypeUser) this.propertyNode).setAssignedType((TypeProvider) coreObject.getDetailListFacet());
 		return this;
 	}
 
@@ -94,13 +96,15 @@ public class PropertyNodeBuilder {
 
 	public PropertyNodeBuilder assignCoreObject(String name) {
 		CoreObjectNode coreObject = ComponentNodeBuilder.createCoreObject(name).get();
-		this.propertyNode.setAssignedType(coreObject);
+		if (this.propertyNode instanceof TypeUser)
+			((TypeUser) this.propertyNode).setAssignedType(coreObject);
 		return this;
 	}
 
 	public PropertyNodeBuilder assignBuisnessObject(String name) {
 		BusinessObjectNode business = ComponentNodeBuilder.createBusinessObject(name).get();
-		this.propertyNode.setAssignedType(business);
+		if (this.propertyNode instanceof TypeUser)
+			((TypeUser) this.propertyNode).setAssignedType(business);
 		return this;
 	}
 
@@ -109,7 +113,8 @@ public class PropertyNodeBuilder {
 	 */
 	public PropertyNodeBuilder assignVWA(String name) {
 		VWA_Node coreObject = ComponentNodeBuilder.createVWA(name).get();
-		this.propertyNode.setAssignedType(coreObject);
+		if (this.propertyNode instanceof TypeUser)
+			((TypeUser) this.propertyNode).setAssignedType(coreObject);
 		return this;
 	}
 

@@ -48,6 +48,7 @@ public class InheritedElementNode extends ElementNode implements InheritedInterf
 		super();
 		inheritedFrom = from;
 		this.parent = (Node) parent;
+		changeHandler = null;
 
 		// FIXME - add set listener
 	}
@@ -59,27 +60,27 @@ public class InheritedElementNode extends ElementNode implements InheritedInterf
 
 	@Override
 	public TypeProvider getAssignedType() {
-		return getInheritedFrom().getAssignedType();
+		return getInheritedFrom() != null ? getInheritedFrom().getAssignedType() : null;
 	}
 
 	@Override
 	public String getEquivalent(String context) {
-		return getInheritedFrom().getEquivalentHandler().get(context);
+		return getInheritedFrom() != null ? getInheritedFrom().getEquivalentHandler().get(context) : "";
 	}
 
 	@Override
 	public IValueWithContextHandler getEquivalentHandler() {
-		return getInheritedFrom().getEquivalentHandler();
+		return getInheritedFrom() != null ? getInheritedFrom().getEquivalentHandler() : null;
 	}
 
 	@Override
 	public String getExample(String context) {
-		return getInheritedFrom().getExampleHandler().get(context);
+		return getInheritedFrom() != null ? getInheritedFrom().getExampleHandler().get(context) : "";
 	}
 
 	@Override
 	public IValueWithContextHandler getExampleHandler() {
-		return getInheritedFrom().exampleHandler;
+		return getInheritedFrom() != null ? getInheritedFrom().exampleHandler : null;
 	}
 
 	@Override
@@ -89,12 +90,12 @@ public class InheritedElementNode extends ElementNode implements InheritedInterf
 
 	@Override
 	public String getLabel() {
-		return getInheritedFrom().getLabel();
+		return getInheritedFrom() != null ? getInheritedFrom().getLabel() : "";
 	}
 
 	@Override
 	public String getName() {
-		return getInheritedFrom().getName();
+		return getInheritedFrom() != null ? getInheritedFrom().getName() : "";
 	}
 
 	@Override
@@ -104,7 +105,7 @@ public class InheritedElementNode extends ElementNode implements InheritedInterf
 
 	@Override
 	public TLProperty getTLModelObject() {
-		return getInheritedFrom().getTLModelObject();
+		return getInheritedFrom() != null ? getInheritedFrom().getTLModelObject() : null;
 	}
 
 	/**
@@ -112,7 +113,7 @@ public class InheritedElementNode extends ElementNode implements InheritedInterf
 	 */
 	@Override
 	public TypeUserHandler getTypeHandler() {
-		return getInheritedFrom().getTypeHandler();
+		return getInheritedFrom() != null ? getInheritedFrom().getTypeHandler() : null;
 	}
 
 	@Override
@@ -120,11 +121,6 @@ public class InheritedElementNode extends ElementNode implements InheritedInterf
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacadeInterface#get()
-	 */
 	@Override
 	public Node get() {
 		return getInheritedFrom();

@@ -1569,6 +1569,8 @@ public abstract class Node implements INode {
 	}
 
 	/**
+	 * Wording on this is weird -- it really does: this.getExtensionBase == base
+	 * 
 	 * @return true if this is extended by the passed base node
 	 */
 	public boolean isExtendedBy(Node base) {
@@ -2000,10 +2002,12 @@ public abstract class Node implements INode {
 		// Add newNode if it is not already a member
 		getLibrary().addMember(newNode);
 
+		// Replace types on users in all editable libraries
 		replaceTypesWith((Node) newNode, null);
 
 		// must be done after replaceTypesWith. Listeners will remove the whereUsed links.
 		getLibrary().removeMember(this);
+		// NOTE - users in non-editable libraries will end up with null assignment but valid ns:name in tl object
 	}
 
 	public void setDescription(final String string) {

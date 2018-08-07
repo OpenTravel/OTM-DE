@@ -55,8 +55,8 @@ public class TypeUserAssignmentListener extends BaseNodeListener {
 		switch (event.getType()) {
 		case TYPE_ASSIGNMENT_MODIFIED:
 			// Listeners can't be set/removed here, doing so makes the event stream not have the assignment event.
-			// LOGGER.debug("Type Assignment Modified event - " + getSource(event) + " on " + getNode()
-			// + " changed to: " + getNewValue(event) + " from " + getOldValue(event));
+			// LOGGER.debug("Type Assignment Modified event - " + getSource(event) + " on " + getNode() + " changed to "
+			// + getNewValue(event) + " from " + getOldValue(event));
 
 			// VWA and Core have event listeners but are not type users.
 			Node source = getSource(event);

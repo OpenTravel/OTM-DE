@@ -17,15 +17,12 @@ package org.opentravel.schemas.node.properties;
 
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemas.node.ComponentNodeType;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
-import org.opentravel.schemas.node.typeProviders.ImpliedNode;
-import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents a enumeration literal. See {@link NodeFactory#newMemberOLD(INode, Object)}
@@ -56,11 +53,6 @@ public class InheritedEnumLiteralNode extends EnumLiteralNode implements FacadeI
 	}
 
 	@Override
-	public TypeProvider getAssignedType() {
-		return getRequiredType();
-	}
-
-	@Override
 	public ComponentNodeType getComponentNodeType() {
 		return ComponentNodeType.ENUM_LITERAL;
 	}
@@ -78,11 +70,6 @@ public class InheritedEnumLiteralNode extends EnumLiteralNode implements FacadeI
 	@Override
 	public Node getParent() {
 		return parent;
-	}
-
-	@Override
-	public ImpliedNode getRequiredType() {
-		return ModelNode.getUndefinedNode();
 	}
 
 	@Override

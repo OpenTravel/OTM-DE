@@ -189,6 +189,17 @@ public class ImpliedNode extends SimpleTypeProviders {
 	};
 
 	@Override
+	public void delete() {
+		super.delete();
+		assert false;
+	}
+
+	@Override
+	public boolean isDeleted() {
+		return false;
+	}
+
+	@Override
 	public boolean isNamedEntity() {
 		return true;
 	}
@@ -229,15 +240,5 @@ public class ImpliedNode extends SimpleTypeProviders {
 	public List<AliasNode> getAliases() {
 		return null;
 	}
-
-	// @Override
-	// public NamedEntity getAssignedTLNamedEntity() {
-	// return null;
-	// }
-	//
-	// @Override
-	// public boolean setAssignedType(TLModelElement tlProvider) {
-	// return false;
-	// }
 
 }

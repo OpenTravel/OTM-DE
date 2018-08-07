@@ -18,6 +18,7 @@ package org.opentravel.schemas.node.listeners;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,7 @@ public class TypeUserListener extends NodeIdentityListener implements INodeListe
 	 */
 	public TypeUserListener(Node node) {
 		super(node);
+		assert node instanceof TypeUser;
 	}
 
 	@Override

@@ -21,6 +21,7 @@ package org.opentravel.schemas.node;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
@@ -197,6 +198,15 @@ public class BusinessObjectTests extends BaseTest {
 		assertTrue("BO must have a name.", !bo.getName().isEmpty());
 		assertTrue("BO must have a label.", !bo.getLabel().isEmpty());
 
+		// Check all aliases
+		ArrayList<String> aNames = new ArrayList<>();
+		for (Node d : bo.getDescendants())
+			// for (Node n : d.getChildren())
+			if (d instanceof AliasNode) {
+				assertTrue("Alias names must be unique.", !aNames.contains(d.getName()));
+				aNames.add(d.getName());
+			}
+
 		// Check all descendants
 		assertTrue(bo.getLibrary() != null);
 		LibraryNode thisLib = bo.getLibrary();
@@ -210,7 +220,7 @@ public class BusinessObjectTests extends BaseTest {
 				ml.check(n, validate);
 			} else if (n.getOwningComponent() instanceof ContextualFacetNode) {
 				// May be in a different library
-				ml.check(n, validate);
+				// ml.check(n, validate);
 			} else if (n.getOwningComponent() instanceof FacadeInterface) {
 				LibraryMemberInterface oc = n.getOwningComponent();
 				assertTrue("Must have identity listener.",

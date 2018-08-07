@@ -37,6 +37,7 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLExtensionOwner;
+import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -698,16 +699,15 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	}
 
 	/**
-	 * Add node to this library. Links to library's complex/simple or element root. Adds underlying the TL object to
-	 * this library's TLModel library. Removes from existing library if already in a library. Handles adding nodes to
-	 * chains. Adds context to the TL Model library if needed. Does not change type assignments.
+	 * Add node to this library. Links to library's complex/simple or element root. Handles adding nodes to chains.
+	 * Removes from existing library if already in a library. Updates assignments (type, base extension and contextual
+	 * facet injection).
 	 * <p>
-	 * Add to tlLibrary.addNamedMember() <br>
-	 * linkMember() <br>
-	 * getChain.add()
+	 * Adds underlying the TL object to this library's TLModel library if this member is not inherited.
+	 * <p>
 	 * 
 	 * @param lm
-	 *            node to add to this library
+	 *            library member node to add to this library
 	 */
 	public void addMember(final LibraryMemberInterface lm) {
 		// If it doesn't have a children handler yet, it is doing the handler constructor.
@@ -724,15 +724,23 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		if (lm instanceof ResourceNode && ((ResourceNode) lm).getSubject() != null)
 			assert (((ResourceNode) lm).getSubject().getWhereAssigned().contains(lm));
 
-		// Hold onto number of contextual facets for assertion at end
+		// Hold onto number of contextual facets for assertion after move
 		int cfCount = 0;
-		if (lm instanceof ContextualFacetOwnerInterface)
+		// List<AbstractContextualFacet> cfList = null;
+		if (lm instanceof ContextualFacetOwnerInterface) {
 			cfCount = ((ContextualFacetOwnerInterface) lm).getContextualFacets(false).size();
-
+			//
+			// // Hold onto Contextual facets need to be re-assigned after LM is moved
+			// cfList = ((ContextualFacetOwnerInterface) lm).getContextualFacets(false);
+		}
 		if (!isEditable() && !(lm instanceof InheritedInterface)) {
 			LOGGER.warn("Tried to addMember() " + lm + " to non-editable library " + this);
 			return;
 		}
+
+		// Early Exits
+		if (this.contains((Node) lm) && lm.getLibrary() == this)
+			return; // early exit - already a member
 
 		// Remove from Old library if any
 		LibraryNode oldLib = lm.getLibrary();
@@ -740,23 +748,22 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 			oldLib.removeMember(lm, false);
 			assert !oldLib.contains((Node) lm);
 		}
+
+		// Assure contextual facets remained
 		if (lm instanceof ContextualFacetOwnerInterface)
 			assert cfCount == ((ContextualFacetOwnerInterface) lm).getContextualFacets(false).size();
-
-		if (this.contains((Node) lm))
-			return; // early exit - already a member
 
 		// Add to the TL Library
 		if (!getTLLibrary().getNamedMembers().contains(lm.getTLModelObject()))
 			if (!(lm instanceof InheritedInterface))
 				getTLLibrary().addNamedMember((LibraryMember) lm.getTLModelObject());
 
+		// Add to the node library and/or chain
 		lm.setLibrary(this);
-
 		if (getChain() != null)
 			getChain().add((ComponentNode) lm);
-
 		getChildrenHandler().add(lm);
+		assert this.contains((Node) lm);
 
 		// If the TL object has contextual facets, make sure they are modeled and add to this library if not
 		if (lm.getChildrenHandler() != null)
@@ -767,13 +774,26 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		// Make sure it did not bring additional contexts with it
 		collapseContexts(); // TODO - optimize to just object not whole library
 
-		assert this.contains((Node) lm);
 		// Subject must have resource in its where assigned list.
 		if (lm instanceof ResourceNode && ((ResourceNode) lm).getSubject() != null)
 			assert (((ResourceNode) lm).getSubject().getWhereAssigned().contains(lm));
+
+		// Reverify contextual facet count
 		if (lm instanceof ContextualFacetOwnerInterface)
 			assert cfCount == ((ContextualFacetOwnerInterface) lm).getContextualFacets(false).size();
 
+		// Reassignments - assure extensions, contextual facets and type users are assigned to the moved LM
+		// Extensions
+		if (lm instanceof ExtensionOwner)
+			for (ExtensionOwner subType : ((Node) lm).getWhereExtendedHandler().getWhereExtended())
+				subType.setExtension((Node) lm);
+		// Contextual facets
+		if (lm instanceof ContextualFacetOwnerInterface)
+			for (AbstractContextualFacet cf : ((ContextualFacetOwnerInterface) lm).getContextualFacets(false))
+				cf.getTLModelObject().setOwningEntity((TLFacetOwner) lm.getTLModelObject());
+		// Type assignments
+		if (lm instanceof TypeProvider)
+			((TypeProvider) lm).getWhereAssignedHandler().replaceAll((TypeProvider) lm);
 	}
 
 	public boolean isInChain() {

@@ -88,6 +88,7 @@ import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.InheritedElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.resources.ResourceBuilder;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
@@ -96,6 +97,7 @@ import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
@@ -537,7 +539,7 @@ public class MockLibrary {
 		n3.setAssignedType((TypeProvider) NodeFinders.findNodeByName(XsdINT, ModelNode.XSD_NAMESPACE));
 		TypeUser n3PropA = new ElementNode(n3.getFacet_Summary(), n1.getName());
 		n3PropA.setAssignedType(n1);
-		PropertyNode n3PropB = new ElementNode(n3.getFacet_Summary(), n2.getName());
+		TypedPropertyNode n3PropB = new ElementNode(n3.getFacet_Summary(), n2.getName());
 		n3PropB.setAssignedType(n2.getFacet_Summary());
 
 		TypeUser newProp = new ElementNode(n1.getFacet_ID(), "TestID");
@@ -599,7 +601,7 @@ public class MockLibrary {
 		VWA_Node newNode = (VWA_Node) NodeFactory.newLibraryMember(new TLValueWithAttributes());
 		newNode.setName(name);
 		newNode.setAssignedType((TypeProvider) NodeFinders.findNodeByName(XsdDATE, ModelNode.XSD_NAMESPACE));
-		PropertyNode newProp = new AttributeNode(newNode.getFacet_Attributes(), "TestAttribute");
+		TypedPropertyNode newProp = new AttributeNode(newNode.getFacet_Attributes(), "TestAttribute");
 		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName(XsdSTRING, ModelNode.XSD_NAMESPACE));
 		ln.addMember(newNode);
 
@@ -773,11 +775,13 @@ public class MockLibrary {
 		// TODO - propagate the validate flag to all object check() methods.
 
 		// Validate Identity Listener
-		if (!(node instanceof FacadeInterface))
-			assertTrue("Must have identity listener.", Node.GetNode(node.getTLModelObject()) == node);
-		else
-			assertTrue("Facade.get() must return a object with listener",
-					Node.GetNode(node.getTLModelObject()) == ((FacadeInterface) node).get());
+		if (!(node instanceof ImpliedNode)) {
+			if (!(node instanceof FacadeInterface))
+				assertTrue("Must have identity listener.", Node.GetNode(node.getTLModelObject()) == node);
+			else
+				assertTrue("Facade.get() must return a object with listener",
+						Node.GetNode(node.getTLModelObject()) == ((FacadeInterface) node).get());
+		}
 
 		// Dispatch to appropriate check method
 		if (node instanceof ProjectNode)

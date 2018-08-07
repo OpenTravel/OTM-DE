@@ -147,7 +147,12 @@ public class LoadFiles {
 		files.add(new File(filePath3));
 		files.add(new File(filePath4));
 		files.add(new File(filePath5));
+
 		proj.add(files);
+		new TypeResolver().resolveTypes();
+		// Only true if model is already valid
+		// new MockLibrary().check();
+
 		int libCnt = proj.getChildren().size();
 		return libCnt;
 	}

@@ -37,7 +37,7 @@ import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
-import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.node.typeProviders.CustomFacetNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
@@ -98,7 +98,7 @@ public class LoadDepenedLibrariesAndResolvedTypes extends BaseRepositoryTest {
 
 		extLib = ml.createNewLibrary_Empty(uploadProject.getNamespace(), "Ext", uploadProject);
 		VWA_Node vwa = ml.addVWA_ToLibrary(extLib, "VWA");
-		PropertyNode withAssignedType = new AttributeNode(vwa.getFacet_Attributes(), "attribute1", simpleInBase);
+		TypedPropertyNode withAssignedType = new AttributeNode(vwa.getFacet_Attributes(), "attribute1", simpleInBase);
 
 		assert uploadProject != null;
 		assert baseLib != null;

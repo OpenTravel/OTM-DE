@@ -29,8 +29,8 @@ import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.testUtils.MockLibrary;
@@ -99,7 +99,7 @@ public class ProjectNodeTest extends BaseProjectTest {
 				.create("UsingBase", testProject.getNamespace() + "/close", "o1", new Version(1, 0, 0))
 				.build(testProject, pc);
 		CoreObjectNode usingCO = ComponentNodeBuilder.createCoreObject("UsingCO").get(libUsingBase);
-		PropertyNode attrWithSO = PropertyNodeBuilder.create(PropertyNodeType.ATTRIBUTE)
+		TypedPropertyNode attrWithSO = (TypedPropertyNode) PropertyNodeBuilder.create(PropertyNodeType.ATTRIBUTE)
 				.addToComponent(usingCO.getFacet_Summary()).assign(baseSimpleObject).build();
 
 		// save name and namespace before closing, used later to find it from reloaded object
@@ -137,7 +137,7 @@ public class ProjectNodeTest extends BaseProjectTest {
 				.create("UsingType", testProject.getNamespace() + "/close", "o1", new Version(1, 0, 0))
 				.build(testProject, pc);
 		CoreObjectNode usingCO = ComponentNodeBuilder.createCoreObject("UsingCO").get(libUsingAssignedType);
-		PropertyNode eleAssignedSO = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT)
+		TypedPropertyNode eleAssignedSO = (TypedPropertyNode) PropertyNodeBuilder.create(PropertyNodeType.ELEMENT)
 				.addToComponent(usingCO.getFacet_Summary()).assign(srcSimpleObject).build();
 
 		// save name and namespace before closing, used later to find it from reloaded object

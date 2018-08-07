@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Assert;
@@ -36,6 +37,7 @@ import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
@@ -253,6 +255,51 @@ public class CoreObjectTests extends BaseTest {
 	}
 
 	@Test
+	public void CO_AssignmentTests() {
+		// Assign all assignable parts of the core and verify assignments
+
+		// Given - a business object with elements and attributes to assign to
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TestBO");
+		ElementNode ele = new ElementNode(bo.getFacet_Summary(), "ele1");
+		AttributeNode att = new AttributeNode(bo.getFacet_Summary(), "attr1");
+
+		// Given a core object
+		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "TestCore");
+
+		// When assigned to attribute
+		testAssignment(core, att);
+		testAssignment(core, ele);
+
+		// When type provider descendants are assigned
+		for (TypeProvider tp : core.getDescendants_TypeProviders()) {
+			testAssignment(tp, att);
+			testAssignment(tp, ele);
+		}
+
+		// Given - an alias on core
+		// AliasNode alias = new AliasNode(core, "CoreAlias");
+		// Attributes change the alias into the parent object on assignment
+		// testAssignment(alias, att);
+	}
+
+	private void testAssignment(TypeProvider tp, TypeUser u) {
+		String name = u.getName();
+		boolean result = u.setAssignedType(tp);
+		LOGGER.debug("Test assignment of " + tp + " to " + u + " result = " + result);
+		if (result) {
+			TypeProvider nu = u.getAssignedType();
+			Collection<TypeUser> nw = tp.getWhereAssigned();
+			assertTrue("Provider must be assigned type.", u.getAssignedType() == tp);
+			assertTrue("Provider must have attribute in where used.", tp.getWhereAssigned().contains(u));
+			// verify removed when assigned to something else
+			u.setAssignedType(ml.getXsdInt());
+			assertTrue("Provider must NOT be assigned type.", u.getAssignedType() != tp);
+			assertTrue("Provider must NOT have attribute in where used.", !tp.getWhereAssigned().contains(u));
+			u.setName(name);
+		}
+	}
+
+	@Test
 	public void CO_NameChangeTests() {
 		// On name change, all users of the BO and its aliases and facets also need to change.
 
@@ -392,8 +439,9 @@ public class CoreObjectTests extends BaseTest {
 		assertTrue(core.getSimpleAttribute() != null);
 		assertTrue(core.getType() == null);
 
-		if (validate)
-			assertTrue(core.isValid());
+		// Done in MockLibrary with printout of errors
+		// if (validate)
+		// assertTrue(core.isValid());
 
 	}
 }

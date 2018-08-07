@@ -81,10 +81,12 @@ public class Library_FunctionTests extends BaseProjectTest {
 	}
 
 	private void assertTypeAssigments(Node moved, PropertyNode withAssignedType) {
-		// make sure that after move assigned pointing to the same node
-		Assert.assertSame(moved, withAssignedType.getType());
-		// make sure that after move TLObjects are pointing to the same TLType
-		Assert.assertSame(moved.getTLModelObject(), withAssignedType.getAssignedTLObject());
+		if (withAssignedType instanceof TypeUser) {
+			// make sure that after move assigned pointing to the same node
+			Assert.assertSame(moved, withAssignedType.getType());
+			// make sure that after move TLObjects are pointing to the same TLType
+			Assert.assertSame(moved.getTLModelObject(), ((TypeUser) withAssignedType).getAssignedTLObject());
+		}
 	}
 
 	// TODO - verify isEmpty() behavior

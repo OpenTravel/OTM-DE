@@ -253,7 +253,8 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 			// Add where used and type assignment listener
 			target.addTypeUser(owner);
 		} else
-			LOGGER.debug("Failed to assign " + target + " to " + owner);
+			LOGGER.debug("Failed to assign " + target.getClass().getSimpleName() + ":" + target + " to "
+					+ owner.getClass().getSimpleName() + ":" + owner);
 
 		// Confirm results
 		if (get().getTLModelObject() != tlTarget) {

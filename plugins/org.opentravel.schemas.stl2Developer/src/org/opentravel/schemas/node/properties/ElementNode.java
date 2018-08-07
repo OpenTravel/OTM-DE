@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 
-public class ElementNode extends PropertyNode {
+public class ElementNode extends TypedPropertyNode {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ElementNode.class);
 
 	/**
@@ -52,6 +52,8 @@ public class ElementNode extends PropertyNode {
 	 */
 	public ElementNode(FacetInterface parent, String name) {
 		this(parent, name, null);
+		if (parent != null)
+			changeHandler = new PropertyRoleChangeHandler(this);
 	}
 
 	/**
@@ -67,6 +69,8 @@ public class ElementNode extends PropertyNode {
 		super(new TLProperty(), parent, name);
 		setAssignedType(type);
 		setName(name); // super.setName will not work if missing type
+		if (parent != null)
+			changeHandler = new PropertyRoleChangeHandler(this);
 	}
 
 	/**
@@ -83,10 +87,14 @@ public class ElementNode extends PropertyNode {
 			setMandatory(false);
 		if (tlObj.getType() == null)
 			setAssignedType();
+		if (parent != null)
+			changeHandler = new PropertyRoleChangeHandler(this);
 	}
 
 	public ElementNode() {
 		super();
+		if (parent != null)
+			changeHandler = new PropertyRoleChangeHandler(this);
 	}
 
 	@Override
@@ -98,6 +106,7 @@ public class ElementNode extends PropertyNode {
 				((TLPropertyOwner) owner.getTLModelObject()).addElement(getTLModelObject());
 			}
 		owner.getChildrenHandler().clear();
+		setParent((Node) owner);
 	}
 
 	@Override

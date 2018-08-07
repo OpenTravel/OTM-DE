@@ -78,7 +78,8 @@ public class GetDescendents_Tests extends BaseProjectTest {
 		ml.addAllProperties(bo2.getFacet_Summary());
 
 		List<Node> descendants = Node.getModelNode().getDescendants();
-		assert descendants.size() == 265;
+		// assert descendants.size() == 265;
+		assert descendants.size() == 266; // after property node refactor
 
 		// Then
 		for (Node d : Node.getModelNode().getDescendants()) {
@@ -340,7 +341,7 @@ public class GetDescendents_Tests extends BaseProjectTest {
 		Assert.assertEquals(2, types.size());
 
 		types = Node.getModelNode().getDescendants_AssignedTypes(false);
-		assert types.size() == 10;
+		assert types.size() == 9;
 	}
 
 }

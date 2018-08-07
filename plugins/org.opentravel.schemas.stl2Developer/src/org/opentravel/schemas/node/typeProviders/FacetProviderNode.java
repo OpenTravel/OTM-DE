@@ -38,6 +38,7 @@ import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.FacetOwners;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
@@ -137,7 +138,7 @@ public class FacetProviderNode extends FacetProviders implements Sortable {
 	public PropertyNode createProperty(Node type) {
 		// Assume that all FacetProviders can have elements
 		// FIXME - only does single behavior, not assign type if un-typed
-		PropertyNode pn = null;
+		TypedPropertyNode pn = null;
 		if (this.canOwn(PropertyNodeType.ELEMENT))
 			pn = new ElementNode(new TLProperty(), this);
 		else

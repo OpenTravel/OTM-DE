@@ -47,6 +47,7 @@ import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
+import org.opentravel.schemas.node.properties.TypedPropertyNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.preferences.CompilerPreferences;
@@ -255,16 +256,18 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 	public boolean changeToSimple(PropertyNode p) {
 		if (p instanceof SimpleAttributeFacadeNode)
 			return false;
-		if (!(p.getAssignedType() instanceof TypeProvider) || !p.getType().isSimpleAssignable())
-			return false;
+		if (p instanceof TypedPropertyNode)
+			if (!(((TypedPropertyNode) p).getAssignedType() instanceof TypeProvider)
+					|| !p.getType().isSimpleAssignable())
+				return false;
 
 		ComponentNode owner = (ComponentNode) p.getOwningComponent();
 		SimpleAttributeOwner simpleAttr = null;
 		boolean result = false;
-		if (owner instanceof CoreObjectNode)
-			result = ((CoreObjectNode) owner).setAssignedType(p.getAssignedType());
-		else if (owner instanceof VWA_Node)
-			result = ((VWA_Node) owner).setAssignedType(p.getAssignedType());
+		if (owner instanceof CoreObjectNode && p instanceof TypedPropertyNode)
+			result = ((CoreObjectNode) owner).setAssignedType(((TypedPropertyNode) p).getAssignedType());
+		else if (owner instanceof VWA_Node && p instanceof TypedPropertyNode)
+			result = ((VWA_Node) owner).setAssignedType(((TypedPropertyNode) p).getAssignedType());
 		if (!result)
 			return result; // failed to make assignements
 		// TODO copy the examples and equivalents

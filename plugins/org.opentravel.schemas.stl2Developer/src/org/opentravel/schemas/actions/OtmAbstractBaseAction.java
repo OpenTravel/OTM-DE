@@ -49,11 +49,13 @@ public abstract class OtmAbstractBaseAction extends AbstractWithNodeAction {
 	}
 
 	protected void initialize(final StringProperties props) {
-		this.setText(props.get(PropertyType.TEXT));
-		this.setToolTipText(props.get(PropertyType.TOOLTIP));
-		this.setImageDescriptor(Images.getImageRegistry().getDescriptor(props.get(PropertyType.IMAGE)));
-		this.setId(this.getText() + ACTION_COUNTER.incrementAndGet());
-		this.setEnabled(true);
+		if (props != null) {
+			this.setText(props.get(PropertyType.TEXT));
+			this.setToolTipText(props.get(PropertyType.TOOLTIP));
+			this.setImageDescriptor(Images.getImageRegistry().getDescriptor(props.get(PropertyType.IMAGE)));
+			this.setId(this.getText() + ACTION_COUNTER.incrementAndGet());
+			this.setEnabled(true);
+		}
 	}
 
 }

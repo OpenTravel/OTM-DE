@@ -29,7 +29,6 @@ import org.opentravel.schemas.node.handlers.children.CoreSimpleFacetChildrenHand
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
-import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.node.properties.CoreSimpleAttributeFacadeNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
@@ -51,9 +50,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class CoreSimpleFacetNode extends TypeProviders implements FacetInterface, SimpleAttributeOwner {
-	// public class Core_SimpleFacetFacadeNode extends SimpleFacetFacadeNode
-	// implements TypeProvider, SimpleAttributeOwner {
-	private static final Logger LOGGER = LoggerFactory.getLogger(FacetOMNode.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CoreSimpleAttributeFacadeNode.class);
 
 	public CoreSimpleFacetNode(CoreObjectNode owner) {
 		parent = owner;
@@ -63,7 +60,7 @@ public class CoreSimpleFacetNode extends TypeProviders implements FacetInterface
 		// Set the tlObj to get the listener correct
 		ListenerFactory.setIdentityListner(this, tlObj);
 
-		// TLObj with listener is needed to create child
+		// children handler needs TLObj with listener to create child
 		childrenHandler = new CoreSimpleFacetChildrenHandler(this);
 	}
 
@@ -97,26 +94,11 @@ public class CoreSimpleFacetNode extends TypeProviders implements FacetInterface
 		return getTLModelObject() != null ? getTLModelObject().getSimpleType() : null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.facets.PropertyOwnerNode#getComponentType()
-	 */
 	@Override
 	public String getComponentType() {
 		return getFacetType().getIdentityName();
 	}
 
-	// @Override
-	// public boolean isAssignableToSimple() {
-	// return !getParent().getAssignedType().equals(ModelNode.getEmptyNode());
-	// }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.facets.PropertyOwnerNode#getFacetType()
-	 */
 	@Override
 	public TLFacetType getFacetType() {
 		return TLFacetType.SIMPLE;
@@ -147,86 +129,42 @@ public class CoreSimpleFacetNode extends TypeProviders implements FacetInterface
 		return (TLSimpleFacet) tlObj;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.opentravel.schemas.node.interfaces.FacetInterface#copy(org.opentravel.schemas.node.interfaces.FacetInterface)
-	 */
 	@Override
 	public void copy(FacetInterface facet) {
 		// NO-OP
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#add(java.util.List, boolean)
-	 */
 	@Override
 	public void add(List<PropertyNode> properties, boolean clone) {
 		// NO-OP
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.opentravel.schemas.node.interfaces.FacetInterface#add(org.opentravel.schemas.node.properties.PropertyNode)
-	 */
 	@Override
 	public void add(PropertyNode property) {
 		// NO-OP
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.opentravel.schemas.node.interfaces.FacetInterface#add(org.opentravel.schemas.node.properties.PropertyNode,
-	 * int)
-	 */
 	@Override
 	public void add(PropertyNode pn, int index) {
 		// NO-OP
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#createProperty(org.opentravel.schemas.node.Node)
-	 */
 	@Override
 	public PropertyNode createProperty(Node type) {
 		// NO-OP
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#findChildByName(java.lang.String)
-	 */
 	@Override
 	public PropertyNode findChildByName(String name) {
 		return getSimpleAttribute();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#get(java.lang.String)
-	 */
 	@Override
 	public PropertyNode get(String name) {
 		return getSimpleAttribute();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#getProperties()
-	 */
 	@Override
 	public List<PropertyNode> getProperties() {
 		return Collections.singletonList((PropertyNode) getSimpleAttribute());
@@ -242,21 +180,11 @@ public class CoreSimpleFacetNode extends TypeProviders implements FacetInterface
 		return type.equals(TLFacetType.SIMPLE);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.SimpleAttributeOwner#getAssignedType()
-	 */
 	@Override
 	public TypeProvider getAssignedType() {
 		return getSimpleAttribute().getAssignedType();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.SimpleAttributeOwner#setAssignedType(org.opentravel.schemas.types.TypeProvider)
-	 */
 	@Override
 	public boolean setAssignedType(TypeProvider type) {
 		return getSimpleAttribute().setAssignedType(type);
