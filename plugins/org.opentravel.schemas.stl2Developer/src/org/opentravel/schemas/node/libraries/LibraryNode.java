@@ -64,6 +64,7 @@ import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.handlers.NamespaceHandler;
 import org.opentravel.schemas.node.handlers.children.LibraryChildrenHandler;
+import org.opentravel.schemas.node.interfaces.AliasOwner;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
@@ -77,6 +78,7 @@ import org.opentravel.schemas.node.listeners.LibraryNodeListener;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
@@ -385,7 +387,8 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 			// if (global)
 			// sourceNode.replaceTypesWith(entry.getValue());
 			// else
-			sourceNode.replaceTypesWith(entry.getValue(), scopeLib);
+			if (entry.getValue() instanceof TypeProvider)
+				sourceNode.replaceTypesWith((TypeProvider) entry.getValue(), scopeLib);
 		}
 
 		return imported;
@@ -700,11 +703,11 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 
 	/**
 	 * Add node to this library. Links to library's complex/simple or element root. Handles adding nodes to chains.
-	 * Removes from existing library if already in a library. Updates assignments (type, base extension and contextual
-	 * facet injection).
-	 * <p>
-	 * Adds underlying the TL object to this library's TLModel library if this member is not inherited.
-	 * <p>
+	 * <ul>
+	 * <li>Removes from existing library if in a different library. If already in this library, returns with no changes.
+	 * <li>Updates assignments (type, base extension and contextual facet injection).
+	 * <li>Adds underlying the TL object to this library's TLModel library if this member is not inherited.
+	 * </ul>
 	 * 
 	 * @param lm
 	 *            library member node to add to this library
@@ -739,24 +742,41 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		}
 
 		// Early Exits
-		if (this.contains((Node) lm) && lm.getLibrary() == this)
+		if (this.contains((Node) lm) && lm.getLibrary() == this) {
+			assert getTLLibrary().getNamedMembers().contains(lm.getTLModelObject());
 			return; // early exit - already a member
+		}
+		assert !getTLLibrary().getNamedMembers().contains(lm.getTLModelObject());
+
+		// FIXME - Work around for defect reported 8/15/2018
+		// Remove all aliases and add them back later
+		List<AliasNode> aliases = null;
+		if (lm instanceof AliasOwner) {
+			aliases = new ArrayList<>(lm.getAliases());
+			for (AliasNode alias : aliases)
+				((AliasOwner) lm).remove(alias);
+		}
 
 		// Remove from Old library if any
 		LibraryNode oldLib = lm.getLibrary();
 		if (oldLib != null && oldLib != this) {
 			oldLib.removeMember(lm, false);
 			assert !oldLib.contains((Node) lm);
+			// FIXME - Work around for defect reported 8/15/2018
+			// if (lm instanceof ContextualFacetOwnerInterface)
+			// for (AbstractContextualFacet cf : ((ContextualFacetOwnerInterface) lm).getContextualFacets(false))
+			// if (cf.getTLModelObject().getAliases() != null)
+			// for (TLAlias tla : cf.getTLModelObject().getAliases())
+			// cf.getTLModelObject().removeAlias(tla); // Operation not supported
 		}
 
 		// Assure contextual facets remained
 		if (lm instanceof ContextualFacetOwnerInterface)
 			assert cfCount == ((ContextualFacetOwnerInterface) lm).getContextualFacets(false).size();
 
-		// Add to the TL Library
-		if (!getTLLibrary().getNamedMembers().contains(lm.getTLModelObject()))
-			if (!(lm instanceof InheritedInterface))
-				getTLLibrary().addNamedMember((LibraryMember) lm.getTLModelObject());
+		// Add to the TL Library - if not already in it and not inherited
+		if (!(lm instanceof InheritedInterface))
+			getTLLibrary().addNamedMember((LibraryMember) lm.getTLModelObject());
 
 		// Add to the node library and/or chain
 		lm.setLibrary(this);
@@ -765,7 +785,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		getChildrenHandler().add(lm);
 		assert this.contains((Node) lm);
 
-		// If the TL object has contextual facets, make sure they are modeled and add to this library if not
+		// If the contextual facets were not modeled, model them and add to this library.
 		if (lm.getChildrenHandler() != null)
 			for (TLModelElement tlcf : lm.getChildrenHandler().getChildren_TL())
 				if (tlcf instanceof TLContextualFacet && Node.GetNode(tlcf) == null)
@@ -789,11 +809,24 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 				subType.setExtension((Node) lm);
 		// Contextual facets
 		if (lm instanceof ContextualFacetOwnerInterface)
-			for (AbstractContextualFacet cf : ((ContextualFacetOwnerInterface) lm).getContextualFacets(false))
+			for (AbstractContextualFacet cf : ((ContextualFacetOwnerInterface) lm).getContextualFacets(false)) {
 				cf.getTLModelObject().setOwningEntity((TLFacetOwner) lm.getTLModelObject());
+				assert cf.checkAliasesAreUnique(false);
+			}
 		// Type assignments
 		if (lm instanceof TypeProvider)
-			((TypeProvider) lm).getWhereAssignedHandler().replaceAll((TypeProvider) lm);
+			((TypeProvider) lm).getWhereAssignedHandler().replaceAll((TypeProvider) lm, null);
+
+		// FIXME - Work around for defect reported 8/15/2018
+		// add them back aliases
+		if (aliases != null) {
+			for (AliasNode alias : aliases)
+				((AliasOwner) lm).addAlias(alias);
+		}
+		if (lm instanceof ContextualFacetOwnerInterface)
+			for (AbstractContextualFacet cf : ((ContextualFacetOwnerInterface) lm).getContextualFacets(false))
+				assert cf.checkAliasesAreUnique(false);
+
 	}
 
 	public boolean isInChain() {
@@ -982,10 +1015,10 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 * 
 	 */
 	// FIXME - make this param a LibraryMemberInterface
-	public void removeMember(final Node n) {
+	public void removeMember(final LibraryMemberInterface n) {
 		if (!(n.getTLModelObject() instanceof LibraryMember))
 			return;
-		removeMember((LibraryMemberInterface) n, true);
+		removeMember(n, true);
 	}
 
 	public void removeMember(final LibraryMemberInterface n, boolean alsoDoContextualFacets) {
