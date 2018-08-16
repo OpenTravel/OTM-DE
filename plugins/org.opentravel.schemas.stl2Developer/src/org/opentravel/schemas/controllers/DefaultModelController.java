@@ -263,13 +263,13 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 
 		ComponentNode owner = (ComponentNode) p.getOwningComponent();
 		SimpleAttributeOwner simpleAttr = null;
-		boolean result = false;
+		TypeProvider result = null;
 		if (owner instanceof CoreObjectNode && p instanceof TypedPropertyNode)
 			result = ((CoreObjectNode) owner).setAssignedType(((TypedPropertyNode) p).getAssignedType());
 		else if (owner instanceof VWA_Node && p instanceof TypedPropertyNode)
 			result = ((VWA_Node) owner).setAssignedType(((TypedPropertyNode) p).getAssignedType());
-		if (!result)
-			return result; // failed to make assignements
+		if (result == null)
+			return false; // failed to make assignements
 		// TODO copy the examples and equivalents
 		// FIXME copyDocumentation(p, simpleFacet);
 

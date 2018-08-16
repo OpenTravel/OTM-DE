@@ -114,10 +114,10 @@ public class ElementReferenceNode extends ElementNode {
 	}
 
 	@Override
-	public boolean setAssignedType(TypeProvider provider) {
+	public TypeProvider setAssignedType(TypeProvider provider) {
 		boolean result = getTypeHandler().set(provider);
 		initName();
-		return result;
+		return result ? provider : null;
 	}
 
 	@Override

@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.node.properties;
 
+import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.types.TypeProvider;
@@ -43,9 +44,13 @@ public class PropertyRoleChangeHandler {
 	public IdNode oldIdN = null;
 
 	public PropertyRoleChangeHandler(PropertyNode pn) {
+		this(pn, pn.getParent());
+	}
+
+	public PropertyRoleChangeHandler(PropertyNode pn, Node parent) {
 		owner = pn;
 		assert owner != null;
-		assert owner.getParent() instanceof FacetInterface;
+		assert parent instanceof FacetInterface;
 
 		// Have to use role assigned not class because it is used in chained constructors
 		// so the class type may be wrong.

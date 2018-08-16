@@ -235,13 +235,13 @@ public class VWA_Node extends FacetOwners
 	 * Set the type assigned to the simple attribute in the simple facet.
 	 */
 	@Override
-	public boolean setAssignedType(TypeProvider provider) {
+	public TypeProvider setAssignedType(TypeProvider provider) {
 		return getSimpleAttribute().setAssignedType(provider);
 	}
 
 	@Override
 	public SimpleAttributeFacadeNode getSimpleAttribute() {
-		return getFacet_Simple().getSimpleAttribute();
+		return getFacet_Simple() != null ? getFacet_Simple().getSimpleAttribute() : null;
 	}
 
 	@Override

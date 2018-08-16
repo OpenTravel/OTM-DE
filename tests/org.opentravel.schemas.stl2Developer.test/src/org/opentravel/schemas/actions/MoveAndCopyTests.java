@@ -25,6 +25,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLAlias;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
+import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
@@ -33,10 +37,14 @@ import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.RoleFacetNode;
+import org.opentravel.schemas.node.typeProviders.TypeProviders;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.FacetOwners;
 import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -110,6 +118,81 @@ public class MoveAndCopyTests extends BaseTest {
 	}
 
 	/**
+	 * Test assumptions in LibraryNode.addMember(). Add member is used to add new objects as well as to move objects
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void moveTest_addMember_add() throws Exception {
+		OTM16Upgrade.otm16Enabled = true;
+		// Given - an empty library
+		ln = ml.createNewLibrary_Empty(pc.getDefaultUnmanagedNS(), "Lib1", defaultProject);
+
+		// Given - an invalid core object to add
+		TLCoreObject tlCore = new TLCoreObject();
+		CoreObjectNode core = new CoreObjectNode(tlCore);
+
+		// When added
+		ln.addMember(core);
+
+		// Then
+		assertTrue("Library must contain core object.", ln.contains(core));
+
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	/**
+	 * Test assumptions in LibraryNode.addMember(). Add member is used to add new objects as well as to move objects
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void moveTest_addMember_move() throws Exception {
+		OTM16Upgrade.otm16Enabled = true;
+		// Given - an empty library
+		ln = ml.createNewLibrary_Empty(pc.getDefaultUnmanagedNS(), "Lib1", defaultProject);
+		LibraryNode ln2 = ml.createNewLibrary_Empty(pc.getDefaultUnmanagedNS(), "Lib2", defaultProject);
+
+		// Given - an invalid core object to added to ln
+		TLCoreObject tlCore = new TLCoreObject();
+		CoreObjectNode core = new CoreObjectNode(tlCore);
+		Collection<TypeUser> ru = core.getFacet_Role().getWhereAssigned();
+		RoleFacetNode rf = core.getFacet_Role();
+
+		ln.getTLLibrary().addNamedMember(core.getTLModelObject());
+		core.setLibrary(ln);
+		ln.getChildrenHandler().add((LibraryMemberInterface) core);
+
+		// ln.addMember(core);
+		// assert ln.contains(core);
+		Collection<TypeUser> ru2 = core.getFacet_Role().getWhereAssigned();
+		assert ru2.size() == ru.size();
+
+		// Given - an element assigned core as type
+		CoreObjectNode c2 = ml.addCoreObjectToLibrary(ln, "C2");
+		ElementNode ele1 = new ElementNode(c2.getFacet_Attributes(), "E1", core);
+		assert ele1.getAssignedType() == core;
+
+		// // Given - an attribute assigned core simple facet as type
+		// VWA_Node vwa = ml.addVWA_ToLibrary(ln, "vwa");
+		// AttributeNode att1 = new AttributeNode(vwa.getFacet_Attributes(), "att1", core.getFacet_Simple());
+		// assert att1.getAssignedType() == core.getFacet_Simple();
+
+		// Try adding to TL library with out removing first.
+
+		// When moved to lib2
+		ln2.addMember(core);
+
+		// Then -
+		assertTrue(ln2.contains(core));
+		assertTrue(!ln.contains(core));
+		assert ele1.getAssignedType() == core;
+		// assert att1.getAssignedType() == core.getFacet_Simple();
+
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	/**
 	 * Run tests against default project with loaded files.
 	 * 
 	 * @throws Exception
@@ -133,6 +216,19 @@ public class MoveAndCopyTests extends BaseTest {
 
 		// Given - the action class for move
 		MoveObjectToLibraryAction action = new MoveObjectToLibraryAction(null, ln);
+		LibraryMemberInterface lastTroubleMaker = null;
+
+		// Check loaded project for name collisions - if so, validation will fail after moves
+		boolean canBeValid = true;
+		List<String> sourceLibMemberNames = new ArrayList<>();
+		for (LibraryMemberInterface lm : defaultProject.getDescendants_LibraryMembers()) {
+			if (!sourceLibMemberNames.contains(lm.getName()))
+				sourceLibMemberNames.add(lm.getName());
+			else {
+				canBeValid = false;
+				LOGGER.debug(lm + " is a duplicate name.");
+			}
+		}
 
 		ArrayList<AliasNode> destAliases = new ArrayList<>();
 
@@ -143,35 +239,77 @@ public class MoveAndCopyTests extends BaseTest {
 			assert sourceLib.contains((Node) lm);
 			assert sourceLib.isEditable();
 			assert !ln.contains((Node) lm);
-			ml.check((Node) lm);
 
-			Collection<TypeUser> users, stUsers = null;
+			ml.check((Node) lm, canBeValid);
+
+			Collection<TypeUser> users, stUsers = null, stUsersMoved = null;
+			Collection<AliasNode> aliases;
+			// Given - the core object is correct before moving
 			if (lm instanceof CoreObjectNode && lm.getName().equals("PaymentCard")) {
 				LOGGER.debug("Moving core objects used as types causes problems.");
 				users = ((CoreObjectNode) lm).getWhereAssigned();
 				stUsers = ((CoreObjectNode) lm).getFacet_Simple().getWhereAssigned();
+				LOGGER.debug("Simple Facet " + lm + " where used count "
+						+ ((TypeProviders) ((FacetOwners) lm).getFacet_Simple()).getWhereUsedCount());
+				for (TypeUser user : stUsers) {
+					TLModelElement type = user.getAssignedTLObject();
+					assertTrue("Must have assigned TL Type.", type != null);
+				}
+				aliases = lm.getAliases();
+				for (AliasNode alias : aliases) {
+					LOGGER.debug("Alias " + alias + " where used count " + alias.getWhereUsedCount());
+					LOGGER.debug("Alias " + alias + " where assigned count " + alias.getWhereAssignedCount());
+					// TODO - move to Alias tests
+					assertTrue("Counts must be equal.", alias.getWhereUsedCount() == alias.getWhereAssignedCount());
+				}
 			}
 
-			// If there is a name collision then the resulting library will not be valid
-			Node nameMatch = ln.findLibraryMemberByName(lm.getName());
-			assert nameMatch == null;
 			if (lm.getAliases() != null)
 				destAliases.addAll(lm.getAliases());
 
+			// Trap for debugging
+			String troubleMakerName = "ProfileService";
+			if (lm.getName().equals(troubleMakerName)) {
+				LOGGER.debug("Ready to move trouble maker: " + lm);
+				ml.check((Node) lm, canBeValid);
+				lastTroubleMaker = lm;
+			}
+
+			//
+			// When - moved using action class
+			///
 			LOGGER.debug("Moving " + lm.getClass().getSimpleName() + " " + lm);
 			action.moveNode((ComponentNode) lm, ln);
 
-			assertTrue("Must have removed LM", !sourceLib.contains((Node) lm));
-			assertTrue("Must have added LM", ln.contains((Node) lm));
+			assertTrue("Must have removed LM from source library.", !sourceLib.contains((Node) lm));
+			assertTrue("Must have added LM to destination library.", ln.contains((Node) lm));
 
-			if (lm.getName().equals("Profile"))
+			// Then - moved core object must still be correct
+			if (lm instanceof CoreObjectNode && lm.getName().equals("PaymentCard")) {
+				stUsersMoved = ((CoreObjectNode) lm).getFacet_Simple().getWhereAssigned();
+				assertTrue("Users count must match.", stUsers.size() == stUsersMoved.size());
+				for (TypeUser user : stUsersMoved) {
+					TLModelElement type = user.getAssignedTLObject();
+					assertTrue("Must have assigned TL Type.", type != null);
+				}
+				LOGGER.debug("Simple Facet " + lm + " where used count "
+						+ ((TypeProviders) ((FacetOwners) lm).getFacet_Simple()).getWhereUsedCount());
+				aliases = lm.getAliases();
+				if (aliases != null)
+					for (AliasNode alias : aliases)
+						LOGGER.debug("Alias " + alias + " used as type " + alias.getWhereUsedCount());
+			}
+
+			if (lm.getName().equals(troubleMakerName)) {
 				LOGGER.debug("Error case");
+				ml.check((Node) lm, canBeValid);
+			}
 
-			ml.check((Node) lm);
+			ml.check((Node) lm, canBeValid);
 		}
 
-		// Then - resulting model must be valid - no name collisions in Group A
-		ml.check();
+		// Then - resulting model must be valid if there were no name collisions
+		ml.check(Node.getModelNode(), canBeValid);
 
 		// Then - source libraries must be empty
 		List<LibraryMemberInterface> shouldBeEmpty = defaultProject.getDescendants_LibraryMembers();
@@ -181,4 +319,15 @@ public class MoveAndCopyTests extends BaseTest {
 		OTM16Upgrade.otm16Enabled = false;
 	}
 
+	private void checkContextualFacetsForDuplicateTLAliases(BusinessObjectNode bo) {
+		TLContextualFacet tl;
+		for (AbstractContextualFacet cf : bo.getContextualFacets(false)) {
+			tl = cf.getTLModelObject();
+			ArrayList<String> aliasNames = new ArrayList<>();
+			for (TLAlias tla : tl.getAliases()) {
+				assert (!aliasNames.contains(tla.getName()));
+				aliasNames.add(tla.getName());
+			}
+		}
+	}
 }

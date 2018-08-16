@@ -51,6 +51,8 @@ import org.opentravel.schemas.node.listeners.TypeProviderListener;
 import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.node.properties.IdNode;
+import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
@@ -100,10 +102,11 @@ public class BusinessObjectNode extends FacetOwners
 
 		if (core.isDeleted())
 			return;
-
-		new IdNode(getFacet_ID(), "newID"); // BO must have at least one ID facet property
 		getFacet_Summary().copy(core.getFacet_Summary());
 		getFacet_Detail().copy(core.getFacet_Detail());
+
+		// Assure business object has one and only one ID and it is in the ID facet.
+		fixIDs();
 	}
 
 	public BusinessObjectNode(VWA_Node vwa) {
@@ -118,6 +121,10 @@ public class BusinessObjectNode extends FacetOwners
 			return;
 
 		getFacet_Summary().copy(vwa.getFacet_Attributes());
+
+		// Assure business object has one and only one ID and it is in the ID facet.
+		fixIDs();
+
 	}
 
 	@Override
@@ -330,6 +337,40 @@ public class BusinessObjectNode extends FacetOwners
 			if (n instanceof ContextualFacetNode)
 				n.delete();
 		super.delete();
+	}
+
+	/**
+	 * Assure business object has one and only one ID and it is in the ID facet. Change extra IDs to attributes. Create
+	 * new ID if needed.
+	 * 
+	 * @return
+	 */
+	private IdNode fixIDs() {
+		IdNode finalID = null;
+		// Use from ID facet if found. if more than one found, change extras to attribute
+		for (Node n : getFacet_ID().getChildren())
+			if (n instanceof IdNode)
+				if (finalID == null) {
+					((IdNode) n).moveProperty(getFacet_ID());
+					finalID = (IdNode) n;
+				} else
+					((PropertyNode) n).changePropertyRole(PropertyNodeType.ATTRIBUTE);
+
+		// Search for any ID types. Move 1st one to ID facet and make rest into attributes.
+		List<Node> properties = new ArrayList<>(getFacet_Summary().getChildren());
+		properties.addAll(getFacet_Detail().getChildren());
+		for (Node n : properties)
+			if (n instanceof IdNode)
+				if (finalID == null) {
+					((IdNode) n).moveProperty(getFacet_ID());
+					finalID = (IdNode) n;
+				} else
+					((PropertyNode) n).changePropertyRole(PropertyNodeType.ATTRIBUTE);
+
+		// If none were found, make one
+		if (finalID == null)
+			finalID = new IdNode(getFacet_ID(), "newID"); // BO must have at least one ID facet property
+		return finalID;
 	}
 
 	@Override

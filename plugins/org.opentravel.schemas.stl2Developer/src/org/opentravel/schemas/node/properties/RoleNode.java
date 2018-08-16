@@ -15,9 +15,6 @@
  */
 package org.opentravel.schemas.node.properties;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLRole;
 import org.opentravel.schemacompiler.model.TLRoleEnumeration;
@@ -26,7 +23,6 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.node.typeProviders.RoleFacetNode;
 import org.opentravel.schemas.properties.Images;
 
@@ -38,7 +34,7 @@ import org.opentravel.schemas.properties.Images;
  * 
  */
 // TODO - delegate to PropertyNode when possible
-public class RoleNode extends PropertyNode {
+public class RoleNode extends UnTypedPropertyNode {
 
 	public RoleNode(RoleFacetNode parent, String name) {
 		super(new TLRole(), parent, name);
@@ -61,10 +57,10 @@ public class RoleNode extends PropertyNode {
 		owner.getChildrenHandler().clear();
 	}
 
-	@Override
-	public boolean canAssign(Node type) {
-		return type instanceof ImpliedNode ? true : false;
-	}
+	// @Override
+	// public boolean canAssign(Node type) {
+	// return type instanceof ImpliedNode ? true : false;
+	// }
 
 	@Override
 	public INode createProperty(Node type) {
@@ -94,10 +90,10 @@ public class RoleNode extends PropertyNode {
 		return emptyIfNull(getTLModelObject().getName());
 	}
 
-	@Override
-	public List<Node> getNavChildren(boolean deep) {
-		return Collections.emptyList();
-	}
+	// @Override
+	// public List<Node> getNavChildren(boolean deep) {
+	// return Collections.emptyList();
+	// }
 
 	@Override
 	public RoleFacetNode getParent() {
@@ -112,25 +108,25 @@ public class RoleNode extends PropertyNode {
 		return (TLRole) tlObj;
 	}
 
-	@Override
-	public List<Node> getTreeChildren(boolean deep) {
-		return Collections.emptyList();
-	}
-
-	@Override
-	public boolean hasNavChildren(boolean deep) {
-		return false;
-	}
-
-	@Override
-	public boolean isNavChild(boolean deep) {
-		return false;
-	}
-
-	@Override
-	public boolean isRenameable() {
-		return isEditable() && !isInherited();
-	}
+	// @Override
+	// public List<Node> getTreeChildren(boolean deep) {
+	// return Collections.emptyList();
+	// }
+	//
+	// @Override
+	// public boolean hasNavChildren(boolean deep) {
+	// return false;
+	// }
+	//
+	// @Override
+	// public boolean isNavChild(boolean deep) {
+	// return false;
+	// }
+	//
+	// @Override
+	// public boolean isRenameable() {
+	// return isEditable() && !isInherited();
+	// }
 
 	@Override
 	public void setName(String name) {

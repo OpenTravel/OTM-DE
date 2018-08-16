@@ -193,6 +193,10 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 	 * @return true if assignment could be made, false otherwise
 	 */
 	public boolean set(TypeProvider target) {
+		return set(target, false);
+	}
+
+	public boolean set(TypeProvider target, boolean force) {
 		// LOGGER.debug("START - Assign type " + target + " to " + owner);
 		if (owner == null || !owner.isEditable())
 			return false;
@@ -221,12 +225,13 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		}
 
 		// Skip if "Unassigned" in an attempt to preserve actual assignment even if that library is not loaded.
-		if (target == null || target == ModelNode.getUnassignedNode()) {
-			// Remove old type assignment
-			oldProvider.removeWhereAssigned(owner);
-			ModelNode.getUnassignedNode().addTypeUser(owner);
-			return false;
-		}
+		if (!force)
+			if (target == null || target == ModelNode.getUnassignedNode()) {
+				// Remove old type assignment
+				oldProvider.removeWhereAssigned(owner);
+				ModelNode.getUnassignedNode().addTypeUser(owner);
+				return false;
+			}
 		// Get the tl object
 		TLModelElement tlTarget = target.getTLModelObject();
 
@@ -258,6 +263,10 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 
 		// Confirm results
 		if (get().getTLModelObject() != tlTarget) {
+			// Empty substitutes for null on simple attribute facades
+			if (owner instanceof SimpleAttributeFacadeNode && tlTarget == null)
+				return result;
+
 			TypeProvider actual = get();
 			if (actual.getXsdObjectHandler() == null || actual.getXsdObjectHandler().getTLLibraryMember() != tlTarget) {
 				LOGGER.debug("Failed to assign " + ((Node) target).getNameWithPrefix() + " to " + owner + " got "

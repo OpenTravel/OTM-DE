@@ -199,7 +199,7 @@ public class VWA_SimpleFacetFacadeNode extends FacadeBase implements FacetInterf
 
 	// @Override
 	@Deprecated
-	public boolean setAssignedType(TypeProvider provider) {
+	public TypeProvider setAssignedType(TypeProvider provider) {
 		return getSimpleAttribute().setAssignedType(provider);
 	}
 

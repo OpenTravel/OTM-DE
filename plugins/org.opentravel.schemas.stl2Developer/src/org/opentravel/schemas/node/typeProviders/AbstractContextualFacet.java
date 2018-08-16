@@ -15,8 +15,11 @@
  */
 package org.opentravel.schemas.node.typeProviders;
 
+import java.util.ArrayList;
+
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
@@ -93,6 +96,27 @@ public abstract class AbstractContextualFacet extends FacetProviderNode implemen
 
 	@Override
 	public abstract boolean canOwn(AbstractContextualFacet targetCF);
+
+	/**
+	 * Test the TL object to assure aliases are unique
+	 * 
+	 * @return
+	 */
+	public boolean checkAliasesAreUnique(boolean fix) {
+		TLContextualFacet tl = getTLModelObject();
+		ArrayList<String> aliasNames = new ArrayList<>();
+		for (TLAlias tla : tl.getAliases()) {
+			if (aliasNames.contains(tla.getName())) {
+				if (fix) {
+					tl.removeAlias(tla);
+					getChildrenHandler().clear();
+				} else
+					assert (false);
+			} else
+				aliasNames.add(tla.getName());
+		}
+		return true;
+	}
 
 	@Override
 	public Node clone(Node parent, String nameSuffix) {

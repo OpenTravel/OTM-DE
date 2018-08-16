@@ -85,6 +85,8 @@ public class AliasNode extends TypeProviders {
 	public void delete() {
 		if (parent instanceof AliasOwner)
 			((AliasOwner) parent).remove(this);
+		deleted = true;
+		parent = null;
 	}
 
 	@Override

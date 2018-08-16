@@ -146,7 +146,7 @@ public class MockLibrary {
 	}
 
 	/**
-	 * Create umnamanged library in the default project
+	 * Create unmanaged, editable library in the default project
 	 * 
 	 * @param string
 	 * @return
@@ -564,8 +564,10 @@ public class MockLibrary {
 	public CoreObjectNode addCoreObjectToLibrary(LibraryNode ln, String name) {
 		TypeProvider type = (getXsdString());
 		CoreObjectNode newNode = addCoreObjectToLibrary_Empty(ln, name);
-		new ElementNode(newNode.getFacet_Summary(), "TestElement" + name, type);
-		newNode.setAssignedType((TypeProvider) ModelNode.getEmptyNode());
+		new ElementNode(newNode.getFacet_Summary(), "TestElements" + name, type);
+		new IdNode(newNode.getFacet_Summary(), "TestElements" + name);
+		new ElementNode(newNode.getFacet_Detail(), "TestElementd" + name, type);
+		newNode.setAssignedType(getXsdInt());
 		newNode.getFacet_Role().add(name + "Role");
 		return newNode;
 	}

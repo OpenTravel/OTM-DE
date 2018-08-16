@@ -211,6 +211,14 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 		return vm.getPreviousVersion() == null ? true : false;
 	}
 
+	/**
+	 * Version node is considered deleted when its head object is deleted
+	 */
+	@Override
+	public boolean isDeleted() {
+		return get() != null ? get().isDeleted() : true;
+	}
+
 	@Override
 	public boolean isEditable() {
 		return get() != null ? get().isEditable() : false;

@@ -135,6 +135,8 @@ public class NodeTesters {
 
 		// Check links.
 		Assert.assertFalse(n.getNodeID().isEmpty()); // used in drag-n-drop
+		if (n.getParent() == null)
+			LOGGER.debug("Null Parent Error");
 		Assert.assertNotNull(n.getParent());
 
 		Assert.assertNotNull(n.getChildren());

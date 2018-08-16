@@ -83,7 +83,7 @@ public class ReplaceWith_Tests extends BaseTest {
 			assertTrue("Must have namespace.", c.getNamespace().equals(ln2.getNamespace()));
 
 		// When - 1st core is replaced by second core
-		((TypeProvider) core).getWhereAssignedHandler().replaceAll(replacement);
+		((TypeProvider) core).getWhereAssignedHandler().replaceAll(replacement, null);
 
 		// Then - all property types should be from replacement lib
 		for (Node p : bo.getFacet_Summary().getChildren()) {
@@ -242,12 +242,12 @@ public class ReplaceWith_Tests extends BaseTest {
 		ml.check(owner);
 		for (TypeUser n : owner.getDescendants_TypeUsers())
 			// Only do one so the owner remains valid
-			if (n.setAssignedType(p1))
+			if (n.setAssignedType(p1) != null)
 				break;
 
 		ml.check(owner);
 
-		((Node) p1).replaceTypesWith(p2, owner.getLibrary());
+		((Node) p1).replaceTypesWith((TypeProvider) p2, owner.getLibrary());
 
 		// Then - check object
 		ml.check(owner);
@@ -334,17 +334,17 @@ public class ReplaceWith_Tests extends BaseTest {
 	 */
 	private void replaceMembers(LibraryNode ls, LibraryNode lt) {
 		// Sort the list so that the order is consistent with each test.
-		List<Node> targets = lt.getDescendants_LibraryMembersAsNodes();
-		Collections.sort(targets, lt.new NodeComparable());
-		List<Node> sources = ls.getDescendants_LibraryMembersAsNodes();
-		Collections.sort(sources, ls.new NodeComparable());
+		List<TypeProvider> targets = lt.getDescendants_TypeProviders();
+		Collections.sort(targets, lt.new TypeProviderComparable());
+		List<TypeProvider> sources = ls.getDescendants_TypeProviders();
+		Collections.sort(sources, ls.new TypeProviderComparable());
 		int cnt = sources.size();
 
 		// Replace types with one pseudo-randomly selected from target library.
-		for (Node n : targets) {
-			if (n instanceof TypeProvider && ((TypeProvider) n).getWhereAssigned().size() > 0) {
+		for (TypeProvider n : targets) {
+			if (n.getWhereAssigned().size() > 0) {
 				// Note - many of these will not be allowed.
-				n.replaceTypesWith(sources.get(--cnt), null);
+				((Node) n).replaceTypesWith(sources.get(--cnt), null);
 				// LOGGER.debug(" replaced " + n + " with " + sources.get(cnt));
 				Assert.assertTrue(sources.get(cnt).getLibrary() != null);
 				Assert.assertTrue(n.getLibrary() != null);
@@ -376,7 +376,7 @@ public class ReplaceWith_Tests extends BaseTest {
 			if (lsNode != null) {
 				ml.check(lsNode, false);
 				ml.check(n, false);
-				n.replaceTypesWith(lsNode, null);
+				n.replaceTypesWith((TypeProvider) lsNode, null);
 				ml.check(lsNode, false);
 				ml.check(n, false);
 			} else

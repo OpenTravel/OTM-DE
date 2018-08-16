@@ -85,7 +85,7 @@ public interface TypeUser {
 
 	/**
 	 * Remove the type assigned to the TL Model object. This method is the only method that nulls out the TL model
-	 * object. After the TL object is set to null, {@link #setAssignedType()} is called to removed where used links.
+	 * object. Before the TL object is set to null, {@link #setAssignedType()} is called to removed where used links.
 	 * 
 	 * @see #setAssignedType()
 	 */
@@ -118,10 +118,20 @@ public interface TypeUser {
 	/**
 	 * Set Assigned Type. Sets the Assigned type node and add this owner to that user list. This method assures their is
 	 * a target and that the owner is editable. Sets the type class properties as well as the TLModel type
+	 * <p>
+	 * <b>NOTE:</b> (Conditional behavior to provide GUI assist) Since attributes can be renamed, there is no need to
+	 * use the alias. Aliases are not TLAttributeType members so the GUI assist must convert before assignment. If the
+	 * provider is an alias and the user is a simple type or attribute then the actual type provider is assigned, not
+	 * the alias.
+	 * <p>
+	 * <b>NOTE:</b>
 	 * 
-	 * @return true if state of owner changed, false otherwise
+	 * @param provider
+	 *            is the type to attempt to assign. It may be substituted if necessary.
+	 * 
+	 * @return the actual or substituted provider assigned or else null
 	 */
-	public boolean setAssignedType(TypeProvider provider);
+	public TypeProvider setAssignedType(TypeProvider provider);
 
 	public void setName(String name);
 

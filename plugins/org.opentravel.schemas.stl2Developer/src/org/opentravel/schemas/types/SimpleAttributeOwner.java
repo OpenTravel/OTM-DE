@@ -45,5 +45,5 @@ public interface SimpleAttributeOwner {
 	 * @param type
 	 * @return true if the state of the simple type changed.
 	 */
-	public boolean setAssignedType(TypeProvider type);
+	public TypeProvider setAssignedType(TypeProvider type);
 }

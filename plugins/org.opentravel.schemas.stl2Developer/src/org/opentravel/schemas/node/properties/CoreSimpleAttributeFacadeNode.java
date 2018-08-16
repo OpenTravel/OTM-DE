@@ -73,8 +73,8 @@ public class CoreSimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 
 	@Override
 	public void removeAssignedTLType() {
-		getTLModelObject().setSimpleType(null);
 		setAssignedType();
+		getTLModelObject().setSimpleType(null);
 	}
 
 	@Override

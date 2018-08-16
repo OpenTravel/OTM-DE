@@ -18,6 +18,7 @@ package org.opentravel.schemas.functional;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -88,30 +89,36 @@ public class TypeAssignmentTests extends BaseTest {
 	// @See TestTypes
 	@Test
 	public void assignBuiltInTests() {
-		Collection<TypeUser> whereAssigned = intType.getWhereAssigned();
+		// Given a built in not used by core or vwa
+		SimpleTypeNode builtIn = (SimpleTypeNode) ml.getXsd("decimal");
+		assert builtIn != null;
+		Collection<TypeUser> whereAssigned = builtIn.getWhereAssigned();
 
 		// When assigned to VWA
-		vo.setAssignedType(intType);
-		Collection<TypeUser> whereAssigned2 = intType.getWhereAssigned();
+		vo.setAssignedType(builtIn);
+		Collection<TypeUser> whereAssigned2 = builtIn.getWhereAssigned();
 		// Then - must have additional where used
-		assertTrue("Int msut be assigned.", vo.getAssignedType() == intType);
+		assertTrue("Int msut be assigned.", vo.getAssignedType() == builtIn);
 		assertTrue("Must be assigned to more places.", whereAssigned.size() < whereAssigned2.size());
-		assertTrue(intType.getWhereAssigned().contains(vo.getSimpleAttribute()));
+		assertTrue(builtIn.getWhereAssigned().contains(vo.getSimpleAttribute()));
 
 		// When assigned to Core
-		co.setAssignedType(intType);
-		Collection<TypeUser> whereAssigned3 = intType.getWhereAssigned();
+		assert co.getAssignedType() != builtIn;
+		co.setAssignedType(builtIn);
+		Collection<TypeUser> whereAssigned3 = builtIn.getWhereAssigned();
 		// Then - must have additional where used
-		assertTrue("Int msut be assigned.", co.getAssignedType() == intType);
+		assertTrue("Int msut be assigned.", co.getAssignedType() == builtIn);
 		assertTrue("Must be assigned to more places.", whereAssigned2.size() < whereAssigned3.size());
-		assertTrue(intType.getWhereAssigned().contains(co.getSimpleAttribute()));
+		assertTrue(builtIn.getWhereAssigned().contains(co.getSimpleAttribute()));
 
 		// When assigned to core properties
 		AttributeNode a = new AttributeNode(co.getFacet_Summary(), "attr1", sType);
+		List<TypeUser> users = co.getDescendants_TypeUsers();
 		for (TypeUser u : co.getDescendants_TypeUsers()) {
 			ml.check(co);
-			u.setAssignedType(intType);
-			assertTrue(intType.getWhereAssigned().contains(u));
+			// Not all type users (such as ID) can be assigned
+			if (u.setAssignedType(builtIn) != null)
+				assertTrue(builtIn.getWhereAssigned().contains(u));
 			ml.check(co);
 		}
 	}

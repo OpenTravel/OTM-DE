@@ -201,6 +201,38 @@ public class VWA_Tests extends BaseProjectTest {
 	}
 
 	@Test
+	public void VWA_DeleteTests() {
+		// VWA assigned as type then deleted must have correct where used result
+		//
+		// Given - two VWAs, one assigned as type to the other
+		VWA_Node userVWA = ml.addVWA_ToLibrary(ln, "userVWA");
+		VWA_Node providerVWA = ml.addVWA_ToLibrary(ln, "ProviderVWA");
+
+		TypeProvider tp = userVWA.setAssignedType(providerVWA);
+		assert tp != null;
+		assert userVWA.getAssignedType() == providerVWA;
+		assertTrue("Must be assigned .", userVWA.getAssignedType() == providerVWA);
+		assertTrue("Must be in where assigned list.",
+				providerVWA.getWhereAssigned().contains(userVWA.getSimpleAttribute()));
+
+		// When - moved to another library
+		LibraryNode ln2 = ml.createNewLibrary(pc, "DestLib");
+		ln2.addMember(providerVWA);
+		assert !ln.contains(providerVWA);
+		// Then - assignments must still be correct
+		assertTrue("Must be assigned .", userVWA.getAssignedType() == providerVWA);
+		assertTrue("Must be in where assigned list.",
+				providerVWA.getWhereAssigned().contains(userVWA.getSimpleAttribute()));
+
+		// When - deleted
+		providerVWA.delete();
+		// Then - type is no longer assigned
+		assertTrue("Must not be assigned after delete.", userVWA.getAssignedType() != providerVWA);
+		assertTrue("Must not be in where assigned list.",
+				!providerVWA.getWhereAssigned().contains(userVWA.getSimpleAttribute()));
+	}
+
+	@Test
 	public void VWA_TypeSettingTests() {
 		// Given - an unmanaged and managed library and 3 simple types
 		ln = ml.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
@@ -217,7 +249,7 @@ public class VWA_Tests extends BaseProjectTest {
 
 		// When - simple type is set
 		SimpleAttributeFacadeNode sa = vwa.getFacet_Simple().getSimpleAttribute();
-		assertTrue("Simple type must be assigned.", sa.setAssignedType(cType));
+		assertTrue("Simple type must be assigned.", sa.setAssignedType(cType) != null);
 		// Then
 		assertTrue("Simple type must equal type assigned.", cType == sa.getAssignedType());
 		// Then - alternate way to get simple type
@@ -226,7 +258,7 @@ public class VWA_Tests extends BaseProjectTest {
 		// When - a new VWA in managed library is created and type set
 		vwa = ml.addVWA_ToLibrary(lcn.getHead(), "InChainTest");
 		assertTrue("Simple type must be assignable.",
-				vwa.getFacet_Simple().getSimpleAttribute().setAssignedType(bType));
+				vwa.getFacet_Simple().getSimpleAttribute().setAssignedType(bType) != null);
 		// Then
 		assertTrue("Simple type must equal type assigned.",
 				bType == vwa.getFacet_Simple().getSimpleAttribute().getAssignedType());

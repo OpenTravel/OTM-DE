@@ -33,6 +33,7 @@ import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.utils.StringComparator;
 
 /**
+ * Facet for containing core object roles.
  * 
  * @author Dave Hollander
  * 
@@ -147,6 +148,11 @@ public class RoleFacetNode extends FacetProviders {
 	@Override
 	public TLRoleEnumeration getTLModelObject() {
 		return (TLRoleEnumeration) tlObj;
+	}
+
+	@Override
+	public boolean isDeleteable() {
+		return false;
 	}
 
 	@Override

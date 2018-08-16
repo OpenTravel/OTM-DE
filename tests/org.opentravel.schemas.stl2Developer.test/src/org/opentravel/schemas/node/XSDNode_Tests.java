@@ -156,7 +156,7 @@ public class XSDNode_Tests extends BaseTest {
 				SimpleTypeNode st = (SimpleTypeNode) n;
 				for (TypeUser user : users) {
 					// When - assign type is successful
-					if (user.setAssignedType(st)) { // fails here
+					if (user.setAssignedType(st) != null) { // fails here
 						// Then
 						LOGGER.debug("Assigned " + st + " to " + user);
 						assertTrue(st == user.getAssignedType());

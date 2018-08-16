@@ -723,7 +723,13 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		assert getChildrenHandler() != null;
 		assert lm.getTLModelObject() != null;
 		assert lm.getTLModelObject() instanceof LibraryMember;
-		// Subject must have resource in its where assigned list.
+		// Services - there can only be one service in a library
+		if (lm instanceof ServiceNode) {
+			addServiceNode((ServiceNode) lm);
+			return;
+		}
+
+		// Safety Check - Subject must have resource in its where assigned list.
 		if (lm instanceof ResourceNode && ((ResourceNode) lm).getSubject() != null)
 			assert (((ResourceNode) lm).getSubject().getWhereAssigned().contains(lm));
 
@@ -818,10 +824,13 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 			((TypeProvider) lm).getWhereAssignedHandler().replaceAll((TypeProvider) lm, null);
 
 		// FIXME - Work around for defect reported 8/15/2018
-		// add them back aliases
+		// add back the aliases and their type assignments
 		if (aliases != null) {
-			for (AliasNode alias : aliases)
+			for (AliasNode alias : aliases) {
 				((AliasOwner) lm).addAlias(alias);
+				for (TypeUser tu : alias.getWhereAssigned())
+					tu.setAssignedTLType(alias.getTLModelObject());
+			}
 		}
 		if (lm instanceof ContextualFacetOwnerInterface)
 			for (AbstractContextualFacet cf : ((ContextualFacetOwnerInterface) lm).getContextualFacets(false))
@@ -1033,7 +1042,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 
 		if (getChildrenHandler() != null) {
 			n.getLibrary().getTLModelObject().removeNamedMember((LibraryMember) n.getTLModelObject());
-			if (n instanceof ServiceNode)
+			if (n instanceof ServiceNode && n.getParent() instanceof NavNode)
 				((NavNode) n.getParent()).removeLM(n); // all others done in listener
 		} else {
 			assert false;
@@ -1141,24 +1150,14 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 * @return true if this library or one in its chain has a service.
 	 */
 	public boolean hasService() {
-		boolean result = false;
-		LibraryChainNode chain = getChain();
-		if (chain == null) {
-			// TODO - why not just check the service node?
-			for (Node n : getChildren())
-				if (n instanceof ServiceNode)
-					result = true;
-		} else
-			result = !chain.getServiceAggregate().getChildren().isEmpty();
-		return result;
+		return getService() != null;
 	}
 
-	private ServiceNode getService() {
-		for (Node n : getChildren()) {
-			if (n instanceof ServiceNode)
-				return (ServiceNode) n;
-		}
-		return null;
+	public ServiceNode getService() {
+		if (isInChain())
+			return getChain().getServiceAggregate().getService();
+		else
+			return getChildrenHandler().getServiceRoot().getService();
 	}
 
 	@Override
@@ -1802,14 +1801,18 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	}
 
 	/**
-	 * Add this service to the library. Assures only one service. Assure TL library has this service. Assure service has
-	 * a name.
+	 * Add this service to the library. Assures only one service. Deletes existing service if any. Assure TL library has
+	 * this service. Assure service has a name.
 	 */
-	public void setServiceNode(ServiceNode serviceNode) {
+	public void addServiceNode(ServiceNode serviceNode) {
+
+		// Remove service from previous library if any
+		removeMember(serviceNode);
 
 		// Make sure the library only has one service.
-		if (getServiceRoot() != null)
-			getServiceRoot().delete();
+		if (getService() != null)
+			getService().delete();
+		assert getService() == null;
 
 		if (getTLModelObject() instanceof TLLibrary)
 			if (((TLLibrary) getTLModelObject()).getService() != serviceNode.getTLModelObject())

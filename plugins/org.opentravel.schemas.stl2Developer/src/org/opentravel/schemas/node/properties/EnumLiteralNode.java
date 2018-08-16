@@ -25,12 +25,8 @@ import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
-import org.opentravel.schemas.node.listeners.BaseNodeListener;
-import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
-import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.properties.Images;
 
 /**
@@ -40,7 +36,7 @@ import org.opentravel.schemas.properties.Images;
  * 
  */
 
-public class EnumLiteralNode extends PropertyNode {
+public class EnumLiteralNode extends UnTypedPropertyNode {
 
 	public EnumLiteralNode(EnumerationClosedNode parent, String name) {
 		super(new TLEnumValue(), parent, name);
@@ -81,11 +77,6 @@ public class EnumLiteralNode extends PropertyNode {
 	protected void removeFromTL() {
 		if (getParent() != null && getParent().getTLModelObject() instanceof TLAbstractEnumeration)
 			((TLAbstractEnumeration) getParent().getTLModelObject()).removeValue(getTLModelObject());
-	}
-
-	@Override
-	public boolean canAssign(Node type) {
-		return type instanceof ImpliedNode ? true : false;
 	}
 
 	/**
@@ -141,30 +132,15 @@ public class EnumLiteralNode extends PropertyNode {
 		return Images.getImageRegistry().get(Images.RoleValue);
 	}
 
-	@Override
-	public BaseNodeListener getNewListener() {
-		return new NodeIdentityListener(this);
-	}
+	// @Override
+	// public BaseNodeListener getNewListener() {
+	// return new NodeIdentityListener(this);
+	// }
 
-	@Override
-	public LibraryMemberInterface getOwningComponent() {
-		return (LibraryMemberInterface) getParent();
-	}
-
-	@Override
-	public boolean isEnabled_AssignType() {
-		return false;
-	}
-
-	@Override
-	public boolean isNavChild(boolean deep) {
-		return false;
-	}
-
-	@Override
-	public boolean isRenameable() {
-		return isEditable() && !isInherited();
-	}
+	// @Override
+	// public LibraryMemberInterface getOwningComponent() {
+	// return (LibraryMemberInterface) getParent();
+	// }
 
 	@Override
 	protected void moveDownTL() {

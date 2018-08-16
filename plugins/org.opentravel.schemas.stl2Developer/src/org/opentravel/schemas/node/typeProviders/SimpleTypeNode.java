@@ -227,13 +227,13 @@ public class SimpleTypeNode extends SimpleTypeProviders implements TypeUser, Lib
 
 	@Override
 	public void removeAssignedTLType() {
-		getTLModelObject().setParentType(null);
 		setAssignedType();
+		getTLModelObject().setParentType(null);
 	}
 
 	@Override
-	public boolean setAssignedType(TypeProvider provider) {
-		return typeHandler.set(provider);
+	public TypeProvider setAssignedType(TypeProvider provider) {
+		return getTypeHandler().set(provider) ? provider : null;
 	}
 
 	@Override

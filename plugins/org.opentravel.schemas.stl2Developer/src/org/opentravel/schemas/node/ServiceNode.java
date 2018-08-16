@@ -85,7 +85,7 @@ public class ServiceNode extends ComponentNode implements LibraryMemberInterface
 
 		owningLibrary = ln;
 		if (ln != null)
-			ln.setServiceNode(this);
+			ln.addServiceNode(this);
 	}
 
 	public void add(OperationNode op) {
@@ -135,11 +135,13 @@ public class ServiceNode extends ComponentNode implements LibraryMemberInterface
 			getLibrary().getChain().removeFromAggregate(this);
 		getLibrary().getServiceRoot().removeLM(this);
 		deleteTL();
+		deleted = true;
 	}
 
 	@Override
 	public void deleteTL() {
-		getTLModelObject().getOwningLibrary().removeNamedMember(getTLModelObject());
+		if (getTLModelObject().getOwningLibrary() != null)
+			getTLModelObject().getOwningLibrary().removeNamedMember(getTLModelObject());
 	}
 
 	@Override

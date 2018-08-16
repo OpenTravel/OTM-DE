@@ -148,6 +148,19 @@ public abstract class Node implements INode {
 	}
 
 	/**
+	 * Public class for comparing type providers. Uses node name and prefix in the comparison.
+	 * <p>
+	 * Use: Collection.sort(list, node.new TypeProviderComparable())
+	 */
+	public class TypeProviderComparable implements Comparator<TypeProvider> {
+
+		@Override
+		public int compare(TypeProvider o1, TypeProvider o2) {
+			return (((Node) o1).getNameWithPrefix().compareTo(((Node) o2).getNameWithPrefix()));
+		}
+	}
+
+	/**
 	 * Visitors *********************************************
 	 * 
 	 * Sample Usage: thisModel.getModelNode().visitAllNodes(this.new count()); where: public class count implements
@@ -1974,9 +1987,10 @@ public abstract class Node implements INode {
 	 * @param scope
 	 *            (optional) - scope of the search or null for all libraries
 	 */
-	public void replaceTypesWith(Node replacement, LibraryNode scope) {
-		if (!(replacement instanceof TypeProvider))
-			return;
+	public void replaceTypesWith(TypeProvider replacement, LibraryNode scope) {
+		// if (!(replacement instanceof TypeProvider))
+		// return;
+		// Override
 	}
 
 	/**
@@ -1999,14 +2013,16 @@ public abstract class Node implements INode {
 			return;
 		}
 
-		// Add newNode if it is not already a member
+		// Add newNode if it is not already a member, otherwise it does nothing
 		getLibrary().addMember(newNode);
 
-		// Replace types on users in all editable libraries
-		replaceTypesWith((Node) newNode, null);
+		// Replace types on users and extensions in all editable libraries
+		if (newNode instanceof TypeProvider)
+			replaceTypesWith((TypeProvider) newNode, null);
 
 		// must be done after replaceTypesWith. Listeners will remove the whereUsed links.
-		getLibrary().removeMember(this);
+		if (this instanceof LibraryMemberInterface)
+			getLibrary().removeMember((LibraryMemberInterface) this);
 		// NOTE - users in non-editable libraries will end up with null assignment but valid ns:name in tl object
 	}
 

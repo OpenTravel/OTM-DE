@@ -163,10 +163,7 @@ public class ElementNode extends TypedPropertyNode {
 
 	@Override
 	public Node getParent() {
-		if ((parent == null || parent.isDeleted()) && getTLModelObject() != null)
-			// The parent may have failed to rebuild children
-			parent = Node.GetNode(getTLModelObject().getOwner());
-		return parent;
+		return super.getParent((TLModelElement) getTLModelObject().getOwner(), true);
 	}
 
 	public int getRepeat() {
@@ -248,8 +245,8 @@ public class ElementNode extends TypedPropertyNode {
 
 	@Override
 	public void removeAssignedTLType() {
-		getTLModelObject().setType(null);
 		setAssignedType();
+		getTLModelObject().setType(null);
 	}
 
 	@Override

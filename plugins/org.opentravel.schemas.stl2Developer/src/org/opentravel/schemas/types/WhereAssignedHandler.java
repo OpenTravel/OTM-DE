@@ -29,6 +29,7 @@ import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.TypeUserAssignmentListener;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.types.whereused.TypeProviderWhereUsedNode;
 import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.slf4j.Logger;
@@ -215,6 +216,11 @@ public class WhereAssignedHandler {
 		return ul;
 	}
 
+	/**
+	 * FIXME - this does not give correct counts.
+	 * 
+	 * @return
+	 */
 	public int getWhereAssignedIncludingDescendantsCount() {
 		// same logic as getWhereAssignedIncludingDescendants but without the array
 		// used in background decorators
@@ -226,6 +232,11 @@ public class WhereAssignedHandler {
 		if (((Node) owner).getOwningComponent() == null)
 			return count; // happens when building inheritance wizard tree
 
+		// TEST 8/8/2018 - for aliases, we don't want owner's count or its descendants
+		if (owner instanceof AliasNode)
+			return count;
+
+		// FIXME - for any child of owner, their users will be counted twice
 		for (TypeProvider n : ((Node) ((Node) owner).getOwningComponent()).getDescendants_TypeProviders())
 			if (!((Node) n).isDeleted())
 				count += n.getWhereAssignedCount();
@@ -264,18 +275,10 @@ public class WhereAssignedHandler {
 	}
 
 	/**
-	 * Replace type assignment everywhere this node or any of its descendants are used as a type. An attempt is made to
-	 * match which child of the replacement is used based on name but if not found then the owning component is used.
-	 * 
-	 * @param replacement
-	 */
-	public void replaceAll(TypeProvider replacement) {
-		replaceAll(replacement, null);
-	}
-
-	/**
-	 * Replace this provider with replacement for all users of this provider as a type. Also replaces type usage of
-	 * descendants of this owner node with matching replace descendant when possible. Also does the TL properties.
+	 * Replace this owner-provider type assignment everywhere this node or any of its descendants are used as a type.
+	 * <p>
+	 * An attempt is made to match which child of the replacement is used based on name but if not found then the owning
+	 * component is used.
 	 * <p>
 	 * Note - user counts may change when business replace core objects because core is also a valid simple type.
 	 * 
@@ -283,35 +286,17 @@ public class WhereAssignedHandler {
 	 *            - if not null, only change type users that are in the specified library.
 	 */
 	public void replaceAll(TypeProvider replacement, LibraryNode scopeLibrary) {
-
-		// Create map of replacement candidates being all descendants of the replacement
-		java.util.HashMap<String, TypeProvider> replacementTypes = new java.util.HashMap<>();
-		for (TypeProvider r : ((Node) replacement).getDescendants_TypeProviders())
-			replacementTypes.put(r.getName(), r);
-
-		// Replace where each type-provider child of this owner is used with it equivalent from replacement
-		for (TypeProvider child : owner.getDescendants_TypeProviders()) {
-			Collection<TypeUser> kids = new ArrayList<>(child.getWhereAssigned());
-			// FIXME - Doing core_simpleFacetFacetNode causes errors
-			for (TypeUser n : kids) {
-				// Try to find a replacement equivalent from replacement object
-				String name = n.getAssignedType().getName();
-				TypeProvider r = replacementTypes.get(name);
-				if (r == null) {
-					r = replacement;
-					LOGGER.debug("ReplaceAll equivalent not found for " + n + ", using " + r + " instead");
-				}
-				if (scopeLibrary == null || n.getLibrary().equals(scopeLibrary))
-					if (n.isEditable()) {
-						n.setAssignedType(r);
-						LOGGER.debug("replace " + n + " with " + r);
-					}
-				// LOGGER.debug("ReplaceAll replaced " + n + " with " + r);
-			}
-		}
+		// Create map of replacement's candidate type providers
+		ReplacementMapHandler mapHandler = new ReplacementMapHandler(replacement);
 
 		// Replace all users of this owner.
 		replace(replacement, scopeLibrary);
+
+		// Replace where each type-provider child of this owner is used with it equivalent from replacement
+		for (TypeProvider child : owner.getDescendants_TypeProviders()) {
+			if (child.getWhereAssignedHandler() != null)
+				child.getWhereAssignedHandler().replace(mapHandler.get(child), scopeLibrary);
+		}
 	}
 
 	public WhereUsedNode<?> getWhereUsedNode() {

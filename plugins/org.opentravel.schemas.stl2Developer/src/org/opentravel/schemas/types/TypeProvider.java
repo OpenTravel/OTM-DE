@@ -141,8 +141,12 @@ public interface TypeProvider extends TypeProviderAndOwners {
 
 	/**
 	 * Remove provider as type for all users.
+	 * 
+	 * @param force
+	 *            false the type name will be preserved to allow recovery after closing libraries. Set to true to force
+	 *            the assigned type to missing.
 	 */
-	public void removeAll();
+	public void removeAll(boolean force);
 
 	// ******************** Hierarchy methods **************************************************
 	public TLModelElement getTLModelObject();

@@ -186,7 +186,7 @@ public class CoreSimpleFacetNode extends TypeProviders implements FacetInterface
 	}
 
 	@Override
-	public boolean setAssignedType(TypeProvider type) {
+	public TypeProvider setAssignedType(TypeProvider type) {
 		return getSimpleAttribute().setAssignedType(type);
 	}
 }

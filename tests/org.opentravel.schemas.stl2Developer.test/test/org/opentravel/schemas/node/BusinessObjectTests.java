@@ -26,7 +26,9 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
@@ -39,6 +41,7 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
@@ -166,11 +169,24 @@ public class BusinessObjectTests extends BaseTest {
 		check(bo, true);
 	}
 
+	private void checkContextualFacetsForDuplicateTLAliases(BusinessObjectNode bo) {
+		TLContextualFacet tl;
+		for (AbstractContextualFacet cf : bo.getContextualFacets(false)) {
+			tl = cf.getTLModelObject();
+			ArrayList<String> aliasNames = new ArrayList<>();
+			for (TLAlias tla : tl.getAliases()) {
+				assertTrue("Contextual facet must have uniquely named TLAliases.", !aliasNames.contains(tla.getName()));
+				aliasNames.add(tla.getName());
+			}
+		}
+	}
+
 	public void check(BusinessObjectNode bo, boolean validate) {
 		if (bo.isDeleted()) {
 			LOGGER.debug("Skipping tests - business object " + bo + " is deleted");
 			return;
 		}
+
 		// Check fixed structure
 		assertTrue("Must have identity listener.", Node.GetNode(bo.getTLModelObject()) == bo);
 		assertTrue("Must have id facet.", bo.getFacet_ID() != null);
@@ -206,6 +222,7 @@ public class BusinessObjectTests extends BaseTest {
 				assertTrue("Alias names must be unique.", !aNames.contains(d.getName()));
 				aNames.add(d.getName());
 			}
+		checkContextualFacetsForDuplicateTLAliases(bo);
 
 		// Check all descendants
 		assertTrue(bo.getLibrary() != null);

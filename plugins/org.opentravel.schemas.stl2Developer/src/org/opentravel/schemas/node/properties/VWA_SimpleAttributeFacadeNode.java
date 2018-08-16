@@ -25,6 +25,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.objectMembers.VWA_SimpleFacetFacadeNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.types.TypeProvider;
@@ -73,18 +74,25 @@ public class VWA_SimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 
 	@Override
 	public void removeAssignedTLType() {
-		getTLModelObject().setParentType(null);
+		TypeProvider type = getAssignedType();
+
 		setAssignedType();
+		getTLModelObject().setParentType(null);
+
+		if (!(type instanceof ImpliedNode)) {
+			assert getAssignedType() != type;
+			assert !type.getWhereAssigned().contains(this);
+		}
 	}
 
 	@Override
-	public boolean setAssignedType(TypeProvider provider) {
+	public TypeProvider setAssignedType(TypeProvider provider) {
 		// Only assign other VWA or simple types, not all providers
 		if (provider instanceof SimpleTypeNode)
-			return getTypeHandler().set(provider);
+			return getTypeHandler().set(provider) ? provider : null;
 		if (provider instanceof VWA_Node)
-			return getTypeHandler().set(provider);
-		return false;
+			return getTypeHandler().set(provider) ? provider : null;
+		return null;
 	}
 
 	@Override
@@ -92,15 +100,15 @@ public class VWA_SimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 		if (getTLModelObject().getParentType() == simpleType)
 			return false;
 
-		// Assign "Empty" if null or incorrect type
+		// Assign "Empty" as substitute for null or incorrect type
 		TLAttributeType ne = null;
-		if (!canAssign(simpleType))
-			if (emptyNode != null)
-				ne = (TLAttributeType) emptyNode.getTLModelObject();
-			else
-				return false; // Can't assign
-		assert simpleType instanceof TLAttributeType;
-		ne = (TLAttributeType) simpleType;
+		if (simpleType instanceof TLAttributeType)
+			ne = (TLAttributeType) simpleType;
+		else
+			ne = (TLAttributeType) getEmptyNode().getTLModelObject();
+
+		// Assure we have a type to assign
+		assert ne instanceof TLAttributeType;
 
 		// Do Assignment
 		getTLModelObject().setParentType(ne);

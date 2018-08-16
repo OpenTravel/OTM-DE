@@ -37,7 +37,6 @@ import org.opentravel.schemas.node.NodeVisitors;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
-import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
@@ -45,6 +44,7 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.TypeUserAssignmentListener;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.properties.VWA_SimpleAttributeFacadeNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
@@ -631,17 +631,40 @@ public class Delete_Tests extends BaseProjectTest {
 			if (!n.isDeleteable())
 				continue;
 
-			INode user = null;
+			// INode user = null;
 
 			// Make sure the users of this type are informed of deletion.
+			List<TypeUser> users = null;
+			int userCount = 0;
 			if (n instanceof TypeProvider) {
-				List<TypeUser> users = new ArrayList<>(((TypeProvider) n).getWhereAssigned());
-				if (users.size() > 0)
-					user = (INode) users.get(0);
+				users = new ArrayList<>(((TypeProvider) n).getWhereAssigned());
+				for (TypeUser u : users)
+					assertTrue("Assigned node must be used as a type.", u.getAssignedType() == n);
+				userCount = 0;
+				if (users != null && !users.isEmpty())
+					userCount = users.size();
 			}
+			if (n instanceof SimpleTypeNode) {
+				LOGGER.debug(
+						"Deleting : " + n.getClass().getSimpleName() + " \t" + n + " with " + userCount + " users.");
+				if (users != null && !users.isEmpty())
+					for (TypeUser u : users)
+						if (u instanceof VWA_SimpleAttributeFacadeNode)
+							LOGGER.debug("          : type assigned to SimpleAttributeFacade " + u);
+			}
+			// When - deleted
 			n.delete();
-			if (user != null)
-				Assert.assertNotSame(n, user.getType());
+			assert n.isDeleted();
+
+			// Then - node is removed as assigned type
+			if (users != null && !users.isEmpty())
+				for (TypeUser u : users) {
+					if (u.getAssignedType() == n)
+						LOGGER.debug("          ERROR - user " + u + " is still assigned deleted node " + n);
+					// assertTrue("Deleted node must not be used as a type.", u.getAssignedType() != n);
+				}
+			// if (user != null)
+			// Assert.assertNotSame(n, user.getType());
 
 		}
 		ln.visitAllNodes(tv);

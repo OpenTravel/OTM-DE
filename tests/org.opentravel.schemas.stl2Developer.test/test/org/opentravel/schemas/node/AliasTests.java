@@ -86,8 +86,10 @@ public class AliasTests extends BaseTest {
 
 		// When - deleted
 		for (Node n : parent1.getChildren())
-			if (n instanceof AliasNode)
+			if (n instanceof AliasNode) {
 				n.delete();
+				assert n.isDeleted();
+			}
 		// Then - assure all aliases get removed
 		boolean found = false;
 		for (Node n : parent1.getDescendants())
@@ -161,8 +163,9 @@ public class AliasTests extends BaseTest {
 
 	@Test
 	public void Alias_asTypeTests() {
-		// Given - one of each type with an alias
+		// Given - a list of all aliases created in test
 		ArrayList<AliasNode> aliases = new ArrayList<>();
+		// Given - one of each type with an alias
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		ml.addOneOfEach(ln, "AsType");
 		for (LibraryMemberInterface lm : ln.get_LibraryMembers())
@@ -180,32 +183,27 @@ public class AliasTests extends BaseTest {
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "bo");
 		ElementNode ele = new ElementNode(bo.getFacet_Summary(), "E1");
 
-		// When - alias assigned
+		// When - alias assigned to element
 		TypeProvider tp = null;
 		for (AliasNode a : aliases) {
-			ele.setAssignedType(a);
-			assertTrue("Must be assigned a TLAlias.", ele.getAssignedTLObject() instanceof TLAlias);
+			tp = ele.setAssignedType(a);
 			// All the names are modified a little bit.
-			// if (!ele.getName().equals(a.getName()))
-			// LOGGER.debug("Name change: " + ele + " " + a);
+			assertTrue("Must be assigned a TLAlias.", ele.getAssignedTLObject() instanceof TLAlias);
 			assertTrue("Element must have aliasNode as assigned type.", ele.getAssignedType() instanceof AliasNode);
-			tp = ele.getAssignedType();
-			// LOGGER.debug(ele.getAssignedType().getName());
+			assertTrue("Element must have alias node assigned.", a == ele.getAssignedType());
 		}
 
 		// When - alias assigned to attributes
-		// Then - if allowed, the actual type is assigned and the alias is not
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "TestVWA");
 		AttributeNode attr = new AttributeNode(vwa.getFacet_Attributes(), "a1");
 		for (AliasNode a : aliases) {
-			// LOGGER.debug("Testing assigning " + a + " to attribute; parent is " + a.getParent());
-			// if (a.getOwningComponent() instanceof CoreObjectNode)
-			// LOGGER.debug("Ready to assign core alias");
-			if (attr.setAssignedType(a)) {
+			// Then - if allowed, the actual type is assigned and the alias is not
+			tp = attr.setAssignedType(a);
+			if (attr.canAssign(a))
+				assertTrue("Alias must have caused a type provider to be assigned.", tp != null);
+			if (tp != null) {
 				assertTrue("Must NOT be assigned a TLAlias.", !(attr.getAssignedTLObject() instanceof TLAlias));
-				// tp = attr.getAssignedType();
 				assertTrue("Must be assigned a to alias parent.", attr.getAssignedType() == a.getParent());
-				// LOGGER.debug(attr.getAssignedType().getName());
 			}
 		}
 	}

@@ -192,8 +192,10 @@ public abstract class TypeProviders extends ComponentNode implements TypeProvide
 	}
 
 	/**
-	 * @return (where used count) the number of type users which are nodes that use this as a type definition or base
-	 *         type
+	 * Use the assignment handler to get the where assigned count which is the size of the users collection.
+	 * 
+	 * @return (where assigned count) the number of type users which are nodes that use this as a type definition or
+	 *         base type
 	 */
 	@Override
 	public int getWhereAssignedCount() {
@@ -224,7 +226,9 @@ public abstract class TypeProviders extends ComponentNode implements TypeProvide
 	}
 
 	/**
-	 * @return where used count for all versions in this versioned object chain
+	 * Use the WhereUsedNode to return a count.
+	 * 
+	 * @return count of where all minor versions of this provider is used as type or extension
 	 */
 	@Override
 	public int getWhereUsedCount() {
@@ -287,11 +291,17 @@ public abstract class TypeProviders extends ComponentNode implements TypeProvide
 	}
 
 	@Override
-	public void removeAll() {
+	public void removeAll(boolean force) {
 		Collection<TypeUser> users = new ArrayList<>(getWhereAssigned());
 		for (TypeUser user : users) {
-			removeWhereAssigned(user);
-			user.setAssignedType();
+			if (!force)
+				user.setAssignedType(); // will not force type assignment
+			else {
+				// force the type to be set to Missing
+				user.removeAssignedTLType();
+				// Verify Results
+				assert user.getAssignedType() != this;
+			}
 		}
 	}
 
@@ -322,14 +332,12 @@ public abstract class TypeProviders extends ComponentNode implements TypeProvide
 	 *            (optional) - scope of the search or null for all libraries
 	 */
 	@Override
-	public void replaceTypesWith(Node replacement, LibraryNode scope) {
-		if (!(replacement instanceof TypeProvider))
-			return;
+	public void replaceTypesWith(TypeProvider replacement, LibraryNode scope) {
 
-		getWhereAssignedHandler().replaceAll((TypeProvider) replacement, scope);
+		getWhereAssignedHandler().replaceAll(replacement, scope);
 
 		// If this has been extended, replace where extended
-		getWhereExtendedHandler().replace(replacement, scope);
+		getWhereExtendedHandler().replace((Node) replacement, scope);
 	}
 
 	/**

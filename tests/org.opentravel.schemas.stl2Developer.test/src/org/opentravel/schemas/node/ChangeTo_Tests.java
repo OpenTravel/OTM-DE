@@ -27,7 +27,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.event.ModelElementListener;
-import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -135,12 +134,9 @@ public class ChangeTo_Tests extends BaseTest {
 		assertEquals(core.getAssignedType(), vwa.getAssignedType());
 		assertEquals("Must have attribute for each Core property.", coreCount,
 				vwa.getFacet_Attributes().getChildren().size());
-		// assertEquals("TL properties must match property nodes.", vwa.getFacet_Attributes().getModelObject()
-		// .getChildren().size(), vwa.getFacet_Attributes().getChildren().size());
 
 		// When - VWA replaces core.
 		core.replaceWith(vwa);
-		// tn.visit(vwa);
 		// Then
 		ml.check(vwa, false);
 		assertEquals(coreWhereAssignedCount, vwa.getWhereUsedAndDescendantsCount());
@@ -243,25 +239,41 @@ public class ChangeTo_Tests extends BaseTest {
 
 	@Test
 	public void changeToBO() {
+		// Given - a core and VWA in a library
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "A");
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "B");
 		Assert.assertNotNull(core);
 		Assert.assertNotNull(vwa);
-
 		BusinessObjectNode bo = null;
-		TLBusinessObject tlBO = null;
+		ml.check();
 
+		// When - BO created from Core
 		bo = new BusinessObjectNode(core);
-		tlBO = bo.getTLModelObject();
-		Assert.assertEquals("A", bo.getName());
-		Assert.assertEquals(1, bo.getFacet_Summary().getChildren().size());
-		Assert.assertEquals(tlBO.getSummaryFacet().getElements().size(), bo.getFacet_Summary().getChildren().size());
+		// Then - properties created and ID fixed
+		assertTrue("BO must have core's name.", bo.getName().equals(core.getName()));
+		assertTrue("Must have one ID property.", bo.getFacet_ID().getChildren().size() == 1);
+		assertTrue("Must have one Summary property.", bo.getFacet_Summary().getChildren().size() == 1);
 
+		// Then - structure must be OK, but not valid due to name collisions.
+		ml.check(ln, false);
+
+		// When - removed from library it will be valid
+		ln.removeMember(core);
+		// Then - valid
+		ml.check();
+
+		// When - bo created from vwa
 		bo = new BusinessObjectNode(vwa);
-		tlBO = bo.getTLModelObject();
-		Assert.assertEquals("B", bo.getName());
-		Assert.assertEquals(1, bo.getFacet_Summary().getChildren().size());
-		Assert.assertEquals(tlBO.getSummaryFacet().getAttributes().size(), bo.getFacet_Summary().getChildren().size());
+		assertTrue("BO must have vwa's name.", bo.getName().equals(vwa.getName()));
+		assertTrue("Must have one ID property.", bo.getFacet_ID().getChildren().size() == 1);
+		assertTrue("Must have one Summary property.", bo.getFacet_Summary().getChildren().size() == 1);
+		// Then - structure must be OK, but not valid due to name collisions.
+		ml.check(ln, false);
+
+		// When - core and vwa removed from library it will be valid
+		ln.removeMember(vwa);
+		// Then - valid
+		ml.check();
 	}
 
 	@Test

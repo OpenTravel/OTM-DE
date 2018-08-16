@@ -83,21 +83,21 @@ public class AssignTypeAction extends OtmAbstractAction {
 	}
 
 	// From OTM Actions (46) - typeSelector - type selection buttons in facet view
-	public static boolean execute(List<Node> toChange, Node newType) {
+	public static void execute(List<Node> toChange, Node newType) {
 		if (newType == null || !newType.isNamedEntity()) {
 			LOGGER.warn("No type to assign. Early Exit.");
-			return false;
+			// return false;
 		}
 		if (toChange == null || toChange.size() <= 0) {
 			LOGGER.warn("Nothing to assign to. Early Exit.");
-			return false;
+			// return false;
 		}
 		Node last = null;
-		boolean ret = true;
+		TypeProvider ret = null;
 		for (Node cn : toChange) {
 			// 10/2016 dmh - clean up logic and skip fixName since done in assign type
 			ret = ((TypeUser) cn).setAssignedType((TypeProvider) newType);
-			if (!ret)
+			if (ret == null)
 				DialogUserNotifier.openWarning("Warning", "Invalid type assignment");
 
 			if (last != null && cn.getParent() != last.getParent()) {
@@ -108,7 +108,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 		OtmRegistry.getMainController().refresh();
 
 		// LOGGER.debug("Assigned " + newType.getName() + " to " + toChange.size() + " nodes.");
-		return ret;
+		// return ret != null;
 	}
 
 	/**

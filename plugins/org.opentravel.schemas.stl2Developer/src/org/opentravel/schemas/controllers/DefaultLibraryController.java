@@ -51,6 +51,7 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.FileDialogs;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.views.OtmView;
 import org.opentravel.schemas.views.ValidationResultsView;
@@ -352,7 +353,8 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		for (final Entry<Node, Node> entry : sourceToNewMap.entrySet()) {
 			for (LibraryNode scope : newLibs) {
 				final Node sourceNode = entry.getKey();
-				sourceNode.replaceTypesWith(entry.getValue(), scope);
+				if (entry.getValue() instanceof TypeProvider)
+					sourceNode.replaceTypesWith((TypeProvider) entry.getValue(), scope);
 			}
 		}
 		return newLibs;

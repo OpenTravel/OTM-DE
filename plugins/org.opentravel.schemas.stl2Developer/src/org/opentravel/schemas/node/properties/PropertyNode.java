@@ -259,11 +259,11 @@ public abstract class PropertyNode extends ComponentNode {
 	 */
 	@Override
 	public void delete() {
+		// delegate to type handling sub-classes to assign type
 		if (isDeleted() || getParent() == null)
 			return;
-		// TODO - delegate to sub-types to assign type
-		// setAssignedType();
 		deleteTL();
+		deleted = true;
 	}
 
 	@Override
@@ -386,6 +386,22 @@ public abstract class PropertyNode extends ComponentNode {
 	public abstract Node getParent();
 
 	/**
+	 * Get the parent from the passed TLModelElement's identity listener. Should be called by all children of facets
+	 * because the parent may have failed to rebuild children Create change handler if it is not present.
+	 * 
+	 * @param owner
+	 *            the TLModelElement of the property owner
+	 * @return
+	 */
+	public Node getParent(TLModelElement owner, boolean createChangeHandler) {
+		if ((parent == null || parent.isDeleted()) && getTLModelObject() != null)
+			parent = Node.GetNode(owner);
+		if (createChangeHandler && parent instanceof FacetInterface && changeHandler == null)
+			changeHandler = new PropertyRoleChangeHandler(this, parent);
+		return parent;
+	}
+
+	/**
 	 * Property Roles are displayed in the facet table and describe what role the item can play in constructing
 	 * vocabularies.
 	 * 
@@ -416,9 +432,10 @@ public abstract class PropertyNode extends ComponentNode {
 	 * True if it has assigned type
 	 */
 	@Override
-	public boolean hasNavChildren(boolean deep) {
-		return false;
-	}
+	public abstract boolean hasNavChildren(boolean deep);
+	// {
+	// return false;
+	// }
 
 	/**
 	 * Node index is the order in the node list. Node lists are not separated by node types as they are in TL Model
@@ -478,9 +495,10 @@ public abstract class PropertyNode extends ComponentNode {
 	 * Properties can only be a navigation child in deep mode. Non-typed properties override with false.
 	 */
 	@Override
-	public boolean isNavChild(boolean deep) {
-		return deep;
-	}
+	public abstract boolean isNavChild(boolean deep);
+	// {
+	// return deep;
+	// }
 
 	// Override if not re-nameable.
 	@Override

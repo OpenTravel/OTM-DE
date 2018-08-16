@@ -355,9 +355,9 @@ public class ResourceNode extends ComponentNode
 	}
 
 	@Override
-	public boolean setAssignedType(TypeProvider type) {
+	public TypeProvider setAssignedType(TypeProvider type) {
 		LOGGER.debug("Tried to set assigned type: " + getType());
-		return false;
+		return null;
 	}
 
 	@Override

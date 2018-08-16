@@ -347,6 +347,7 @@ public class NodeFactory {
 		else if (tlObj instanceof TLSimpleFacet)
 			assert false;
 		// nn = new SimpleFacetNode((TLSimpleFacet) tlObj);
+		// TLRoleEnumeration is the TL Container for TLRoles
 		else if (tlObj instanceof TLRoleEnumeration)
 			nn = new RoleFacetNode((TLRoleEnumeration) tlObj);
 		else if (tlObj instanceof TLOperation)

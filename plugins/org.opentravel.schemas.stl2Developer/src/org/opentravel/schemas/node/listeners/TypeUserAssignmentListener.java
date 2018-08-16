@@ -62,6 +62,8 @@ public class TypeUserAssignmentListener extends BaseNodeListener {
 			Node source = getSource(event);
 			if (source instanceof SimpleAttributeOwner)
 				source = ((SimpleAttributeOwner) source).getSimpleAttribute();
+			if (!(source instanceof TypeUser))
+				return;
 
 			if (getNewValue(event) == getNode())
 				handler.add((TypeUser) source);

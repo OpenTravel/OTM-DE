@@ -446,7 +446,8 @@ public class LoadFiles {
 		n.setName("TEST");
 		switch (nodeCount % 3) {
 		case 0:
-			n.getLibrary().removeMember(n);
+			if (n instanceof LibraryMemberInterface)
+				n.getLibrary().removeMember((LibraryMemberInterface) n);
 			n.close();
 			break;
 		case 1:

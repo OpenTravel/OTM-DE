@@ -324,7 +324,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 			for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers()) {
 				if (n instanceof ServiceNode)
 					LOGGER.debug("ready to remove service.");
-				ln.removeMember((Node) n); // May change type assignments!
+				ln.removeMember(n); // May change type assignments!
 			}
 			List<LibraryMemberInterface> dlmn = ln.getDescendants_LibraryMembers();
 			List<LibraryMemberInterface> dlm = ln.getDescendants_LibraryMembers();

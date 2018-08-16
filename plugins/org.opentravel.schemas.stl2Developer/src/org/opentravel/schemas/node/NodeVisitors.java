@@ -77,7 +77,7 @@ public class NodeVisitors {
 
 			// Remove from where used list
 			if (node instanceof TypeProvider)
-				((TypeProvider) node).removeAll();
+				((TypeProvider) node).removeAll(false);
 
 			if (node instanceof TypeUser)
 				((TypeUser) node).setAssignedType();
@@ -104,25 +104,19 @@ public class NodeVisitors {
 		public void visit(INode n) {
 			// LOGGER.debug("DeleteVisitor: deleting " + n);
 			Node node = (Node) n;
-			String nodeName = n.getName();
 
-			if (node instanceof ImpliedNode) {
-				LOGGER.debug("DeleteVisitor: deleting implied " + n);
+			if (node instanceof ImpliedNode)
 				return;
-			}
 			if (node instanceof ServiceNode) {
 				node.delete();
-				// // this has a entry in the service aggregate but no version node!
-				// // LOGGER.debug("Deleting Service node.");
-				// if (node.getLibrary().isInChain())
-				// node.getLibrary().getChain().removeAggregate((ComponentNode) node);
+				return;
 			} else if (node instanceof ResourceNode) {
 				node.delete(); // resource will do children, type users and chain
 				return;
 			}
 			// NOTE - libraries are ALWAYS delete-able even when not edit-able
 			if (!node.isDeleteable()) {
-				// LOGGER.debug("DeleteVisitor: not delete-able " + n);
+				// LOGGER.debug("Exit - not delete-able " + n);
 				return;
 			}
 
@@ -130,7 +124,7 @@ public class NodeVisitors {
 
 			// Remove from where used list
 			if (node instanceof TypeProvider)
-				((TypeProvider) node).removeAll();
+				((TypeProvider) node).removeAll(true);
 
 			if (node instanceof TypeUser)
 				((TypeUser) node).setAssignedType();

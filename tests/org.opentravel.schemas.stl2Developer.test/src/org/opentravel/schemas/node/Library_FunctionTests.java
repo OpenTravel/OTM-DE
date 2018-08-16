@@ -154,6 +154,42 @@ public class Library_FunctionTests extends BaseProjectTest {
 	}
 
 	@Test
+	public void LN_ServiceUnmangedMethodTests() throws LibrarySaveException {
+		MockLibrary ml = new MockLibrary();
+		LibraryNode ln = ml.createNewLibrary(pc, "SvcTests");
+
+		assertTrue(!ln.hasService());
+		assertTrue(ln.getServiceRoot() instanceof NavNode);
+		assertTrue(ln.getService() == null);
+
+		// When service is added
+		ServiceNode svc = ml.addService(ln, "TestService");
+		// Then
+		assertTrue(ln.hasService());
+		assertTrue(ln.getServiceRoot() instanceof NavNode);
+		assertTrue(ln.getService() == svc);
+	}
+
+	@Test
+	public void LN_ServiceMangedMethodTests() throws LibrarySaveException {
+		// Given a managed library
+		MockLibrary ml = new MockLibrary();
+		LibraryNode ln = ml.createNewLibrary(pc, "SvcTests");
+		LibraryChainNode lcn = new LibraryChainNode(ln);
+		// Then - no service created
+		assertTrue(!ln.hasService());
+		assertTrue(ln.getServiceRoot() instanceof NavNode);
+		assertTrue(ln.getService() == null);
+
+		// When service is added
+		ServiceNode svc = ml.addService(ln, "TestService");
+		// Then
+		assertTrue(ln.hasService());
+		assertTrue(ln.getServiceRoot() instanceof NavNode);
+		assertTrue(ln.getService() == svc);
+	}
+
+	@Test
 	public void libraryDocumentationTests() throws LibrarySaveException {
 		String string1 = "This is a test.";
 		MockLibrary ml = new MockLibrary();
@@ -740,6 +776,7 @@ public class Library_FunctionTests extends BaseProjectTest {
 					try {
 						// When - move the member by adding to new library
 						// n.getLibrary().moveMember((Node) n, toLib);
+						// ml.check((Node) n, true);
 						toLib.addMember(n);
 						libCount--;
 

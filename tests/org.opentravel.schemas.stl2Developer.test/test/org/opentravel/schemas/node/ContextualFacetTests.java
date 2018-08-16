@@ -217,6 +217,33 @@ public class ContextualFacetTests {
 	}
 
 	@Test
+	public void CF_moveTests() {
+		// Given - an editable library
+		OTM16Upgrade.otm16Enabled = true;
+		LibraryNode srcLib = ml.createNewLibrary(pc, "CF_MoveTest1");
+		LibraryNode destLib = ml.createNewLibrary(pc, "CF_MoveTest2");
+
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(srcLib, "Tbo", true);
+		bo.addAlias("TboAlias");
+		List<AbstractContextualFacet> cfs = bo.getContextualFacets(false);
+
+		ml.check();
+
+		// When the facets are moved
+		for (AbstractContextualFacet cf : cfs) {
+			assert cf instanceof LibraryMemberInterface;
+			destLib.addMember((LibraryMemberInterface) cf);
+		}
+		ml.check();
+
+		// When the bo is moved
+		destLib.addMember(bo);
+		ml.check();
+		// Check alias assignments
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	@Test
 	public void ContextualFacets_v16() {
 		// Given - an editable library
 		OTM16Upgrade.otm16Enabled = true;

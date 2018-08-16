@@ -220,6 +220,14 @@ public abstract class TypedPropertyNode extends PropertyNode implements TypeUser
 		return getAssignedType() != null ? getAssignedType().isAssignedByReference() : false;
 	}
 
+	/**
+	 * Typed Properties are only be a navigation child in deep mode.
+	 */
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return deep;
+	}
+
 	// Override if not re-nameable.
 	@Override
 	public boolean isRenameable() {
@@ -238,8 +246,8 @@ public abstract class TypedPropertyNode extends PropertyNode implements TypeUser
 	public abstract boolean setAssignedTLType(TLModelElement tlProvider);
 
 	@Override
-	public boolean setAssignedType(TypeProvider provider) {
-		return getTypeHandler().set(provider);
+	public TypeProvider setAssignedType(TypeProvider provider) {
+		return getTypeHandler().set(provider) ? provider : null;
 	}
 
 	/**

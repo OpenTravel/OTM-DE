@@ -630,8 +630,8 @@ public class TestTypes extends BaseProjectTest {
 			// Given TypeUser property that does not have fixed type assignment.
 			if (property instanceof TypeUser && ((TypeUser) property).getRequiredType() == null) {
 
-				// Assure set worked (returned true)
-				Assert.assertTrue(((TypeUser) property).setAssignedType(typeToAssign));
+				// Assure set worked (returned type or substitution for type)
+				Assert.assertTrue(((TypeUser) property).setAssignedType(typeToAssign) != null);
 
 				// Then assure type node and tl elements are set, where used set and counts adjusted.
 				Assert.assertEquals(typeToAssign, ((TypeUser) property).getAssignedType());

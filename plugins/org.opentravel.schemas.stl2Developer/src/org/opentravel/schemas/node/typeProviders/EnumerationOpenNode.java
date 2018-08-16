@@ -45,8 +45,8 @@ import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.utils.StringComparator;
 
-public class EnumerationOpenNode extends TypeProviders implements FacetInterface, Enumeration, Sortable,
-		ExtensionOwner, ComplexMemberInterface, VersionedObjectInterface {
+public class EnumerationOpenNode extends TypeProviders implements FacetInterface, Enumeration, Sortable, ExtensionOwner,
+		ComplexMemberInterface, VersionedObjectInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationOpenNode.class);
 
 	private ExtensionHandler extensionHandler = null;
@@ -210,7 +210,7 @@ public class EnumerationOpenNode extends TypeProviders implements FacetInterface
 
 	@Override
 	public List<PropertyNode> getProperties() {
-		List<PropertyNode> kids = new ArrayList<PropertyNode>();
+		List<PropertyNode> kids = new ArrayList<>();
 		for (Node kid : getChildrenHandler().get())
 			kids.add((PropertyNode) kid);
 		return kids;
@@ -274,7 +274,7 @@ public class EnumerationOpenNode extends TypeProviders implements FacetInterface
 
 	@Override
 	public List<String> getLiterals() {
-		ArrayList<String> literals = new ArrayList<String>();
+		ArrayList<String> literals = new ArrayList<>();
 		for (TLEnumValue v : getTLModelObject().getValues())
 			literals.add(v.getLiteral());
 		return literals;
@@ -295,10 +295,10 @@ public class EnumerationOpenNode extends TypeProviders implements FacetInterface
 		return false;
 	}
 
-	@Override
-	public boolean isAssignableToSimple() {
-		return false;
-	}
+	// @Override
+	// public boolean isAssignableToSimple() {
+	// return false;
+	// }
 
 	@Override
 	public boolean isAssignableToVWA() {

@@ -85,8 +85,8 @@ public class InheritedAttributeNode extends AttributeNode implements InheritedIn
 	 * not TLAttributeType members so the GUI assist must convert before assignment.
 	 */
 	@Override
-	public boolean setAssignedType(TypeProvider provider) {
-		return false;
+	public TypeProvider setAssignedType(TypeProvider provider) {
+		return null;
 	}
 
 	@Override

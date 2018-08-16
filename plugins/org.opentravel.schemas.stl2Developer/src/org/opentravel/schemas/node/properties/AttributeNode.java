@@ -33,6 +33,8 @@ import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A property node that represents an XML attribute. See {@link NodeFactory#newMemberOLD(INode, Object)}
@@ -41,6 +43,7 @@ import org.opentravel.schemas.types.TypeProvider;
  * 
  */
 public class AttributeNode extends TypedPropertyNode {
+	private static final Logger LOGGER = LoggerFactory.getLogger(AttributeNode.class);
 
 	public AttributeNode() {
 		super();
@@ -92,19 +95,33 @@ public class AttributeNode extends TypedPropertyNode {
 
 	@Override
 	public boolean canAssign(Node type) {
-		if (type != null && type instanceof TypeProvider) {
+		if (type instanceof TypeProvider) {
 			TypeProvider provider = (TypeProvider) type;
+			if (provider instanceof AliasNode)
+				provider = getAssignmentSubstitute((AliasNode) type);
 
-			// GUI assist: aliases stand in for their base type on attributes.
-			if (type instanceof AliasNode)
-				provider = (TypeProvider) type.getOwningComponent();
-
-			if (getOwningComponent() instanceof VWA_Node)
-				return provider.isAssignableToVWA();
-			else
-				return provider.isAssignableToSimple();
+			if (provider != null) {
+				if (getOwningComponent() instanceof VWA_Node)
+					return provider.isAssignableToVWA();
+				else
+					return provider.isAssignableToSimple();
+			}
 		}
 		return false;
+	}
+
+	/**
+	 * Return the type provider that substitutes for this alias on assignment <b> Note: shared facets can have aliases
+	 * but are not type providers
+	 * 
+	 * @param a
+	 * @return
+	 */
+	private TypeProvider getAssignmentSubstitute(AliasNode a) {
+		TypeProvider tp = null;
+		if (a.getParent() instanceof TypeProvider)
+			tp = (TypeProvider) ((Node) a).getParent();
+		return tp;
 	}
 
 	@Override
@@ -149,10 +166,7 @@ public class AttributeNode extends TypedPropertyNode {
 
 	@Override
 	public Node getParent() {
-		if ((parent == null || parent.isDeleted()) && getTLModelObject() != null)
-			// The parent may have failed to rebuild children
-			parent = Node.GetNode(getTLModelObject().getOwner());
-		return parent;
+		return super.getParent((TLModelElement) getTLModelObject().getOwner(), true);
 	}
 
 	@Override
@@ -192,11 +206,11 @@ public class AttributeNode extends TypedPropertyNode {
 	 * not TLAttributeType members so the GUI assist must convert before assignment.
 	 */
 	@Override
-	public boolean setAssignedType(TypeProvider provider) {
+	public TypeProvider setAssignedType(TypeProvider provider) {
 		if (provider instanceof AliasNode)
-			if (provider.getParent() instanceof TypeProvider)
-				provider = (TypeProvider) ((Node) provider).getParent();
-		return getTypeHandler().set(provider);
+			provider = getAssignmentSubstitute((AliasNode) provider);
+
+		return getTypeHandler().set(provider) ? provider : null;
 	}
 
 	@Override
@@ -248,8 +262,8 @@ public class AttributeNode extends TypedPropertyNode {
 
 	@Override
 	public void removeAssignedTLType() {
-		getTLModelObject().setType(null);
 		setAssignedType();
+		getTLModelObject().setType(null);
 	}
 
 	@Override

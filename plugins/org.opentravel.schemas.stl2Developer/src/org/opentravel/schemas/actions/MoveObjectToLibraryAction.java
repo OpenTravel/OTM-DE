@@ -102,8 +102,9 @@ public class MoveObjectToLibraryAction extends OtmAbstractAction {
 		else if (source.getChain() != null && source.getChain() == destination.getChain())
 			warning = "You can not move object within the same library version chain.";
 
+		// FIXME - what is correct behavior?
 		if (source.getVersionNode() != null && !source.getVersionNode().getOlderVersions().isEmpty())
-			LOGGER.debug("User will be confused.");
+			LOGGER.debug("User will be confused by moving a node with older versions that are not moved.");
 
 		if (warning == null)
 			destination.addMember((LibraryMemberInterface) source);

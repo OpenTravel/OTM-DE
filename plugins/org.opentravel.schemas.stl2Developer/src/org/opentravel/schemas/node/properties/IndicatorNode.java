@@ -18,6 +18,7 @@ package org.opentravel.schemas.node.properties;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLIndicatorOwner;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
@@ -103,10 +104,7 @@ public class IndicatorNode extends PropertyNode {
 
 	@Override
 	public Node getParent() {
-		if ((parent == null || parent.isDeleted()) && getTLModelObject() != null)
-			// The parent may have failed to rebuild children
-			parent = Node.GetNode(getTLModelObject().getOwner());
-		return parent;
+		return super.getParent((TLModelElement) getTLModelObject().getOwner(), true);
 	}
 
 	@Override
@@ -152,6 +150,26 @@ public class IndicatorNode extends PropertyNode {
 	protected void removeFromTL() {
 		if (getTLModelObject() != null && getTLModelObject().getOwner() != null)
 			getTLModelObject().getOwner().removeIndicator(getTLModelObject());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.properties.PropertyNode#hasNavChildren(boolean)
+	 */
+	@Override
+	public boolean hasNavChildren(boolean deep) {
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.properties.PropertyNode#isNavChild(boolean)
+	 */
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return false;
 	}
 
 }

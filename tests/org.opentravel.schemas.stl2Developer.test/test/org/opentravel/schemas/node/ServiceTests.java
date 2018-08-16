@@ -92,8 +92,8 @@ public class ServiceTests extends BaseProjectTest {
 		assertTrue(svc.getParent() instanceof NavNode);
 		assertTrue(svc.getTLModelObject() instanceof TLService);
 		assertTrue(svc == Node.GetNode(svc.getTLModelObject()));
-		assertTrue("TL Service must be this service.", svc.getTLModelObject() == ((TLLibrary) svc.getLibrary()
-				.getTLModelObject()).getService());
+		assertTrue("TL Service must be this service.",
+				svc.getTLModelObject() == ((TLLibrary) svc.getLibrary().getTLModelObject()).getService());
 
 		for (Node n : svc.getChildren())
 			assertTrue(n instanceof OperationNode);
@@ -110,6 +110,15 @@ public class ServiceTests extends BaseProjectTest {
 	public void constructorFromLib_Test() {
 		ServiceNode svc = new ServiceNode(ln);
 		assertTrue(svc.getChildren().size() == 0);
+	}
+
+	@Test
+	public void SVC_deleteTests() {
+		ServiceNode svc = new ServiceNode(ln);
+		assertTrue(svc.getChildren().size() == 0);
+
+		svc.delete();
+		assert svc.isDeleted();
 	}
 
 	@Test
@@ -142,8 +151,8 @@ public class ServiceTests extends BaseProjectTest {
 	@Test
 	public void constructorFromBOinManagedLib_Test() {
 		// Given - library is managed
-		LibraryChainNode lcn = ml
-				.createNewManagedLibrary_Empty("http://example.com/test", "ManagedLib", defaultProject);
+		LibraryChainNode lcn = ml.createNewManagedLibrary_Empty("http://example.com/test", "ManagedLib",
+				defaultProject);
 		ln = lcn.getHead();
 
 		// Given - a BO in a library

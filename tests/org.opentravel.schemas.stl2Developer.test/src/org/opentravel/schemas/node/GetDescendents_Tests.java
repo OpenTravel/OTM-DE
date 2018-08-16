@@ -65,27 +65,42 @@ public class GetDescendents_Tests extends BaseProjectTest {
 
 	@Test
 	public void DESC_Descendants() {
+		OTM16Upgrade.otm16Enabled = true;
+
 		ProjectNode project = createProject("Project1", rc.getLocalRepository(), "IT1");
+		int emptyModelCount = Node.getModelNode().getDescendants().size();
 
 		ln = ml.createNewLibrary(project.getNamespace(), "test", project);
 		ml.addOneOfEach(ln.getHead(), PREFIX);
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TBB");
 		ml.addAllProperties(bo.getFacet_Summary());
+		int lib1Count = ln.getDescendants().size();
 
 		LibraryNode ln2 = ml.createNewManagedLibrary(project.getNamespace(), "test2", project).getHead();
-		ml.addOneOfEach(ln.getHead(), PREFIX + "2");
+		ml.addOneOfEach(ln2.getHead(), PREFIX + "2");
 		BusinessObjectNode bo2 = ml.addBusinessObjectToLibrary(ln2, "TBB2");
 		ml.addAllProperties(bo2.getFacet_Summary());
+		int lib2Count = ln2.getDescendants().size();
+
+		int fullModelCount = Node.getModelNode().getDescendants().size();
+		int expected = 301;
+
+		if (fullModelCount != expected) {
+			LOGGER.debug("Counts: full= " + fullModelCount + " empty=" + emptyModelCount + " ln=" + lib1Count + " ln2= "
+					+ lib2Count);
+			// Counts: full= 301 empty=62 ln=106 ln2= 106
+			LOGGER.debug("OTA 1.6 set to: " + OTM16Upgrade.otm16Enabled);
+		}
 
 		List<Node> descendants = Node.getModelNode().getDescendants();
-		// assert descendants.size() == 265;
-		assert descendants.size() == 266; // after property node refactor
+		assert descendants.size() == expected; // after property node refactor
 
 		// Then
 		for (Node d : Node.getModelNode().getDescendants()) {
 			descendants.remove(d);
 			assertTrue("Must only be one of these in list.", !descendants.contains(d));
 		}
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	@Test
