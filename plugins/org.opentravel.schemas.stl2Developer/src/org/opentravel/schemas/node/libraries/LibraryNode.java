@@ -1041,7 +1041,8 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 					cf.delete();
 
 		if (getChildrenHandler() != null) {
-			n.getLibrary().getTLModelObject().removeNamedMember((LibraryMember) n.getTLModelObject());
+			if (n.getLibrary() != null && n.getLibrary().getTLModelObject() != null)
+				n.getLibrary().getTLModelObject().removeNamedMember((LibraryMember) n.getTLModelObject());
 			if (n instanceof ServiceNode && n.getParent() instanceof NavNode)
 				((NavNode) n.getParent()).removeLM(n); // all others done in listener
 		} else {
