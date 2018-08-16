@@ -70,4 +70,13 @@ public class IdNode extends AttributeNode {
 		assert idType != null;
 		return idType;
 	}
+
+	/**
+	 * Override - ignore assignment and just return the ID simple type.
+	 */
+	@Override
+	public TypeProvider setAssignedType(TypeProvider provider) {
+		return getRequiredType();
+	}
+
 }

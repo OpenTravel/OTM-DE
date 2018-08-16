@@ -382,12 +382,12 @@ public class TestTypes extends BaseProjectTest {
 		assertEquals(1, getIdentityListenerCount(core.getFacet_Simple()));
 		// When - type assigned to a property of the core summary facet
 		TypedPropertyNode p1 = (TypedPropertyNode) core.getFacet_Summary().getChildren().get(0);
-		p1.setAssignedType(s1);
+		TypeProvider result = p1.setAssignedType(s1);
+		// Then - assignment worked for type or its substitute
+		assertEquals(result, p1.getAssignedType());
+		result = p1.setAssignedType(v2); // a versioned node
 		// Then - assignment worked
-		assertEquals(s1, p1.getAssignedType());
-		p1.setAssignedType(v2); // a versioned node
-		// Then - assignment worked
-		assertEquals(v2, p1.getAssignedType());
+		assertEquals(result, p1.getAssignedType());
 
 		// Test with both property and type in versioned libraries.
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln_inChain, "Bo1");
