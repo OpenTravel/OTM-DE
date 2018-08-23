@@ -16,6 +16,7 @@
 package org.opentravel.schemas.actions;
 
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
@@ -31,38 +32,39 @@ import org.opentravel.schemas.stl2developer.MainWindow;
 public class ChangeAction extends OtmAbstractAction {
 	private final static StringProperties propsDefault = new ExternalizedStringProperties("action.changeObject");
 
+	private final ChangeActionController controller;
+
 	/**
 	 *
 	 */
 	public ChangeAction(final MainWindow mainWindow) {
 		super(mainWindow, propsDefault);
+		controller = new ChangeActionController();
 	}
 
 	public ChangeAction(final MainWindow mainWindow, final StringProperties props) {
 		super(mainWindow, props);
+		controller = new ChangeActionController();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.Action#run()
-	 */
 	@Override
 	public void run() {
-		getMainController().changeTreeSelection();
+		Node n = mc.getCurrentNode_NavigatorView();
+		if (!(n instanceof LibraryMemberInterface))
+			n = (Node) n.getOwningComponent();
+
+		if (n instanceof LibraryMemberInterface)
+			controller.runWizard((LibraryMemberInterface) n);
+
+		mc.refresh();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.Action#isEnabled()
-	 */
 	@Override
 	public boolean isEnabled() {
 		Node n = (Node) mc.getCurrentNode_NavigatorView().getOwningComponent();
-		if (n instanceof BusinessObjectNode || n instanceof CoreObjectNode || n instanceof VWA_Node) {
+		if (n instanceof BusinessObjectNode || n instanceof CoreObjectNode || n instanceof VWA_Node)
 			return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
-		}
+
 		return false;
 	}
 

@@ -713,13 +713,6 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 *            library member node to add to this library
 	 */
 	public void addMember(final LibraryMemberInterface lm) {
-		// If it doesn't have a children handler yet, it is doing the handler constructor.
-		// The constructor will add the member.
-		// 5/2/2018 - commented out null check
-		// if (getChildrenHandler() == null) {
-		// LOGGER.debug("Missing library children handler.");
-		// return;
-		// }
 		assert getChildrenHandler() != null;
 		assert lm.getTLModelObject() != null;
 		assert lm.getTLModelObject() instanceof LibraryMember;
@@ -817,7 +810,8 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		if (lm instanceof ContextualFacetOwnerInterface)
 			for (AbstractContextualFacet cf : ((ContextualFacetOwnerInterface) lm).getContextualFacets(false)) {
 				cf.getTLModelObject().setOwningEntity((TLFacetOwner) lm.getTLModelObject());
-				assert cf.checkAliasesAreUnique(false);
+				cf.checkAliasesAreUnique(true);
+				// assert cf.checkAliasesAreUnique(false);
 			}
 		// Type assignments
 		if (lm instanceof TypeProvider)

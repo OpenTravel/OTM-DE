@@ -16,39 +16,59 @@
 package org.opentravel.schemas.node;
 
 public enum SubType {
-    // facet sub-types
-    SUMMARY("Summary"), INFO("Info"), ROLES("Roles"), SIMPLE_FACET("SimpleFacet"), ID("ID"), DETAIL(
-            "Detail"), QUERY("Query"), CUSTOM("Custom"),
+	// facet sub-types
+	SUMMARY("Summary"),
+	INFO("Info"),
+	ROLES("Roles"),
+	SIMPLE_FACET("SimpleFacet"),
+	ID("ID"),
+	DETAIL("Detail"),
+	QUERY("Query"),
+	CUSTOM("Custom"),
+	SHARED("Shared"),
 
-    ATTRIBUTE("Attribute"), ELEMENT("Element"), INDICATOR("Indicator"),
+	// Properties
+	ATTRIBUTE("Attribute"),
+	ELEMENT("Element"),
+	INDICATOR("Indicator"),
 
-    // message
-    MESSAGE("Message"), OPERATION("Operation"), REQUEST("Request"), RESPONSE("Response"), NOTIFICATION(
-            "Notification"),
+	// message
+	MESSAGE("Message"),
+	OPERATION("Operation"),
+	REQUEST("Request"),
+	RESPONSE("Response"),
+	NOTIFICATION("Notification"),
 
-    // term sub-types
-    SIMPLE("Simple"), SIMPLE_XSD("SimpleXSD"), ENUMERATION("Enumeration"), ENUMERATION_WITH_DOC(
-            "Enumeration With Doc"), VALUE_WITH_ATTRS("Value With Attributes"), CORE_OBJECT(
-            "Core Object"), BUSINESS_OBJECT("Business Object"), SERVICE("Service"), UNKNOWN(
-            "Unknown");
+	// term sub-types
+	SIMPLE("Simple"),
+	SIMPLE_XSD("SimpleXSD"),
+	ENUMERATION("Enumeration"),
+	ENUMERATION_WITH_DOC("Enumeration With Doc"),
+	VALUE_WITH_ATTRS("Value With Attributes"),
+	CORE_OBJECT("Core Object"),
+	BUSINESS_OBJECT("Business Object"),
+	CHOICE_OBJECT("Choice Object"),
+	RESOURCE("Resource"),
+	SERVICE("Service"),
+	UNKNOWN("Unknown");
 
-    private final String value;
+	private final String value;
 
-    SubType(final String v) {
-        value = v;
-    }
+	SubType(final String v) {
+		value = v;
+	}
 
-    public String value() {
-        return value;
-    }
+	public String value() {
+		return value;
+	}
 
-    public static SubType fromValue(final String v) {
+	public static SubType fromValue(final String v) {
 
-        for (final SubType c : SubType.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        return SubType.UNKNOWN;
-    }
+		for (final SubType c : SubType.values()) {
+			if (c.value.equals(v)) {
+				return c;
+			}
+		}
+		return SubType.UNKNOWN;
+	}
 }

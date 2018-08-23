@@ -22,6 +22,7 @@ import java.util.List;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemas.actions.ChangeActionController;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.SubType;
 import org.opentravel.schemas.node.facets.AttributeFacetNode;
@@ -39,20 +40,24 @@ public class ChangeWizard extends ValidatingWizard implements Cancelable {
 
 	private ChangeWizardPage page;
 	private boolean canceled;
-	private final List<SubType> allowedObjectTypes = new ArrayList<SubType>();
-	private final List<ExtentedTLFacetType> allowedFacetTypes = new ArrayList<ExtentedTLFacetType>();
+	private final List<SubType> allowedObjectTypes = new ArrayList<>();
+	private final List<ExtendedTLFacetType> allowedFacetTypes = new ArrayList<>();
 	private final ComponentNode editedNode;
+	private final ChangeActionController changeActionController;
 
 	/**
 	 * Set up the change wizard for the passed node.
 	 * 
 	 * @param editedNode
+	 * @param changeActionController
 	 */
-	public ChangeWizard(final ComponentNode editedNode) {
+	public ChangeWizard(final ComponentNode editedNode, ChangeActionController changeActionController) {
 		this.editedNode = editedNode;
+		// TODO - expose for use in pages, testing and controller
 		allowedObjectTypes
 				.addAll(Arrays.asList(SubType.BUSINESS_OBJECT, SubType.CORE_OBJECT, SubType.VALUE_WITH_ATTRS));
-		allowedFacetTypes.addAll(Arrays.asList(ExtentedTLFacetType.values()));
+		allowedFacetTypes.addAll(Arrays.asList(ExtendedTLFacetType.values()));
+		this.changeActionController = changeActionController;
 	}
 
 	/**
@@ -61,7 +66,7 @@ public class ChangeWizard extends ValidatingWizard implements Cancelable {
 	 */
 	public static final String DISPLAY_NAME = "Attributes";
 
-	enum ExtentedTLFacetType {
+	public enum ExtendedTLFacetType {
 		ID(TLFacetType.ID),
 		SUMMARY(TLFacetType.SUMMARY),
 		DETAIL(TLFacetType.DETAIL),
@@ -71,11 +76,11 @@ public class ChangeWizard extends ValidatingWizard implements Cancelable {
 		private TLFacetType tlType;
 		private String identityName;
 
-		private ExtentedTLFacetType(TLFacetType tlType) {
+		private ExtendedTLFacetType(TLFacetType tlType) {
 			this.tlType = tlType;
 		}
 
-		private ExtentedTLFacetType(String identityName) {
+		private ExtendedTLFacetType(String identityName) {
 			this((TLFacetType) null);
 			this.identityName = identityName;
 		}
@@ -91,14 +96,14 @@ public class ChangeWizard extends ValidatingWizard implements Cancelable {
 			return identityName;
 		}
 
-		public static ExtentedTLFacetType valueOf(ComponentNode facet) {
+		public static ExtendedTLFacetType valueOf(ComponentNode facet) {
 			if (facet instanceof AttributeFacetNode) {
 				return VWA_ATTRIBUTES;
 			}
 			if (facet.getFacetType() == null) {
 				return null;
 			}
-			for (ExtentedTLFacetType tl : values()) {
+			for (ExtendedTLFacetType tl : values()) {
 				if (tl.tlType == facet.getFacetType()) {
 					return tl;
 				}
@@ -115,7 +120,7 @@ public class ChangeWizard extends ValidatingWizard implements Cancelable {
 	@Override
 	public void addPages() {
 		page = new ChangeWizardPage("Change Object", "Perform transforms on the object", getValidator(), editedNode,
-				allowedObjectTypes, allowedFacetTypes);
+				allowedObjectTypes, allowedFacetTypes, changeActionController);
 		addPage(page);
 	}
 

@@ -30,6 +30,7 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.InheritanceDependencyListener;
 import org.opentravel.schemas.node.objectMembers.FacadeBase;
 import org.opentravel.schemas.node.properties.AttributeNode;
+import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
@@ -119,7 +120,7 @@ public class AttributeFacetNode extends FacadeBase implements FacetInterface {
 
 	@Override
 	public TLFacetType getFacetType() {
-		return TLFacetType.SIMPLE;
+		return TLFacetType.SUMMARY;
 	}
 
 	@Override
@@ -150,7 +151,10 @@ public class AttributeFacetNode extends FacadeBase implements FacetInterface {
 				np = np.clone(this, null); // add clone not property
 			// else
 			if (!canOwn(np) && np.getChangeHandler() != null)
-				np = np.getChangeHandler().changePropertyRole(PropertyNodeType.ATTRIBUTE);
+				if (np instanceof IndicatorNode)
+					np = np.getChangeHandler().changePropertyRole(PropertyNodeType.INDICATOR);
+				else
+					np = np.getChangeHandler().changePropertyRole(PropertyNodeType.ATTRIBUTE);
 
 			add(np);
 			assert this.contains(np);
@@ -222,6 +226,7 @@ public class AttributeFacetNode extends FacadeBase implements FacetInterface {
 		if (pn instanceof AttributeNode)
 			getTLModelObject().removeAttribute(((AttributeNode) pn).getTLModelObject());
 		getChildrenHandler().clear();
+		pn.setParent(null);
 	}
 
 	/**

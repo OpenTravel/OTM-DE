@@ -31,13 +31,26 @@ import org.opentravel.schemas.stl2developer.MainWindow;
  */
 public class ChangeObjectAction extends OtmAbstractAction {
 
+	private ChangeActionController controller;
+
 	public ChangeObjectAction(final MainWindow mainWindow, final StringProperties props) {
 		super(mainWindow, props);
+		controller = new ChangeActionController();
 	}
 
 	@Override
 	public void run() {
-		getMainController().changeSelection();
+		// getMainController().changeSelection();
+		Node selected = mc.getSelectedNode_TypeView();
+		if (selected != null) {
+			// final ComponentNode n = (ComponentNode) selected.getOwningComponent();
+			// if (n != null) {
+			selected = controller.runWizard(selected.getOwningComponent());
+			// mc.changeNode(n);
+			// }
+		}
+		mc.refresh();
+		mc.setCurrentNode_TypeView(selected);
 	}
 
 	@Override

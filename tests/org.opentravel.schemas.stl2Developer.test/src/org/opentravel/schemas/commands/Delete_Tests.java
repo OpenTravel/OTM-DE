@@ -53,7 +53,6 @@ import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
-import org.opentravel.schemas.testUtils.NodeTesters.PrintNode;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -72,11 +71,9 @@ public class Delete_Tests extends BaseProjectTest {
 	LibraryNode ln = null;
 	ModelNode model = null;
 	LoadFiles lf = null;
-	// From baseProjecTest
-	// rc, mc, pc, testProject
 
 	NodeVisitor dv = new NodeVisitors().new deleteVisitor();
-	PrintNode pv = new NodeTesters().new PrintNode();
+	// PrintNode pv = new NodeTesters().new PrintNode();
 	TestNode tv = new NodeTesters().new TestNode();
 	NodeTesters tt = new NodeTesters();
 
@@ -455,7 +452,6 @@ public class Delete_Tests extends BaseProjectTest {
 		namedTypeCnt = setUpCase(2);
 		ln.setParent(null); // force delete to work
 		ln.visitAllNodes(dv);
-		ln.visitAllNodes(pv);
 		assert ln.isEmpty();
 
 		LOGGER.debug("***Setting Up Test Case 3");
@@ -575,6 +571,7 @@ public class Delete_Tests extends BaseProjectTest {
 		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", testProject);
 		BusinessObjectNode rbo = ml.addBusinessObject_ResourceSubject(ln, "rbo");
 		ResourceNode resource = ml.addResource(rbo);
+		assert rbo.getWhereAssigned().contains(resource);
 
 		ml.check(ln);
 		assertTrue("Library must have resource.", ln.get_LibraryMembers().contains(resource));
@@ -591,17 +588,6 @@ public class Delete_Tests extends BaseProjectTest {
 		assertTrue("Library must have no members.", ln.get_LibraryMembers().isEmpty());
 		assertTrue("TL Library must have no members.", ln.getTLModelObject().getNamedMembers().isEmpty());
 	}
-
-	// @Test
-	// public void deleteFamily() throws Exception {
-	// // RENAME - library in multiple projects
-	// // See DefaultLibraryControllerTests
-	// // Given 2 projects
-	// // Given same library opened in both projects
-	// // 1 node shared across projects
-	// // delete one from project A and the other is not deleted
-	// // delete one from project B and the other is not deleted
-	// }
 
 	/**
 	 * Run the tests against test library files.

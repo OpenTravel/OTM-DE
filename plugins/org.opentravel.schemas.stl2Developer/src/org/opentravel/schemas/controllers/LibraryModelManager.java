@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModel;
@@ -433,6 +435,20 @@ public class LibraryModelManager {
 	// }
 	// return pn;
 	// }
+
+	/**
+	 * Get a sorted set of editable libraries (Static)
+	 */
+	public SortedMap<String, LibraryNode> getEditableLibrarySet() {
+		SortedMap<String, LibraryNode> map = new TreeMap<>();
+		for (LibraryNode ln : getUserLibraries())
+			if (ln.isEditable())
+				map.put(ln.getNameWithPrefix(), ln);
+		for (Entry<String, LibraryNode> e : map.entrySet())
+			LOGGER.debug("Key = " + e.getValue());
+		return map;
+		// FIXME - add junit test
+	}
 
 	/**
 	 * @return a list copy of the managed libraries and chains

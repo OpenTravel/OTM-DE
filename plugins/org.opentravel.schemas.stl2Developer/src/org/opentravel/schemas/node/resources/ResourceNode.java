@@ -356,13 +356,22 @@ public class ResourceNode extends ComponentNode
 
 	@Override
 	public TypeProvider setAssignedType(TypeProvider type) {
+		if (type instanceof BusinessObjectNode) {
+			setSubject((BusinessObjectNode) type);
+			return type;
+		}
 		LOGGER.debug("Tried to set assigned type: " + getType());
 		return null;
 	}
 
 	@Override
 	public void removeAssignedTLType() {
-		// NO-OP
+		// 8/20/2018 - added to support deleting business objects used as subjects
+		// Remove from where used if set
+		if (getSubject() != null && getSubject().getWhereAssigned().contains(this))
+			getSubject().removeWhereAssigned(this);
+
+		getTLModelObject().setBusinessObjectRef(null);
 	}
 
 	@Override

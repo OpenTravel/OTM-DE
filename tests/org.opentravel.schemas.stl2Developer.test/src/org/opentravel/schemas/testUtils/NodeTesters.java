@@ -45,21 +45,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Primary node testers for use in other junit tests.
- * <p>
- * Usage: n.visitAllNodes(new NodeTesters().new TestNode()); <br>
- * <i>or</i><br>
- * NodeTesters nt = new NodeTesters(); <br>
- * node.visitAllNodes(nt.new TestNode()); <br>
- * <i>or</i><br>
- * TestNode tn = new NodeTesters().new TestNode(); <br>
- * tn.visitNode(node); <br>
- * ln.visitAllNodes(tn); <br>
- * <i>or</i><br>
- * n.visitAllNodes(new NodeTesters().new ValidateTLObject());
  * 
  * @author Dave Hollander
  * 
  */
+@Deprecated
 public class NodeTesters {
 	private static final Logger LOGGER = LoggerFactory.getLogger(NodeTesters.class);
 
@@ -70,12 +60,12 @@ public class NodeTesters {
 		}
 	}
 
-	public class PrintNode implements NodeVisitor {
-		@Override
-		public void visit(INode n) {
-			LOGGER.debug("Visited " + n + "\tof class \t" + n.getClass().getCanonicalName());
-		}
-	}
+	// public class PrintNode implements NodeVisitor {
+	// @Override
+	// public void visit(INode n) {
+	// LOGGER.debug("Visited " + n + "\tof class \t" + n.getClass().getCanonicalName());
+	// }
+	// }
 
 	/**
 	 * Test the type providers and assure where used and owner. Test type users and assure getType returns valid node.

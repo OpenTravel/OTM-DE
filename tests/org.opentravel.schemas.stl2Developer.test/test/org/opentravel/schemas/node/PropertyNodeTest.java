@@ -257,13 +257,13 @@ public class PropertyNodeTest extends BaseTest {
 					// Then - verify the assignment
 					assertTrue(user.getAssignedType() == ModelNode.getUnassignedNode());
 
-				// When - successfully cleared
-				if (user.setAssignedType(string) != null)
+				// When - successfully assigned
+				if (user.setAssignedType(string) == string)
 					// Then - verify the assignment
 					assertTrue(user.getAssignedType() == string);
 
 				// When - successfully assigned a type
-				if (user.setAssignedType(simple) != null) {
+				if (user.setAssignedType(simple) == simple) {
 					// Then - verify the assignment
 					assertTrue(user.getAssignedType() == simple);
 					assertTrue(simple.getWhereAssigned().contains(user));

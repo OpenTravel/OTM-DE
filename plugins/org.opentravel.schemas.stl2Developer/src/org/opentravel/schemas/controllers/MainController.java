@@ -44,10 +44,7 @@ import org.opentravel.schemas.actions.ImportObjectToLibraryAction;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.Node.NodeVisitor;
-import org.opentravel.schemas.node.NodeVisitors;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -65,7 +62,6 @@ import org.opentravel.schemas.widgets.OtmHandlers;
 import org.opentravel.schemas.widgets.OtmSections;
 import org.opentravel.schemas.widgets.OtmTextFields;
 import org.opentravel.schemas.widgets.OtmWidgets;
-import org.opentravel.schemas.wizards.ChangeWizard;
 import org.opentravel.schemas.wizards.NewPropertiesWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -592,89 +588,92 @@ public class MainController {
 
 	/** ********************* LEGACY BUSINESS LOGIC *************************** **/
 
-	/**
-	 * Runs change wizard on the selected component.
-	 */
-	public void changeTreeSelection() {
-		final Node n = getCurrentNode_NavigatorView();
-		if (n != null) {
-			changeNode((ComponentNode) n.getOwningComponent());
-		}
-	}
+	// /**
+	// * Runs change wizard on the selected component.
+	// */
+	// @Deprecated
+	// public void changeTreeSelection() {
+	// final Node n = getCurrentNode_NavigatorView();
+	// if (n != null) {
+	// changeNode((ComponentNode) n.getOwningComponent());
+	// }
+	// }
 
-	/**
-	 * Change the selected type view node. Used by change object action. 1) clones node 2) replaces everything that uses
-	 * the selected node as a type to use the clone 3) runs wizard with the cloned node. Wizard is responsible for
-	 * making any model changes directed by the user. 4a) original node replaced back into the model if the wizard is
-	 * cancelled. 4b) original node deleted if wizard completes normally. 5) clone moved to new library if necessary
-	 * (TODO -- wizard should do this)
-	 */
-	public void changeSelection() {
-		final Node selected = getSelectedNode_TypeView();
-		if (selected != null) {
-			final ComponentNode n = (ComponentNode) selected.getOwningComponent();
-			if (n != null) {
-				changeNode(n);
-			}
-		}
-	}
+	// /**
+	// * Change the selected type view node. Used by change object action. 1) clones node 2) replaces everything that
+	// uses
+	// * the selected node as a type to use the clone 3) runs wizard with the cloned node. Wizard is responsible for
+	// * making any model changes directed by the user. 4a) original node replaced back into the model if the wizard is
+	// * cancelled. 4b) original node deleted if wizard completes normally. 5) clone moved to new library if necessary
+	// * (TODO -- wizard should do this)
+	// */
+	// @Deprecated
+	// public void changeSelection() {
+	// final Node selected = getSelectedNode_TypeView();
+	// if (selected != null) {
+	// final ComponentNode n = (ComponentNode) selected.getOwningComponent();
+	// if (n != null) {
+	// changeNode(n);
+	// }
+	// }
+	// }
 
-	private void changeNode(final ComponentNode nodeToReplace) {
-
-		if (nodeToReplace == null || nodeToReplace.getLibrary() == null) {
-			LOGGER.error("Null in change node.");
-			return;
-		}
-		if (nodeToReplace instanceof ServiceNode || !nodeToReplace.isInTLLibrary()) {
-			LOGGER.warn("Invalid state. Cannot change " + nodeToReplace);
-			return;
-		}
-
-		// LOGGER.debug("Changing selected component: " + nodeToReplace.getName() + " with "
-		// + nodeToReplace.getTypeUsersCount() + " users.");
-
-		LibraryNode srcLib = nodeToReplace.getLibrary();
-		ComponentNode editedNode = nodeToReplace;
-
-		// LOGGER.debug("Changing Edited component: " + editedNode.getName() + " with "
-		// + editedNode.getTypeUsersCount() + " users.");
-
-		// Wizard must maintain the editedComponent active in the library.
-		final ChangeWizard wizard = new ChangeWizard(editedNode);
-		wizard.run(OtmRegistry.getActiveShell());
-		if (wizard.wasCanceled()) {
-			selectNavigatorNodeAndRefresh(nodeToReplace);
-		} else {
-			editedNode = wizard.getEditedComponent();
-			// If the library is different than the srcLib, the object needs to be moved.
-			// The library in the object is only an indicator of the library to move to.
-			// The edited node will be in the src Library.
-			if (!editedNode.getLibrary().equals(srcLib)) {
-				LibraryNode destLib = editedNode.getLibrary();
-				editedNode.setLibrary(srcLib);
-				srcLib.moveMember(editedNode, destLib);
-			}
-			if (editedNode != nodeToReplace) {
-				// Use the visitor because without a library it will not be delete-able.
-				NodeVisitor visitor = new NodeVisitors().new deleteVisitor();
-				nodeToReplace.visitAllNodes(visitor);
-				// nodeToReplace.delete();
-			}
-			selectNavigatorNodeAndRefresh(editedNode);
-			refresh(editedNode);
-
-			// LOGGER.info("Component after change: " + editedComponent + " with "
-			// + editedComponent.getTypeUsersCount() + " users.");
-		}
-		// LOGGER.debug("library has " + ln.getChildren_NamedTypes().size() + " children.");
-
-		// Test Result
-		// NodeModelTestUtils.testNodeModel();
-		// Validate the library after doing change.
-		// checkModelCounts(srcLib); // these don't work right with chains and contextual facets
-		// checkModelCounts(editedNode.getLibrary());
-		// }
-	}
+	// public void changeNode(final ComponentNode nodeToReplace) {
+	//
+	// if (nodeToReplace == null || nodeToReplace.getLibrary() == null) {
+	// LOGGER.error("Null in change node.");
+	// return;
+	// }
+	// if (nodeToReplace instanceof ServiceNode || !nodeToReplace.isInTLLibrary()) {
+	// LOGGER.warn("Invalid state. Cannot change " + nodeToReplace);
+	// return;
+	// }
+	//
+	// // LOGGER.debug("Changing selected component: " + nodeToReplace.getName() + " with "
+	// // + nodeToReplace.getTypeUsersCount() + " users.");
+	//
+	// LibraryNode srcLib = nodeToReplace.getLibrary();
+	// ComponentNode editedNode = nodeToReplace;
+	//
+	// // LOGGER.debug("Changing Edited component: " + editedNode.getName() + " with "
+	// // + editedNode.getTypeUsersCount() + " users.");
+	//
+	// // Wizard must maintain the editedComponent active in the library.
+	// final ChangeWizard wizard = new ChangeWizard(editedNode);
+	// wizard.run(OtmRegistry.getActiveShell());
+	// if (wizard.wasCanceled()) {
+	// selectNavigatorNodeAndRefresh(nodeToReplace);
+	// } else {
+	// editedNode = wizard.getEditedComponent();
+	// // If the library is different than the srcLib, the object needs to be moved.
+	// // The library in the object is only an indicator of the library to move to.
+	// // The edited node will be in the src Library.
+	// if (!editedNode.getLibrary().equals(srcLib)) {
+	// LibraryNode destLib = editedNode.getLibrary();
+	// editedNode.setLibrary(srcLib);
+	// srcLib.moveMember(editedNode, destLib);
+	// }
+	// if (editedNode != nodeToReplace) {
+	// // Use the visitor because without a library it will not be delete-able.
+	// NodeVisitor visitor = new NodeVisitors().new deleteVisitor();
+	// nodeToReplace.visitAllNodes(visitor);
+	// // nodeToReplace.delete();
+	// }
+	// selectNavigatorNodeAndRefresh(editedNode);
+	// refresh(editedNode);
+	//
+	// // LOGGER.info("Component after change: " + editedComponent + " with "
+	// // + editedComponent.getTypeUsersCount() + " users.");
+	// }
+	// // LOGGER.debug("library has " + ln.getChildren_NamedTypes().size() + " children.");
+	//
+	// // Test Result
+	// // NodeModelTestUtils.testNodeModel();
+	// // Validate the library after doing change.
+	// // checkModelCounts(srcLib); // these don't work right with chains and contextual facets
+	// // checkModelCounts(editedNode.getLibrary());
+	// // }
+	// }
 
 	public static boolean checkModelCounts(final LibraryNode lib) {
 		int tlCount = 0, guiCount = 0;

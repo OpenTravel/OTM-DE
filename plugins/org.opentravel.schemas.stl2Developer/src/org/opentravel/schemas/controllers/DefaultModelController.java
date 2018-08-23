@@ -24,38 +24,19 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.opentravel.schemacompiler.ic.ModelIntegrityChecker;
 import org.opentravel.schemacompiler.loader.LibraryLoaderException;
-import org.opentravel.schemacompiler.model.TLAttribute;
-import org.opentravel.schemacompiler.model.TLAttributeOwner;
-import org.opentravel.schemacompiler.model.TLDocumentation;
-import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModel;
-import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemacompiler.model.TLPropertyOwner;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.task.CompileAllCompilerTask;
 import org.opentravel.schemacompiler.util.SchemaCompilerException;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeFactory;
-import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
-import org.opentravel.schemas.node.properties.TypedPropertyNode;
-import org.opentravel.schemas.node.typeProviders.VWA_Node;
-import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.preferences.CompilerPreferences;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.types.SimpleAttributeOwner;
-import org.opentravel.schemas.types.TypeProvider;
-import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.views.ValidationResultsView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,10 +80,6 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 		return lastCompileDirectory;
 	}
 
-	// public LibraryController getLibraryController() {
-	// return libraryController;
-	// }
-
 	@Override
 	public ModelNode getModel() {
 		return modelRoot;
@@ -111,16 +88,6 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 	@Override
 	public TLModel getTLModel() {
 		return Node.getModelNode().getTLModel();
-	}
-
-	// 11/11/2016 - dmh - not used anywhere
-	// FIXME - remove from ModelController interface
-	@Deprecated
-	@Override
-	public ModelNode createNewModel() {
-		// // LOGGER.debug("Creating new model");
-		ModelNode model = null;
-		return model;
 	}
 
 	/*
@@ -249,107 +216,6 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 		tlModel.addListener(new ModelIntegrityChecker());
 		// tlModel.addListener(objectsListeners);
 		return tlModel;
-	}
-
-	@Override
-	@Deprecated
-	public boolean changeToSimple(PropertyNode p) {
-		if (p instanceof SimpleAttributeFacadeNode)
-			return false;
-		if (p instanceof TypedPropertyNode)
-			if (!(((TypedPropertyNode) p).getAssignedType() instanceof TypeProvider)
-					|| !p.getType().isSimpleAssignable())
-				return false;
-
-		ComponentNode owner = (ComponentNode) p.getOwningComponent();
-		SimpleAttributeOwner simpleAttr = null;
-		TypeProvider result = null;
-		if (owner instanceof CoreObjectNode && p instanceof TypedPropertyNode)
-			result = ((CoreObjectNode) owner).setAssignedType(((TypedPropertyNode) p).getAssignedType());
-		else if (owner instanceof VWA_Node && p instanceof TypedPropertyNode)
-			result = ((VWA_Node) owner).setAssignedType(((TypedPropertyNode) p).getAssignedType());
-		if (result == null)
-			return false; // failed to make assignements
-		// TODO copy the examples and equivalents
-		// FIXME copyDocumentation(p, simpleFacet);
-
-		// Remove from current parent
-		// Other methods do node and TL level changes. Adding TL model code.
-		// Handles both core and VWA object types.
-		// 2/3/2015 dmh
-		TLModelElement tlPropOwner = p.getParent().getTLModelObject();
-		if (tlPropOwner instanceof TLPropertyOwner)
-			((TLPropertyOwner) tlPropOwner).removeProperty((TLProperty) p.getTLModelObject());
-		else if (tlPropOwner instanceof TLAttributeOwner)
-			((TLAttributeOwner) tlPropOwner).removeAttribute((TLAttribute) p.getTLModelObject());
-		else
-			return false;
-
-		// Add to simple attribute as type
-		// ComponentNode ci = owner;
-		// Node simpleProp = null;
-		// if (ci instanceof VWA_SimpleFacetFacadeNode)
-		// simpleProp = ((VWA_SimpleFacetFacadeNode) ci.getFacet_Simple()).getSimpleAttribute();
-		// else if (ci instanceof CoreSimpleFacetNode)
-		// simpleProp = ((CoreSimpleFacetNode) ci.getFacet_Simple()).getSimpleAttribute();
-		// ((TypeUser) simpleFacet).setAssignedType((TypeProvider) p.getType());
-
-		p.getParent().getChildrenHandler().clear();
-		// p.unlinkNode();
-		// TEST - FIXME
-		return true;
-	}
-
-	private void copyDocumentation(Node from, Node to) {
-		TLDocumentation fromDoc = from.getDocumentation();
-		if (fromDoc != null) {
-			((TLDocumentationOwner) to.getTLModelObject()).setDocumentation((TLDocumentation) fromDoc.cloneElement());
-		}
-		if (from instanceof TLDocumentationOwner && to instanceof TLDocumentationOwner) {
-			TLDocumentationOwner toO = (TLDocumentationOwner) to;
-			toO.setDocumentation(from.getDocumentation());
-		}
-	}
-
-	// TODO - why is this here and none of the other methods needed in wizard?
-	@Override
-	public ComponentNode moveSimpleToFacet(Node simpleAttribute, ComponentNode targetFacet) {
-		if (!(simpleAttribute instanceof SimpleAttributeFacadeNode))
-			return null;
-
-		ComponentNode cn = (ComponentNode) simpleAttribute.getOwningComponent();
-		if (!(cn instanceof FacetOwner)) {
-			return null;
-		}
-
-		FacetOwner ci = (FacetOwner) cn;
-		TLModelElement tlModel = null;
-		if (ci instanceof VWA_Node) {
-			String name = NodeNameUtils.stipSimpleSuffix(simpleAttribute.getName());
-			tlModel = createTLAttribute(name);
-		} else {
-			String name = NodeNameUtils.stipSimpleSuffix(simpleAttribute.getName());
-			tlModel = createTLProperty(name);
-		}
-		ComponentNode newProperty = NodeFactory.newChild(targetFacet, tlModel);
-		NodeNameUtils.fixName(newProperty);
-		((TypeUser) newProperty).setAssignedType((TypeProvider) simpleAttribute.getType());
-		((TypeUser) simpleAttribute).setAssignedType((TypeProvider) ModelNode.getEmptyNode());
-		copyDocumentation(simpleAttribute, newProperty);
-
-		return newProperty;
-	}
-
-	private TLModelElement createTLAttribute(String name) {
-		TLAttribute atr = new TLAttribute();
-		atr.setName(name);
-		return atr;
-	}
-
-	private TLModelElement createTLProperty(String name) {
-		TLProperty atr = new TLProperty();
-		atr.setName(name);
-		return atr;
 	}
 
 }

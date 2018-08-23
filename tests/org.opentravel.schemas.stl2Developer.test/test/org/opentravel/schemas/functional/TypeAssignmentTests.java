@@ -114,11 +114,12 @@ public class TypeAssignmentTests extends BaseTest {
 		// When assigned to core properties
 		AttributeNode a = new AttributeNode(co.getFacet_Summary(), "attr1", sType);
 		List<TypeUser> users = co.getDescendants_TypeUsers();
+		TypeProvider actual = null;
 		for (TypeUser u : co.getDescendants_TypeUsers()) {
 			ml.check(co);
 			// Not all type users (such as ID) can be assigned
-			if (u.setAssignedType(builtIn) != null)
-				assertTrue(builtIn.getWhereAssigned().contains(u));
+			if ((actual = u.setAssignedType(builtIn)) != null)
+				assertTrue(actual.getWhereAssigned().contains(u));
 			ml.check(co);
 		}
 	}

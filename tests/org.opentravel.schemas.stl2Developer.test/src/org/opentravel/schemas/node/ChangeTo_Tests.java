@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemas.actions.ChangeNodeActionTests;
 import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -76,18 +77,16 @@ public class ChangeTo_Tests extends BaseTest {
 
 		int typeCount = ln.getDescendants_LibraryMembers().size();
 		// When converted to VWA, the facets are lost.
-		typeCount -= bo.getDescendants_ContributedFacets().size();
+		// typeCount -= bo.getDescendants_ContributedFacets().size();
 
-		VWA_Tests tests = new VWA_Tests();
-		tVwa = (VWA_Node) bo.changeObject(SubType.VALUE_WITH_ATTRS);
-		tests.check(tVwa);
-		tVwa = (VWA_Node) core.changeObject(SubType.VALUE_WITH_ATTRS);
-		tests.check(tVwa);
-		tVwa = (VWA_Node) vwa.changeObject(SubType.VALUE_WITH_ATTRS);
-		tests.check(tVwa);
+		tVwa = new VWA_Node(bo);
+		tVwa.setName(tVwa.getName() + "v");
+		ml.check(tVwa);
+		tVwa = new VWA_Node(core);
+		tVwa.setName(tVwa.getName() + "vv");
+		ml.check(tVwa);
 
-		// tn.visit(ln);
-		Assert.assertEquals(typeCount, ln.getDescendants_LibraryMembers().size());
+		Assert.assertEquals(typeCount + 2, ln.getDescendants_LibraryMembers().size());
 	}
 
 	@Test
@@ -201,40 +200,19 @@ public class ChangeTo_Tests extends BaseTest {
 		list = vwa.getWhereAssigned();
 		Assert.assertEquals(1, vwa.getWhereAssigned().size());
 
-		ComponentNode nc = vwa.changeObject(SubType.CORE_OBJECT);
+		ComponentNode nc = new CoreObjectNode(vwa);
+		vwa.replaceWith((LibraryMemberInterface) nc);
 		Assert.assertTrue("P1 must now be assigned the new core object.", p1.getAssignedType() == nc);
 		list = ((TypeProvider) nc).getWhereAssigned();
 		Assert.assertTrue("New core must have P1 in its where assigned list.", list.contains(p1));
 		Assert.assertEquals(1, ((TypeProvider) nc).getWhereAssigned().size());
 	}
 
+	/**
+	 * @see ChangeNodeActionTests
+	 */
 	@Test
 	public void changeAsInMainController() {
-		VWA_Node nodeToReplace = ml.addVWA_ToLibrary(ln, "B");
-		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "C");
-		TypedPropertyNode p1 = new ElementNode(core.getFacet_Summary(), "P1");
-		p1.setAssignedType(nodeToReplace);
-
-		// NodeToReplace is input param
-		Assert.assertEquals(1, nodeToReplace.getWhereAssigned().size());
-		LOGGER.debug("Changing selected component: " + nodeToReplace.getName() + " with "
-				+ nodeToReplace.getWhereAssignedCount() + " users.");
-
-		// WHAT THE HECK IS THIS? Why is there only one object?
-		ComponentNode editedNode = nodeToReplace;
-		// nodeToReplace.replaceWith(editedComponent);
-
-		// code used in ChangeWizardPage
-		editedNode = editedNode.changeObject(SubType.CORE_OBJECT);
-		Assert.assertEquals(0, nodeToReplace.getWhereAssigned().size());
-		// deleted in main controller
-		if (editedNode != nodeToReplace)
-			nodeToReplace.delete();
-
-		Assert.assertEquals(1, ((TypeProvider) editedNode).getWhereAssigned().size());
-		Assert.assertEquals(editedNode, p1.getAssignedType());
-		// 1/22/15 - the counts are wrong!
-
 	}
 
 	@Test

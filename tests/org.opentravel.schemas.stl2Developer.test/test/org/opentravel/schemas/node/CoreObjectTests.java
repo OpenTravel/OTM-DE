@@ -397,7 +397,8 @@ public class CoreObjectTests extends BaseTest {
 		ele.setAssignedType(bo);
 
 		// When - changed to core
-		tco = (CoreObjectNode) bo.changeObject(SubType.CORE_OBJECT);
+		tco = new CoreObjectNode(bo);
+		bo.replaceWith(tco);
 		typeCount = typeCount - 2; // two contextual facets
 		// Then - the core is valid and element is assigned the core
 		check(tco);
@@ -409,7 +410,8 @@ public class CoreObjectTests extends BaseTest {
 
 		// Repeat with VWA
 		ele.setAssignedType(vwa);
-		tco = (CoreObjectNode) vwa.changeObject(SubType.CORE_OBJECT);
+		tco = new CoreObjectNode(vwa);
+		vwa.replaceWith(tco);
 		check(tco);
 		assertTrue(vwa.getLibrary() != ln);
 		assertTrue("Type assignment must be to the new core.", ele.getAssignedType() == tco);

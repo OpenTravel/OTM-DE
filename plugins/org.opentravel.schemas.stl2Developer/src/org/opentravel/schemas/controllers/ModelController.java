@@ -16,14 +16,10 @@
 package org.opentravel.schemas.controllers;
 
 import org.opentravel.schemacompiler.model.TLModel;
-import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ModelNode;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.node.properties.PropertyNode;
 
 /**
  * Centralizes all the model related actions. When created, creates and saves a model node and TLModel. It operates on
@@ -33,15 +29,6 @@ import org.opentravel.schemas.node.properties.PropertyNode;
  * 
  */
 public interface ModelController {
-
-	/**
-	 * Change given property to simple. This action only make sense for owning component with SimpleFacet. Check
-	 * {@link FacetOwner}.
-	 * 
-	 * @param property
-	 * @return false if property is not {@link SimpleAttributeNode} or owning component is not {@link FacetOwner}
-	 */
-	public boolean changeToSimple(PropertyNode property);
 
 	/**
 	 * Saves and closes all the libraries (also built in) within the given model, clears the model
@@ -58,13 +45,6 @@ public interface ModelController {
 	public void compileInBackground(ProjectNode project);
 
 	/**
-	 * Creates new empty model and initializes it with built in libraries
-	 * 
-	 * @return newly created {@link ModelNode}
-	 */
-	public ModelNode createNewModel();
-
-	/**
 	 * @return the directory of the last compile or empty string
 	 */
 	public String getLastCompileDirectory();
@@ -72,16 +52,6 @@ public interface ModelController {
 	public ModelNode getModel();
 
 	public TLModel getTLModel();
-
-	/**
-	 * Move given simple attribute to target facet. As a result this method should create new simple attribute with type
-	 * == OTA:Empty to prevent {@link FacetOwner} of don't having simple attribute.
-	 * 
-	 * @param simpleAttribute
-	 * @param summaryFacet
-	 * @return create new property in targetFacet or null if simpleAttribute is not {@link SimpleAttributeNode}
-	 */
-	ComponentNode moveSimpleToFacet(Node simpleAttribute, ComponentNode targetFacet);
 
 	/**
 	 * Saves all the libraries within the given model

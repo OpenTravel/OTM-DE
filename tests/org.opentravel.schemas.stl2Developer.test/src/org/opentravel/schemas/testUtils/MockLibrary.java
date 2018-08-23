@@ -20,6 +20,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Assert;
 import org.opentravel.schemacompiler.event.ModelElementListener;
@@ -708,6 +710,24 @@ public class MockLibrary {
 	}
 
 	/**
+	 * Add for properties to the passed facet. No IDs.
+	 * 
+	 * @param facet
+	 *            parent for the new properties
+	 * @param suffix
+	 *            added to name
+	 * @return list of new properties
+	 */
+	public List<PropertyNode> addProperties(FacetInterface facet, String suffix) {
+		List<PropertyNode> newProperties = new ArrayList<>();
+		newProperties.add(new ElementNode(facet, "E" + suffix, getXsdDate()));
+		newProperties.add(new AttributeNode(facet, "A" + suffix, getXsdDecimal()));
+		newProperties.add(new IndicatorNode(facet, "Ind" + suffix));
+		newProperties.add(new IndicatorElementNode(facet, "TestIndicatorEle" + suffix));
+		return newProperties;
+	}
+
+	/**
 	 * Create a new resource using the passed BO in the BO's library.
 	 */
 	public ResourceNode addResource(BusinessObjectNode bo) {
@@ -851,6 +871,10 @@ public class MockLibrary {
 
 	}
 
+	/**
+	 * @see #addProperties(FacetInterface, String)
+	 * @param facet
+	 */
 	public void addAllProperties(FacetInterface facet) {
 		new AttributeNode(facet, "a1");
 		new AttributeNode(facet, "a2");
@@ -867,6 +891,22 @@ public class MockLibrary {
 		new IndicatorElementNode(facet, "Ie1");
 		new IndicatorElementNode(facet, "Ie2");
 		new IndicatorElementNode(facet, "Ie3");
+	}
+
+	public void addAllProperties(FacetInterface facet, String suffix, TypeProvider type) {
+		new AttributeNode(facet, "a1" + suffix, type);
+		new AttributeNode(facet, "a2" + suffix, type);
+		new AttributeNode(facet, "a3" + suffix, type);
+		// new IdNode(facet, "id1" + suffix);
+		new ElementNode(facet, "E1" + suffix, type);
+		new ElementNode(facet, "E2" + suffix, type);
+		new ElementNode(facet, "E3" + suffix, type);
+		new IndicatorNode(facet, "i1" + suffix);
+		new IndicatorNode(facet, "i2" + suffix);
+		new IndicatorNode(facet, "i3" + suffix);
+		new IndicatorElementNode(facet, "Ie1" + suffix);
+		new IndicatorElementNode(facet, "Ie2" + suffix);
+		new IndicatorElementNode(facet, "Ie3" + suffix);
 	}
 
 	public TLLibrary createTLLibrary(String name, String ns) {

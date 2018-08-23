@@ -25,8 +25,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
-import org.opentravel.schemacompiler.model.TLAlias;
-import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
@@ -37,7 +35,6 @@ import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.node.typeProviders.RoleFacetNode;
@@ -75,6 +72,12 @@ public class MoveAndCopyTests extends BaseTest {
 		// Given - the contextual facets will have to adjust when owners are moved.
 		List<ContextualFacetNode> cfList = ln.getDescendants_ContextualFacets();
 
+		// make assignment to core simple type before move then test it
+		AttributeNode assignedCoreSimple = new AttributeNode(sourceBO.getFacet_Simple(), "assignedCoreSimple",
+				core.getFacet_Simple());
+		assert assignedCoreSimple.getAssignedType() == core.getFacet_Simple();
+		assert core.getFacet_Simple().getWhereAssigned().contains(assignedCoreSimple);
+
 		// Given - a second project
 		ProjectNode pn = createProject();
 		LibraryNode dest = ml.createNewManagedLibrary("DestLib", pn).getHead();
@@ -99,11 +102,11 @@ public class MoveAndCopyTests extends BaseTest {
 			}
 
 			// When - Move to dest library
-			LOGGER.debug("Ready to move " + lm + " to " + dest);
+			// LOGGER.debug("Ready to move " + lm + " to " + dest);
 			dest.addMember(lm);
 
 			// Assignment is still valid
-			LOGGER.debug("After move, ele is assigned " + ele.getAssignedType());
+			// LOGGER.debug("After move, ele is assigned " + ele.getAssignedType());
 			if (lm instanceof TypeProvider)
 				assert ele.getAssignedType() == lm;
 
@@ -114,7 +117,10 @@ public class MoveAndCopyTests extends BaseTest {
 
 		ml.check();
 
-		// TODO - make assignment to core simple type before move then test it
+		// check assignment to core simple type
+		assert assignedCoreSimple.getAssignedType() == core.getFacet_Simple();
+		assert core.getFacet_Simple().getWhereAssigned().contains(assignedCoreSimple);
+
 	}
 
 	/**
@@ -278,7 +284,7 @@ public class MoveAndCopyTests extends BaseTest {
 			//
 			// When - moved using action class
 			///
-			LOGGER.debug("Moving " + lm.getClass().getSimpleName() + " " + lm);
+			// LOGGER.debug("Moving " + lm.getClass().getSimpleName() + " " + lm);
 			action.moveNode((ComponentNode) lm, ln);
 
 			assertTrue("Must have removed LM from source library.", !sourceLib.contains((Node) lm));
@@ -319,15 +325,4 @@ public class MoveAndCopyTests extends BaseTest {
 		OTM16Upgrade.otm16Enabled = false;
 	}
 
-	private void checkContextualFacetsForDuplicateTLAliases(BusinessObjectNode bo) {
-		TLContextualFacet tl;
-		for (AbstractContextualFacet cf : bo.getContextualFacets(false)) {
-			tl = cf.getTLModelObject();
-			ArrayList<String> aliasNames = new ArrayList<>();
-			for (TLAlias tla : tl.getAliases()) {
-				assert (!aliasNames.contains(tla.getName()));
-				aliasNames.add(tla.getName());
-			}
-		}
-	}
 }

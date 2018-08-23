@@ -968,9 +968,6 @@ public class FacetsTests extends BaseTest {
 				|| facetNode.isFacet(TLFacetType.SUMMARY))
 			assertTrue("Must NOT be delete-able.", !((Node) facetNode).isDeleteable());
 
-		// TODO - property order between node children and TL
-		//
-
 		// Behaviors
 		if (((Node) facetNode).isEditable()) {
 			TypeProvider simpleType = ml.getXsdString(); // properties must have a type to accept name

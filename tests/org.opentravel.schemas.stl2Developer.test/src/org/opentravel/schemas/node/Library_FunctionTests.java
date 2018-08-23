@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
 import org.opentravel.schemacompiler.model.TLContext;
@@ -67,18 +66,8 @@ import org.slf4j.LoggerFactory;
 public class Library_FunctionTests extends BaseProjectTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Library_FunctionTests.class);
 
-	private LoadFiles lf;
-	private MockLibrary ml;
-	private ProjectNode defaultProject;
-
-	@Override
-	@Before
-	public void beforeEachTest() {
-		lf = new LoadFiles();
-		ml = new MockLibrary();
-		defaultProject = pc.getDefaultProject();
-		testProject = defaultProject;
-	}
+	private LoadFiles lf = new LoadFiles();
+	private MockLibrary ml = new MockLibrary();
 
 	private void assertTypeAssigments(Node moved, PropertyNode withAssignedType) {
 		if (withAssignedType instanceof TypeUser) {
@@ -121,20 +110,8 @@ public class Library_FunctionTests extends BaseProjectTest {
 
 	@Test
 	public void moveNodeFromOneToOther() throws LibrarySaveException {
-		MockLibrary ml = new MockLibrary();
-		// LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", testProject.getNamespace() + "/Test/One", "o1",
-		// new Version(1, 0, 0)).build(testProject, pc);
-
-		// SimpleTypeNode moved = ComponentNodeBuilder.createSimpleObject("MyString")
-		// .assignType(NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE)).get();
-		// moveFrom.addMember(moved);
-
-		// PropertyNode withAssignedType = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).assign(moved).build();
-		// BusinessObjectNode bo = ComponentNodeBuilder.createBusinessObject("BO").get();
-		// bo.getFacet_Summary().addProperty(withAssignedType);
-		// moveFrom.addMember(bo);
-
-		TypeProvider stype = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
+		// Given - move from and moved libraries
+		TypeProvider stype = ml.getXsdString();
 		assertTrue(stype != null);
 		LibraryNode moveFrom = ml.createNewLibrary_Empty(testProject.getNamespace() + "/Test1", "From", testProject);
 		SimpleTypeNode moved = ml.addSimpleTypeToLibrary(moveFrom, "MyString");

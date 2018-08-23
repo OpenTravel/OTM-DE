@@ -48,7 +48,6 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeProviders;
-import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.types.TypeUser;
@@ -105,54 +104,6 @@ public abstract class ComponentNode extends Node {
 		if (!(this instanceof FacetInterface))
 			return;
 		((FacetInterface) this).add((PropertyNode) property, -1);
-	}
-
-	/**
-	 * Change the object to the type defined by the parameter. Used in Change Wizard.
-	 * 
-	 * @param SubType
-	 * @return - new object created by changing this object
-	 */
-	public ComponentNode changeObject(SubType st) {
-		if (getLibrary() == null)
-			return null;
-		if (this instanceof FacetOMNode)
-			return ((ComponentNode) getParent()).changeObject(st);
-
-		// TODO - add choice object type
-		// ToDO - add custom facet type
-		LibraryMemberInterface newNode = null;
-		switch (st) {
-		case BUSINESS_OBJECT:
-			if (this instanceof BusinessObjectNode)
-				return this;
-			if (this instanceof CoreObjectNode)
-				newNode = new BusinessObjectNode((CoreObjectNode) this);
-			else if (this instanceof VWA_Node)
-				newNode = new BusinessObjectNode(((VWA_Node) this));
-			break;
-		case CORE_OBJECT:
-			if (this instanceof CoreObjectNode)
-				return this;
-			if (this instanceof BusinessObjectNode)
-				newNode = new CoreObjectNode((BusinessObjectNode) this);
-			else if (this instanceof VWA_Node)
-				newNode = new CoreObjectNode((VWA_Node) this);
-			break;
-		case VALUE_WITH_ATTRS:
-			if (this instanceof VWA_Node)
-				return this;
-			if (this instanceof BusinessObjectNode)
-				newNode = new VWA_Node((BusinessObjectNode) this);
-			else if (this instanceof CoreObjectNode)
-				newNode = new VWA_Node((CoreObjectNode) this);
-			break;
-		default:
-			throw new IllegalArgumentException("Change to SubType: " + st.toString() + " is not supporeted.");
-		}
-
-		replaceWith(newNode); // replace this node with the new one
-		return (ComponentNode) newNode;
 	}
 
 	/**

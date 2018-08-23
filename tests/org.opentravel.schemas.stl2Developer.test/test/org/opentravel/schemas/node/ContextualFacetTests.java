@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
@@ -31,8 +30,6 @@ import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.commands.ContextualFacetHandler;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.handlers.children.NavNodeChildrenHandler;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -53,11 +50,7 @@ import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.node.typeProviders.CustomFacet15Node;
 import org.opentravel.schemas.node.typeProviders.CustomFacetNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.testUtils.NodeTesters;
-import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,31 +59,8 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ContextualFacetTests {
+public class ContextualFacetTests extends BaseTest {
 	static final Logger LOGGER = LoggerFactory.getLogger(ContextualFacetTests.class);
-
-	ModelNode model = null;
-	MockLibrary ml = new MockLibrary();
-	LibraryNode ln = null;
-
-	MainController mc;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
-	LoadFiles lf = null;
-	TestNode tn = new NodeTesters().new TestNode();
-	TypeProvider emptyNode = null;
-	TypeProvider sType = null;
-
-	@Before
-	public void beforeEachTest() {
-		mc = OtmRegistry.getMainController();
-		pc = (DefaultProjectController) mc.getProjectController();
-		pc.closeAll();
-		defaultProject = pc.getDefaultProject();
-		lf = new LoadFiles();
-		emptyNode = (TypeProvider) ModelNode.getEmptyNode();
-		sType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
-	}
 
 	@Test
 	public void CF_HandlerTests() {

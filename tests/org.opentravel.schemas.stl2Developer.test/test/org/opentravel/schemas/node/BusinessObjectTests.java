@@ -32,6 +32,7 @@ import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
+import org.opentravel.schemas.actions.ChangeActionController;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
@@ -67,6 +68,8 @@ public class BusinessObjectTests extends BaseTest {
 	private static final String USER_NAME_TE2 = "TE2";
 	TypeProvider emptyNode = null;
 	TypeProvider sType = null;
+
+	private ChangeActionController controller = new ChangeActionController();
 
 	@Before
 	public void beforeEachEachOfTheseTests() {
@@ -320,7 +323,8 @@ public class BusinessObjectTests extends BaseTest {
 
 		//
 		// When - Core is changed to Business Object
-		BusinessObjectNode tboCore = (BusinessObjectNode) core.changeObject(SubType.BUSINESS_OBJECT);
+		BusinessObjectNode tboCore = new BusinessObjectNode(core);
+		core.replaceWith(tboCore);
 		assertTrue(ln.contains(tboCore));
 		assertTrue(!ln.contains(core));
 		// Then - an element with assigned name exists.
@@ -332,7 +336,8 @@ public class BusinessObjectTests extends BaseTest {
 		assertTrue("VWA must NOT be assigned to Core element.", !vwa.getWhereAssigned().contains(e1));
 		//
 		// When - VWA is changed to business object
-		BusinessObjectNode tboVwa = (BusinessObjectNode) vwa.changeObject(SubType.BUSINESS_OBJECT);
+		BusinessObjectNode tboVwa = new BusinessObjectNode(vwa);
+		vwa.replaceWith(tboVwa);
 		// Then - the element that was assigned to VWA must be the bo name because elements assigned to a BO can not
 		// change their name
 		e1 = (ElementNode) tboCore.getFacet_Summary().get(tboVwa.getName());
@@ -362,8 +367,10 @@ public class BusinessObjectTests extends BaseTest {
 		vwa = ml.addVWA_ToLibrary(ln, "vwa2");
 		new ElementNode(core.getFacet_Summary(), "TestElement").setAssignedType(vwa);
 
-		tboCore = (BusinessObjectNode) core.changeObject(SubType.BUSINESS_OBJECT);
-		tboVwa = (BusinessObjectNode) vwa.changeObject(SubType.BUSINESS_OBJECT);
+		tboCore = new BusinessObjectNode(core);
+		core.replaceWith(tboCore);
+		tboVwa = new BusinessObjectNode(vwa);
+		vwa.replaceWith(tboVwa);
 		new ElementNode(tboCore.getFacet_ID(), "TestEleInID" + tboCore.getName(), stringType);
 		new ElementNode(tboVwa.getFacet_ID(), "TestEleInID" + tboVwa.getName(), stringType);
 		check(tboCore);

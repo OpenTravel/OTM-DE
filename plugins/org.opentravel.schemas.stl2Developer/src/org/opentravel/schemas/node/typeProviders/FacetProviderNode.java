@@ -277,6 +277,8 @@ public class FacetProviderNode extends FacetProviders implements Sortable {
 			getTLModelObject().removeAttribute(((AttributeNode) pn).getTLModelObject());
 		else if (pn instanceof IndicatorNode)
 			getTLModelObject().removeIndicator(((IndicatorNode) pn).getTLModelObject());
+		getChildrenHandler().clear();
+		pn.setParent(null);
 	}
 
 	/**
