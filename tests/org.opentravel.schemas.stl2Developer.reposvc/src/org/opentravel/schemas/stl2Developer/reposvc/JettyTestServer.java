@@ -120,8 +120,13 @@ public class JettyTestServer {
                 .getRepository("test-repository");
 
         if (testRepository == null) {
-            testRepository = manager.addRemoteRepository("http://localhost:" + port
-                    + "/ota2-repository-service");
+            try {
+				testRepository = manager.addRemoteRepository("http://localhost:" + port
+				        + "/ota2-repository-service");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
         return testRepository;
     }
