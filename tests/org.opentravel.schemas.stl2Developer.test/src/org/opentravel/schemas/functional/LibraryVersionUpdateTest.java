@@ -19,25 +19,30 @@ package org.opentravel.schemas.functional;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
 import org.opentravel.schemas.node.typeProviders.ImpliedNode;
@@ -91,6 +96,12 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 		throw new IllegalStateException("Missing remote repository. Check your configuration.");
 	}
 
+	/**
+	 * Create 2 libraries in the repository, major version, locked for editing.
+	 * 
+	 * @throws LibrarySaveException
+	 * @throws RepositoryException
+	 */
 	@Before
 	public void runBeforeEachTest() throws LibrarySaveException, RepositoryException {
 		LOGGER.debug("Before test.");
@@ -101,14 +112,6 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 				uploadProject);
 		lib2 = ml.createNewLibrary_Empty(getRepositoryForTest().getNamespace() + "/Test/NS2", "TestLibrary2",
 				uploadProject);
-
-		// lib1 = LibraryNodeBuilder.create("TestLibrary1", getRepositoryForTest().getNamespace() + "/Test/NS1",
-		// "prefix1",
-		// new Version(1, 0, 0)).build(uploadProject, pc);
-		//
-		// lib2 = LibraryNodeBuilder.create("TestLibrary2", getRepositoryForTest().getNamespace() + "/Test/NS2",
-		// "prefix2",
-		// new Version(1, 0, 0)).build(uploadProject, pc);
 
 		chain1 = rc.manage(getRepositoryForTest(), Collections.singletonList(lib1)).get(0);
 		chain2 = rc.manage(getRepositoryForTest(), Collections.singletonList(lib2)).get(0);
@@ -127,6 +130,10 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 		assertTrue("chain must be locked.", locked);
 		assertTrue("chain must be MANAGED_WIP.",
 				RepositoryItemState.MANAGED_WIP == chain2.getHead().getProjectItem().getState());
+		assertTrue("Must be major verison.", lib1.isMajorVersion());
+		assertTrue("Must be major verison.", lib2.isMajorVersion());
+		assertTrue("Must be empty.", lib1.isEmpty());
+		assertTrue("Must be empty.", lib2.isEmpty());
 
 		// Use repository controller to version the libraries.
 		// patchLibrary = rc.createPatchVersion(chain.getHead());
@@ -139,14 +146,85 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 	// Simply make sure the setup works
 	@Test
 	public void VF_versionFunctionTest() throws RepositoryException {
+		// Given - initial state - 2 versioned and editable libraries
 
-		// Given - a simple type in library 2
+		// When - a simple type in library 2
 		SimpleTypeNode simpleType = ml.addSimpleTypeToLibrary(lib2, "simpleType");
+		assertTrue(simpleType != null);
+		assertTrue(simpleType.getLibrary() == lib2);
+		assertTrue("Library must not be empty.", !lib2.isEmpty());
+		assert simpleType.getWhereAssigned().isEmpty();
 
-		// Given - all types in library 1 and all types assigned to simpleType
+		// When - add all types in library 1
 		ml.addOneOfEach(lib1, "TypeUser");
+
+		testMajorFunctions(lib1, lib2, true);
+	}
+
+	/**
+	 * Non-destructive test for all major library functionality on objects in the two libraries. Does change all of the
+	 * objects.
+	 * 
+	 * @param doDelete
+	 *            if true, make test destructive and delete all members.
+	 */
+	private void testMajorFunctions(LibraryNode lib1, LibraryNode lib2, boolean doDelete) {
+		SimpleTypeNode simpleType = ml.addSimpleTypeToLibrary(lib2, "simpleType");
+		// Set the valid flag based on starting state
+		boolean wasValid = lib1.isValid();
+		if (wasValid)
+			wasValid = lib2.isValid();
+
+		// Assure libraries are major versions
+		assert lib1.isMajorVersion();
+		assert lib2.isMajorVersion();
+
+		// When - assigned to simpleType to all type users
 		for (TypeUser user : lib1.getDescendants_TypeUsers())
-			user.setAssignedType(simpleType);
+			if (user.canAssign(simpleType))
+				assert user.setAssignedType(simpleType) != null;
+		for (TypeUser user : lib2.getDescendants_TypeUsers())
+			if (user.canAssign(simpleType))
+				assert user.setAssignedType(simpleType) != null;
+
+		// Given - a list of all library members
+		final String suffix = "XXXFooYYYZZZ";
+		List<LibraryMemberInterface> members = lib2.get_LibraryMembers();
+		members.addAll(lib1.get_LibraryMembers());
+
+		for (LibraryMemberInterface lm : members) {
+			// Verify member is OK
+			ml.check((Node) lm, wasValid);
+
+			// When - renamed
+			String oldName = lm.getName();
+			lm.setName(oldName + suffix);
+			assertTrue("Name must change in major library.", lm.getName().equals(oldName + suffix));
+			lm.setName(oldName); // Restore name
+
+			// When - moved
+			LibraryNode oldLib = lm.getLibrary();
+			if (oldLib == lib1)
+				lib2.addMember(lm);
+			else
+				lib1.addMember(lm);
+			assertTrue(!oldLib.contains((Node) lm));
+			oldLib.addMember(lm);
+			assertTrue(oldLib.contains((Node) lm));
+
+			// Verify results is still OK
+			ml.check((Node) lm, wasValid);
+		}
+		ml.check(lib1, wasValid);
+		ml.check(lib2, wasValid);
+
+		if (doDelete) {
+			// When - deleted
+			for (LibraryMemberInterface lm : members)
+				lm.delete();
+			assertTrue("Library must  be empty.", lib1.isEmpty());
+			assertTrue("Library must  be empty.", lib2.isEmpty());
+		}
 	}
 
 	@Test
@@ -193,16 +271,17 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 		assertTrue("Must have version of provider library.", providerLib != null);
 		assertTrue("Must be new library.", providerLib != lib2);
 		assertTrue("Major versions must be head of chain.", providerLib == providerLib.getChain().getHead());
+
+		// Then - original provider lib (lib2) must still contain the simple type
 		assertTrue("Must NOT have type providers", providerLib.getDescendants_TypeProviders().isEmpty());
 		assertTrue("Must have type providers", !lib2.getDescendants_TypeProviders().isEmpty());
 
-		// Then - type users still use the type from the old version
+		// Then - type users still use the type from the old, base version of provider library (lib2)
 		assertTrue("Assigned simple type is NOT in major version.", simpleType.getLibrary() != providerLib);
 		verifyAssignments(userLib, simpleType);
 	}
 
 	// Create two libraries where one uses types from the other then version the type provider
-	// FIXME
 	@Test
 	public void VF_updateVersionTest_AssignedTypes() throws RepositoryException {
 		// Given - two managed, locked and editable libraries.
@@ -222,7 +301,7 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 
 		verifyAssignments(userLib, simpleType);
 
-		// When - provider lib is Versioned
+		// When - provider lib is Versioned to MAJOR
 		assertTrue("Library must be promoted to FINAL.", makeFinal(providerLib));
 		providerLib = rc.createMajorVersion(providerLib);
 
@@ -265,31 +344,6 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 
 		// Then - types must be updated
 		verifyAssignments(userLib, simpleTypeV2);
-
-		// VersionUpdateHandler handler = new VersionUpdateHandler();
-		// assert false;
-		//
-		// // 6/19/2018 - dmh - Replacement map is no longer used.
-		// // Given - a replacement map of used libraries and their later versions.
-		// // FIXME - changed 3/12/2017 to return head libraries
-		// HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(usedLibs, true);
-		// assertTrue("Replacement map must map simple type lib to major version.",
-		// replacementMap.get(simpleType.getLibrary()) == providerLib);
-		//
-		// // When - call used by Version Update Handler t0 replace type users using the replacement map
-		// userLib.replaceTypeUsers(replacementMap);
-		//
-		// // Then
-		// assertTrue(simpleType.getWhereAssigned().isEmpty());
-		// for (TypeUser user : userLib.getDescendants_TypeUsers()) {
-		// if (!(user.getAssignedType() instanceof ImpliedNode) && user.getRequiredType() == null) {
-		// if (user.getAssignedType().getLibrary() != providerLib)
-		// LOGGER.debug("Error - " + user + " assigned type is in wrong library: "
-		// + ((Node) user.getAssignedType()).getNameWithPrefix());
-		// assertTrue("Must be in providerLib.", user.getAssignedType().getLibrary() == providerLib);
-		// }
-		// }
-		// // TODO - test with finalOnly set to true on getVersionUpdateMap()
 	}
 
 	/**
@@ -310,13 +364,70 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 	// FIXME
 	@Test
 	public void updateVersionTest_ContextualFacets() throws RepositoryException {
-		assert false;
+		OTM16Upgrade.otm16Enabled = true;
+
+		// Given two libraries, lib1 has cf_owners and lib2 has the facets
+		BusinessObjectNode boType = ml.addBusinessObjectToLibrary(lib1, "boType");
+		ChoiceObjectNode choiceType = ml.addChoice(lib1, "choiceType");
+		// Remove all existing contextual facets
+		List<AbstractContextualFacet> cfs = new ArrayList<>();
+		cfs.addAll(boType.getContextualFacets(false));
+		cfs.addAll(choiceType.getContextualFacets(false));
+		for (AbstractContextualFacet cf : cfs)
+			cf.delete();
+
+		ContextualFacetNode choice1 = ml.addChoiceFacet(lib2, "Ch1", choiceType);
+		ContextualFacetNode custom1 = ml.addCustomFacet(lib2, "Cu1", boType);
+		ContextualFacetNode query1 = ml.addQueryFacet(lib2, "q1", boType);
+		assertTrue(!lib2.getDescendants_ContextualFacets().isEmpty());
+
+		checkFacetLibraries(lib2, boType, choiceType);
+		ml.check();
+
+		//
+		// When - create major version of library containing the facets
+		//
+		assertTrue("Library must be promoted to FINAL.", makeFinal(lib2));
+		LibraryNode vLib2 = rc.createMajorVersion(lib2);
+		ml.check(Node.getModelNode(), true);
+		// 8/27/2018 - made valid by renaming new facets
+		// Is invalid due to new facets being injected with same name
+
+		// Then - original library must contain contextual facets
+		assertTrue(!lib2.getDescendants_ContextualFacets().isEmpty());
+		assertTrue(lib2.contains(query1));
+
+		// Then - versioned library must contain contextual facets
+		assertTrue(!vLib2.getDescendants_ContextualFacets().isEmpty());
+		assertTrue(!vLib2.contains(query1));
+
+		// FIXME - design question: should v2 contextual facets have owner? They do now.
+		// Then - version-ed library's contextual facets have no owner
+		for (ContextualFacetNode cf : vLib2.getDescendants_ContextualFacets())
+			assertTrue(cf.getOwningComponent() != null);
+		// // Then - objects must contain the original facets
+		// checkFacetLibraries(lib2, boType, choiceType);
+
+		ml.check(Node.getModelNode(), true);
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	private void checkFacetLibraries(LibraryNode ln, ContextualFacetOwnerInterface... owners) {
+		for (ContextualFacetOwnerInterface owner : owners)
+			for (AbstractContextualFacet cf : owner.getContextualFacets(false))
+				assertTrue(cf.getLibrary() == ln);
 	}
 
 	// FIXME
 	@Test
 	public void updateVersionTest_Resources() throws RepositoryException {
 		assert false;
+	}
+
+	public void checkExtensions(LibraryNode baseLib, ExtensionOwner... owners) {
+		for (ExtensionOwner owner : owners) {
+			assertTrue("Must extend object from passed library.", owner.getExtensionBase().getLibrary() == baseLib);
+		}
 	}
 
 	// FIXME
@@ -333,16 +444,19 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 		EnumerationClosedNode ecType = ml.addClosedEnumToLibrary(baseLib, "ecType");
 		EnumerationOpenNode eoType = ml.addOpenEnumToLibrary(baseLib, "eoType");
 		VWA_Node vwaType = ml.addVWA_ToLibrary(baseLib, "vwaType");
+		ml.check();
 
-		// ??? Create user library containing the objects that will get updated and assign them to the found type
 		// Given - library 1 with one of each object extending objects in library 2
-		// LibraryNode userLib = lib1;
-		BusinessObjectNode boExtension = ml.addBusinessObjectToLibrary(lib1, "boExtension", false); // No id in id facet
+		// Create invalid BO - no ID or else ID facet will be invalid when extends base
+		BusinessObjectNode boExtension = ml.addBusinessObjectToLibrary(lib1, "boExtension", false);
 		ChoiceObjectNode choiceExtension = ml.addChoice(lib1, "choiceExtension");
-		CoreObjectNode coreExtension = ml.addCoreObjectToLibrary(lib1, "coreExtension");
+		CoreObjectNode coreExtension = ml.addCoreObjectToLibraryNoID(lib1, "coreExtension");
 		EnumerationClosedNode ecExtension = ml.addClosedEnumToLibrary(lib1, "ecExtension");
 		EnumerationOpenNode eoExtension = ml.addOpenEnumToLibrary(lib1, "eoExtension");
 		VWA_Node vwaExtension = ml.addVWA_ToLibrary(lib1, "vwaExtension");
+		ml.check(Node.getModelNode(), false);
+
+		// Given - all extensions set
 		boExtension.setExtension(boType);
 		choiceExtension.setExtension(choiceType);
 		coreExtension.setExtension(coreType);
@@ -350,12 +464,13 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 		eoExtension.setExtension(eoType);
 		vwaExtension.setExtension(vwaType);
 		assertTrue("BoExtension must extend boType.", boExtension.getExtensionBase() == boType);
+		checkExtensions(baseLib, boExtension, choiceExtension, coreExtension, ecExtension, eoExtension, vwaExtension);
+		ml.check();
 
 		// Then - baseLib must list lib1 as where used
 		assertTrue("Lib1 must not use other libraries.", lib1.getWhereUsedHandler().getWhereUsed().isEmpty());
-		assertTrue("baseLib must use other libraries.", !baseLib.getWhereUsedHandler().getWhereUsed().isEmpty());
+		assertTrue("baseLib must be used by other libraries.", !baseLib.getWhereUsedHandler().getWhereUsed().isEmpty());
 		// Then - Lib1 must list baseLib as an assigned library
-		// FIXME - changed 3/12/2017 to return head libraries
 		assertTrue("Lib1 must have at least one assigned library.", !lib1.getAssignedLibraries(false).isEmpty());
 		assertTrue("baseLib must NOT have an assigned library.", baseLib.getAssignedLibraries(false).isEmpty());
 
@@ -363,61 +478,37 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 		ml.check(baseLib);
 		ml.check(lib1);
 
-		AbstractLibrary tlLib = baseLib.getTLLibrary();
-
+		//
 		// When - create major version of library baseLib containing the base types
+		//
+		assertTrue("Library must be promoted to FINAL.", makeFinal(baseLib));
 		LibraryNode versionedbaseLib = rc.createMajorVersion(baseLib);
-		// 6/20/2018 - no longer true
-		// // After major version, the baseLib is no longer in the tlModel or LibraryModelManager
-		// uploadProject.addToTL(tlLib);
 
-		// Then -
+		// Then - check new version of the base library
 		assertTrue("Must have major version of library 2.", versionedbaseLib != null);
 		assertTrue("Must have type providers", !versionedbaseLib.getDescendants_TypeProviders().isEmpty());
 		assertTrue("Must be new library.", versionedbaseLib != baseLib);
 		assertTrue("Major versions must be head of chain.", versionedbaseLib == versionedbaseLib.getChain().getHead());
 
-		// Then -
-		Node newBase = boExtension.getExtensionBase();
+		// Then - Assert that extension base remained in original version of the library
 		assertTrue("BoExtension must still extend boType.", boExtension.getExtensionBase() == boType);
+		checkExtensions(baseLib, boExtension, choiceExtension, coreExtension, ecExtension, eoExtension, vwaExtension);
 
-		// Library level assigned type replacement Business Logic in the Version Update Handler.
 		//
-
-		// Given - a provider node for lib2 which would be display as child of "Uses" for user library
-		// Must have LibraryProviderNode to do version update
-		LibraryProviderNode thisLPN = baseLib.getLibraryProviderNode(lib2);
-		assert thisLPN != null;
-
-		// Given - the update helper used by VersionUpdateHandler to do version updates
-		LibraryUsersToUpdateHelper helper = new LibraryUsersToUpdateHelper(thisLPN);
-		assert !helper.isEmpty();
-
-		// When - the helper replaces current type assignments with those from new major version
-		helper.replace(providerLib);
-
-		// Then - types must be updated
-
-		assert false;
-
-		// // When -
-		// // Business Logic - setup the map and prepare for the call used by the Version Update Handler.
-		// //
-		// // Create replacement map
-		// HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(lib1.getAssignedLibraries(false),
-		// true);
-		// // TODO - test with finalOnly set to true on getVersionUpdateMap()
+		// TEST - type assignments replaced from old to new base library.
 		//
-		// //
-		// // FIXME - replace call with how version update handler does it now,
-		// // then remove replaceAllUsers();
-		// // Use calls used by Version Update Handler to replace type users using the replacement map
-		// lib1.replaceAllUsers(replacementMap);
-		//
-		// // Then - Make sure it worked
-		// Node newBase2 = boExtension.getExtensionBase();
-		// assertTrue("BoExtension must extend boType.", boExtension.getExtensionBase() == boType);
+		List<ExtensionOwner> superTypes = new ArrayList<>();
+		superTypes.add(boExtension);
+		superTypes.add(choiceExtension);
+		superTypes.add(coreExtension);
+		superTypes.add(ecExtension);
+		superTypes.add(eoExtension);
+		superTypes.add(vwaExtension);
+		versionedbaseLib.replaceAllExtensions(superTypes);
 
+		// Then
+		checkExtensions(versionedbaseLib, boExtension, choiceExtension, coreExtension, ecExtension, eoExtension,
+				vwaExtension);
 		for (ExtensionOwner owner : lib1.getDescendants_ExtensionOwners()) {
 			Node base = owner.getExtensionBase();
 			if (!(owner.getExtensionBase() instanceof ImpliedNode)) {
@@ -431,4 +522,24 @@ public class LibraryVersionUpdateTest extends BaseRepositoryTest {
 			}
 		}
 	}
+
+	//
+	// TODO - find where LibraryUsersToUpdateHelper is tested or create junit for it.
+	//
+	// // Given - a provider node for baseLib which would be display as child of "Uses" for user library
+	// // Must have LibraryProviderNode to do version update
+	// Collection<LibraryNode> whereUsed = baseLib.getWhereUsedHandler().getWhereUsed();
+	//
+	// assertTrue("baseLib must be used by other libraries.",
+	// !baseLib.getWhereUsedHandler().getWhereUsed().isEmpty());
+	// LibraryProviderNode thisLPN = baseLib.getLibraryProviderNode(lib1);
+	// assert thisLPN != null;
+	//
+	// // Given - the update helper used by VersionUpdateHandler to do version updates
+	// LibraryUsersToUpdateHelper helper = new LibraryUsersToUpdateHelper(thisLPN);
+	// assert !helper.isEmpty();
+	//
+	// // When - the helper replaces current type assignments with those from new major version
+	// helper.replace(providerLib);
+
 }

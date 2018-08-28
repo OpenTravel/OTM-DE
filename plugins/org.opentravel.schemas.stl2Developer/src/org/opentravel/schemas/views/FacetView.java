@@ -105,6 +105,9 @@ public class FacetView extends OtmAbstractView {
 	private Table table; // listener needs this to be class scoped
 	private TableViewer facetViewer;
 
+	// TODO - work on selection processes.
+	// Separate out node posted in table from selected node
+	// The selected node will typically be a child/grand-child of the table node
 	private Node currentNode;
 	private Node prevNode;
 
@@ -402,9 +405,9 @@ public class FacetView extends OtmAbstractView {
 
 	@Override
 	public void refresh() {
-		List<Node> selectedNodes = getSelectedNodes();
+		// 8/28/2018 - setCurrentNode will reset to container in table
+		setCurrentNode(currentNode);
 		postNode(currentNode);
-		select(selectedNodes);
 	}
 
 	@Override
@@ -437,8 +440,9 @@ public class FacetView extends OtmAbstractView {
 		}
 
 		// LOGGER.debug("Posting facet table for node: " + target);
-		OtmHandlers.suspendHandlers();
 		Node node = target;
+
+		OtmHandlers.suspendHandlers();
 
 		try {
 			setButtonState(target);

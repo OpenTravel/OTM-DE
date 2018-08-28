@@ -91,6 +91,17 @@ public class OtmTextFields extends OtmWidgets {
 		return formatTextField(parent, properties, 2);
 	}
 
+	/**
+	 * Create text widget with label and parent. Event Number used OtmActions to handle text modify and text focus
+	 * listeners.
+	 * 
+	 * @param parent
+	 *            composite to own the widget
+	 * @param properties
+	 *            label, tooltip, event number
+	 * @param span
+	 * @return
+	 */
 	public Text formatTextField(final Composite parent, final int[] properties, final int span) {
 		final Label label = new Label(parent, SWT.NULL);
 		final Text text = WidgetFactory.createText(parent, SWT.BORDER | SWT.SINGLE);
@@ -108,7 +119,8 @@ public class OtmTextFields extends OtmWidgets {
 
 	}
 
-	private Text formatTextField(final Text text, final Label label, final int[] properties, final int span, int vSpan) {
+	private Text formatTextField(final Text text, final Label label, final int[] properties, final int span,
+			int vSpan) {
 		final OtmEventData wd = new OtmEventData();
 		wd.label = Messages.getString("OtmW." + properties[0]); //$NON-NLS-1$
 		final String toolTip = Messages.getString("OtmW." + properties[1]); //$NON-NLS-1$

@@ -412,30 +412,6 @@ public class VWA_Tests extends BaseProjectTest {
 		}
 	}
 
-	// @Test
-	// public void mockVWATest() {
-	//
-	//
-	// ln = ml.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
-	// ln.setEditable(true);
-	// VWA_Node vwa = ml.addVWA_ToLibrary(ln, "VWA_Test");
-	// Assert.assertEquals("VWA_Test", vwa.getName());
-	// Assert.assertTrue(vwa.getSimpleFacet() instanceof SimpleFacetNode);
-	// SimpleFacetNode sfn = vwa.getSimpleFacet();
-	// Assert.assertTrue(vwa.getAssignedType() != null);
-	// Assert.assertTrue(sfn.getSimpleAttribute().getType() == vwa.getAssignedType());
-
-	// TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
-	// Assert.assertTrue(vwa.setAssignedType(aType));
-	// Assert.assertTrue(sfn.setAssignedType(aType));
-	// Assert.assertTrue(vwa.setSimpleType(aType));
-	// Assert.assertTrue(vwa.getAssignedType() == aType);
-
-	// // 2/22/2015 dmh - vwa not allowed as type of simple type. Should it?
-	// String OTA_NS = "http://opentravel.org/common/v02";
-	// Node oType = NodeFinders.findNodeByName("CodeList", OTA_NS);
-	// }
-
 	/**
 	 * Check the structure of the passed VWA
 	 */

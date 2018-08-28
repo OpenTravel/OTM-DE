@@ -120,6 +120,9 @@ public class FacetProviderNode extends FacetProviders implements Sortable {
 
 	@Override
 	public boolean canOwn(PropertyNodeType type) {
+		if (type == null)
+			return false;
+
 		switch (type) {
 		case ELEMENT:
 		case ATTRIBUTE:

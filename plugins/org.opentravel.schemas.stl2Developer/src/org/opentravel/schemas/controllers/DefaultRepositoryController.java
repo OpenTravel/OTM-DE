@@ -56,6 +56,7 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -942,27 +943,17 @@ public class DefaultRepositoryController implements RepositoryController {
 				LibraryModelManager libMrg = Node.getLibraryModelManager();
 				ProjectController pc = mc.getProjectController();
 				List<ProjectNode> pList = libMrg.findProjects(library);
-				LibraryNavNode lnnToRemove = null;
 				for (ProjectNode pn : pList) {
-					// if (library.getParent() instanceof LibraryNavNode)
-					// lnnToRemove = (LibraryNavNode) library.getParent();
-					// else if (library.getChain() != null && library.getChain().getParent() instanceof LibraryNavNode)
-					// lnnToRemove = (LibraryNavNode) library.getChain().getParent();
-					// else
-					// LOGGER.debug("Unexpected parent type to remove from project");
-					// assert library.getParent() instanceof LibraryNavNode;
-
-					// 6/19/2018 dmh
-					// Removed code to remove chain from projects.
-					// A major version is NOT part of chain so must be left or all assignments will break.
-					// pc.remove(library.getLibraryNavNode());
-
 					// NavNode will be created with library in the original project(s)
 					if (pn != thisProject)
 						new LibraryNavNode(lcn, pn);
 				}
 				// Lock the new library
 				lock(newLib);
+				// Use this as suffix to contextual facets
+				String suffix = newLib.getVersion_Major();
+				for (ContextualFacetNode cf : newLib.getDescendants_ContextualFacets())
+					cf.setName(cf.getName() + suffix);
 			}
 			sync(rn);
 		}

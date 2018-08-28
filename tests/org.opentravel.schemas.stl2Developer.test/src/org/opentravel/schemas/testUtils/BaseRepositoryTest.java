@@ -238,7 +238,17 @@ public abstract class BaseRepositoryTest extends BaseTest {
 	}
 
 	protected static void readdRemoteRepository() throws RepositoryException {
-		remoteRepository = jettyServer.configureRepositoryManager(repositoryManager);
+		try {
+			remoteRepository = jettyServer.configureRepositoryManager(repositoryManager);
+		} catch (Exception e) {
+			LOGGER.debug("Exception from repository manager: " + e.getLocalizedMessage());
+			LOGGER.debug(
+					"Repository Location: " + repositoryManager.getFileManager().getRepositoryLocation().toString());
+			// TODO Auto-generated catch block
+			LOGGER.debug("Project Counter is: " + projectCounter);
+			LOGGER.debug("");
+			// e.printStackTrace();
+		}
 		repositoryManager.setCredentials(remoteRepository, getUserID(), getUserPassword());
 		rc.getRoot().addRepository(remoteRepository);
 	}

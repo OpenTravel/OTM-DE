@@ -287,20 +287,9 @@ public class ChangeWizardPage extends WizardPage {
 	private void undoLastOp() {
 		if (history.size() > 0) {
 			final HistoryItem item = historyPop();
-			switch (item.opType) {
-			case OBJECT_TYPE_CHANGE:
-				if (item instanceof ChangeObjectTypeHistoryItem)
-					editedNode = (ComponentNode) ((ChangeObjectTypeHistoryItem) item).getSourceNode();
-				changeController.undo(item);
-				break;
-
-			case LIB_CHANGE:
-			case OWNING_FACET_CHANGE:
-			case OWNING_FACET_CHANGE_TO_SIMPLE:
-			case OWNING_FACET_CHANGE_FROM_SIMPLE:
-				changeController.undo(item);
-				break;
-			}
+			if (item instanceof ChangeObjectTypeHistoryItem)
+				editedNode = (ComponentNode) ((ChangeObjectTypeHistoryItem) item).getSourceNode();
+			changeController.undo(item);
 		}
 		updateView();
 	}

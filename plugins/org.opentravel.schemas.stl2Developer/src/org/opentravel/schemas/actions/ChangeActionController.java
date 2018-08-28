@@ -44,16 +44,21 @@ import org.slf4j.LoggerFactory;
 public class ChangeActionController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ChangeActionController.class);
 
-	public class HistoryItem {
-		// FIXME - make these private
-		public final OpType opType;
-		public INode previousNode;
-		public INode newNode;
+	public abstract class HistoryItem {
+		// TODO - change to array of nodes (Node ...)
+		// public HistoryItem(Node... nodeList) {
+		// this.nodeArray = nodeList;
+		// }
+		// TODO - remove OpType
+
+		private final OpType opType;
+		private INode previousNode;
+		private INode newNode;
 		private INode resultNode;
 
-		public OpType getOpType() {
-			return opType;
-		}
+		// private OpType getOpType() {
+		// return opType;
+		// }
 
 		public INode getResultNode() {
 			return resultNode;
@@ -65,13 +70,6 @@ public class ChangeActionController {
 
 		/**
 		 * Maintain history of changes made
-		 * <p>
-		 * <ul>
-		 * <li>LIB_CHANGE, editedNode.getLibrary(), selectedLib (assumes current editedNode as subject)
-		 * <li>OWNING_FACET_CHANGE, previous owner, property
-		 * <li>OWNING_FACET_CHANGE_FROM_SIMPLE, simpleAttrClone, newProperty
-		 * <li>OBJECT_TYPE_CHANGE, Node before change, null
-		 * </ul>
 		 * 
 		 * @param opType
 		 * @param previousNode
@@ -114,6 +112,7 @@ public class ChangeActionController {
 		 * @param newNode
 		 */
 		public ChangeObjectTypeHistoryItem(LibraryMemberInterface source, LibraryMemberInterface newNode) {
+			// super(new Node[]{(Node) source, (Node) newNode});
 			super(OpType.OBJECT_TYPE_CHANGE, source, newNode);
 		}
 

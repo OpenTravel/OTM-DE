@@ -59,7 +59,7 @@ public abstract class BaseTest {
 	public LibraryNode ln = null;
 
 	// private static TLModel tlModel;
-	private static int projectCounter = 1;
+	protected static int projectCounter = 1;
 
 	// private static List<ProjectNode> projectsToClean = new ArrayList<>();
 	// protected static ArrayList<File> filesToClean = new ArrayList<>();
@@ -75,6 +75,8 @@ public abstract class BaseTest {
 		assert OtmRegistry.getMainController() == mc;
 		assert NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE) != null;
 		assert pc.getBuiltInProject() != null;
+
+		projectCounter = 1;
 
 		new TLModel();
 	}

@@ -75,6 +75,13 @@ import org.opentravel.schemas.widgets.WidgetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * TODO - spell check http://blog.ankursharma.org/2009/08/adding-spellchecking-to-custom-editors_19.html
+ * TextSourceViewerConfiguration textViewer = new TextSourceViewerConfiguration();
+ * 
+ * @author dmh
+ *
+ */
 public class DocumentationView extends OtmAbstractView
 		implements ISelectionListener, ISelectionChangedListener, ITreeViewerListener, ModifyListener {
 	public static String VIEW_ID = "org.opentravel.schemas.stl2Developer.DocumentationView";
@@ -287,6 +294,7 @@ public class DocumentationView extends OtmAbstractView
 		docText = toolkit.createText(compRight, "", SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
 		docText.setLayoutData(docTextGD);
 		docText.addModifyListener(this);
+		docText.setToolTipText("HI");
 
 		mainSashForm.setWeights(new int[] { 1, 1 });
 		Node node = getMainController().getCurrentNode_NavigatorView();

@@ -1267,6 +1267,11 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		return emptyIfNull(version);
 	}
 
+	/**
+	 * Get the major version number from the TLLibrary
+	 * 
+	 * @return
+	 */
 	public String getVersion_Major() {
 		String version = "";
 		if (absTLLibrary != null && absTLLibrary instanceof TLLibrary)
@@ -1681,6 +1686,11 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 
 	/**
 	 * Replace assignments to all extension owners in the list with a type from this library with the same name.
+	 * <p>
+	 * for each extensionToUpdate.setExtension(ownerFromThisLibrary)
+	 * 
+	 * @param extensionsToUpdate
+	 *            are the superTypes extended from base types in this library.
 	 */
 	public void replaceAllExtensions(List<ExtensionOwner> extensionsToUpdate) {
 		if (extensionsToUpdate == null || extensionsToUpdate.isEmpty())
@@ -1837,14 +1847,14 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	}
 
 	/**
-	 * Check all members to see if this is a member.
+	 * Check all members to see if this is a member. Does not examine facets and properties.
 	 * 
 	 * @param member
 	 * @return true if the member is a member of this library.
 	 */
 	@Override
 	public boolean contains(Node member) {
-		// FIXME - make this param a library member
+		// FIXME - make this param a library member without making contains ambiguous
 		if (!(member instanceof LibraryMemberInterface))
 			return false;
 		return getChildrenHandler().contains(member);

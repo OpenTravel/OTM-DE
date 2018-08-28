@@ -29,6 +29,7 @@ import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.controllers.LibraryModelManager;
+import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -62,8 +63,11 @@ public class LibraryNodeTest extends BaseProjectTest {
 		for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers()) {
 			ml.check((Node) n, validate);
 			assert (((NavNode) n.getParent()).contains((Node) n));
-			assert n.getLibrary() == n.getParent().getLibrary();
-			assert n.getLibrary() == ln;
+			// Inherited members may be in different libraries
+			if (!(n instanceof InheritedInterface)) {
+				assert n.getLibrary() == n.getParent().getLibrary();
+				assert n.getLibrary() == ln;
+			}
 		}
 	}
 

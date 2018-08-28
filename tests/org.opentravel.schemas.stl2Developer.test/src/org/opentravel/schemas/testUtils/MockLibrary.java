@@ -95,11 +95,15 @@ import org.opentravel.schemas.node.resources.ResourceBuilder;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.ChoiceFacetNode;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.CustomFacetNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
 import org.opentravel.schemas.node.typeProviders.ImpliedNode;
+import org.opentravel.schemas.node.typeProviders.QueryFacetNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
@@ -565,9 +569,24 @@ public class MockLibrary {
 
 	public CoreObjectNode addCoreObjectToLibrary(LibraryNode ln, String name) {
 		TypeProvider type = (getXsdString());
+		CoreObjectNode newNode = addCoreObjectToLibraryNoID(ln, name);
+		new IdNode(newNode.getFacet_Summary(), "TestElements" + name);
+		return newNode;
+	}
+
+	/**
+	 * Create a core object
+	 * 
+	 * @param ln
+	 * @param name
+	 * @param noID
+	 *            if true, create without any ID properties
+	 * @return
+	 */
+	public CoreObjectNode addCoreObjectToLibraryNoID(LibraryNode ln, String name) {
+		TypeProvider type = (getXsdString());
 		CoreObjectNode newNode = addCoreObjectToLibrary_Empty(ln, name);
 		new ElementNode(newNode.getFacet_Summary(), "TestElements" + name, type);
-		new IdNode(newNode.getFacet_Summary(), "TestElements" + name);
 		new ElementNode(newNode.getFacet_Detail(), "TestElementd" + name, type);
 		newNode.setAssignedType(getXsdInt());
 		newNode.getFacet_Role().add(name + "Role");
@@ -922,6 +941,39 @@ public class MockLibrary {
 			tlSvc.setName(name);
 		((TLLibrary) ln.getTLModelObject()).setService(tlSvc);
 		return new ServiceNode(tlSvc, ln);
+	}
+
+	public ContextualFacetNode addChoiceFacet(LibraryNode lib, String name, ChoiceObjectNode choiceObject) {
+		assert OTM16Upgrade.otm16Enabled;
+		ChoiceFacetNode cfn = new ChoiceFacetNode();
+		lib.addMember(cfn);
+		cfn.setName(name);
+		new AttributeNode(cfn, "a1" + name, getXsdString());
+		new ElementNode(cfn, "E1" + name, getXsdDate());
+		cfn.setOwner(choiceObject);
+		return cfn;
+	}
+
+	public ContextualFacetNode addCustomFacet(LibraryNode lib, String name, BusinessObjectNode object) {
+		assert OTM16Upgrade.otm16Enabled;
+		CustomFacetNode cfn = new CustomFacetNode();
+		lib.addMember(cfn);
+		cfn.setName(name);
+		new AttributeNode(cfn, "a1" + name, getXsdString());
+		new ElementNode(cfn, "E1" + name, getXsdDate());
+		cfn.setOwner(object);
+		return cfn;
+	}
+
+	public ContextualFacetNode addQueryFacet(LibraryNode lib, String name, BusinessObjectNode object) {
+		assert OTM16Upgrade.otm16Enabled;
+		QueryFacetNode cfn = new QueryFacetNode();
+		lib.addMember(cfn);
+		cfn.setName(name);
+		new AttributeNode(cfn, "a1" + name, getXsdString());
+		new ElementNode(cfn, "E1" + name, getXsdDate());
+		cfn.setOwner(object);
+		return cfn;
 	}
 
 }

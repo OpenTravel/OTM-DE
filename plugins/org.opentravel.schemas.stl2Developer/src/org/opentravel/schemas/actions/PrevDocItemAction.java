@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.actions;
 
+import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -26,24 +27,28 @@ import org.opentravel.schemas.views.DocumentationView;
  */
 public class PrevDocItemAction extends OtmAbstractAction {
 
-    /**
+	/**
 	 *
 	 */
-    public PrevDocItemAction(final MainWindow mainWindow, final StringProperties props) {
-        super(mainWindow, props);
-    }
+	public PrevDocItemAction(final MainWindow mainWindow, final StringProperties props) {
+		super(mainWindow, props);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#run()
-     */
-    @Override
-    public void run() {
-        DocumentationView view = OtmRegistry.getDocumentationView();
-        if (view != null) {
-            view.prevDocItem();
-        }
-    }
+	@Override
+	public void run() {
+		Node selected = mc.getSelectedNode_TypeView();
+		// if (selected instanceof PropertyNode)
+		DocumentationView view = OtmRegistry.getDocumentationView();
+		if (view != null) {
+			view.prevDocItem();
+		}
+	}
+
+	@Override
+	public boolean isEnabled() {
+		Node selected = mc.getSelectedNode_TypeView();
+		// Get the next node from the typeView tablePoster since it sorted them
+		return true;
+	}
 
 }

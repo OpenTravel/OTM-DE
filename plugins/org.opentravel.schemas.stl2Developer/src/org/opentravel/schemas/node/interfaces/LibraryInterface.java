@@ -93,4 +93,5 @@ public interface LibraryInterface {
 	public boolean isNavChild(boolean deep);
 
 	public void setParent(Node project);
+
 }
