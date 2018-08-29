@@ -294,7 +294,7 @@ public class DocumentationView extends OtmAbstractView
 		docText = toolkit.createText(compRight, "", SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
 		docText.setLayoutData(docTextGD);
 		docText.addModifyListener(this);
-		docText.setToolTipText("HI");
+		// docText.setToolTipText("HI");
 
 		mainSashForm.setWeights(new int[] { 1, 1 });
 		Node node = getMainController().getCurrentNode_NavigatorView();
@@ -656,6 +656,10 @@ public class DocumentationView extends OtmAbstractView
 	 * 
 	 */
 	public void nextDocItem() {
+		// TODO - change to get description from next property in facet view table
+		// FacetView facetView = (FacetView) OtmRegistry.getFacetView();
+
+		// Old Code - move through this documentation item
 		DocumentationNode item = getSelectedDocumentationNode();
 		if (item != null) {
 			DocumentationNode root = item.getOwningTypeRoot();
