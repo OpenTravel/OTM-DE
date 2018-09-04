@@ -69,18 +69,19 @@ public class CopyNodeAction extends OtmAbstractAction {
 			return;
 
 		// Determine where to put the new nodes.
-		LibraryNode targetLibrary = null;
+		LibraryNode targetLibrary = nodes.get(0).getLibrary();
 		if (!nodes.get(0).getLibrary().isEditable())
-			targetLibrary = nodes.get(0).getChain().getHead();
+			targetLibrary = nodes.get(0).getLibrary().getHead();
+		// targetLibrary = nodes.get(0).getChain().getHead();
 
-		Node clone = null;
+		LibraryMemberInterface clone = null;
 		for (Node n : nodes) {
 			if (n instanceof LibraryMemberInterface) {
-				clone = n.clone(targetLibrary, CopyNameSuffix);
+				clone = ((LibraryMemberInterface) n).clone(targetLibrary, CopyNameSuffix);
 				if (clone != null) {
 					if (targetLibrary != null)
-						targetLibrary.addMember((LibraryMemberInterface) clone);
-					lastCloned = clone;
+						targetLibrary.addMember(clone);
+					lastCloned = (Node) clone;
 				}
 			}
 		}

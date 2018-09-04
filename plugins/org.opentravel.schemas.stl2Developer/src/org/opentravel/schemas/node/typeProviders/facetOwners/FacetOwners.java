@@ -116,7 +116,8 @@ public abstract class FacetOwners extends TypeProviders implements FacetOwner {
 				clone.setName(clone.getName() + nameSuffix);
 			for (AliasNode alias : clone.getAliases())
 				alias.setName(alias.getName() + nameSuffix);
-			targetLib.addMember(clone);
+			if (targetLib != null)
+				targetLib.addMember(clone);
 		}
 		return clone;
 	}
