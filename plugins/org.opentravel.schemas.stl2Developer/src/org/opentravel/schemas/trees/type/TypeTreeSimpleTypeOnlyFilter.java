@@ -49,6 +49,12 @@ public class TypeTreeSimpleTypeOnlyFilter extends TypeSelectionFilter {
 		if (n instanceof NavNode)
 			return ((NavNode) n).isComplexRoot() || ((NavNode) n).isSimpleRoot();
 
+		// Temporary Patch
 		return (n.isNavigation()) ? true : n instanceof SimpleTypeNode;
+
+		// This should be the real code when the compiler does not flag error when assigned.
+		// if (n instanceof ImpliedNode)
+		// return false;
+		// return (n.isNavigation()) ? true : n instanceof SimpleTypeProviders;
 	}
 }
