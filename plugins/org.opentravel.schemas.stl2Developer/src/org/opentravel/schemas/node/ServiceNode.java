@@ -29,6 +29,8 @@ import org.opentravel.schemas.node.objectMembers.OperationNode.ServiceOperationT
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.trees.type.BusinessObjectOnlyTypeFilter;
+import org.opentravel.schemas.trees.type.TypeSelectionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,6 +184,11 @@ public class ServiceNode extends ComponentNode implements LibraryMemberInterface
 	@Override
 	public TLService getTLModelObject() {
 		return (TLService) tlObj;
+	}
+
+	@Override
+	public TypeSelectionFilter getTypeSelectionFilter() {
+		return new BusinessObjectOnlyTypeFilter(null);
 	}
 
 	@Override

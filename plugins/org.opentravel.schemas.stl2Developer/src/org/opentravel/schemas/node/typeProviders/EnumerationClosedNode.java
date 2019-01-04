@@ -197,7 +197,7 @@ public class EnumerationClosedNode extends SimpleTypeProviders implements FacetI
 
 	@Override
 	public List<String> getLiterals() {
-		ArrayList<String> literals = new ArrayList<String>();
+		ArrayList<String> literals = new ArrayList<>();
 		for (TLEnumValue v : getTLModelObject().getValues())
 			literals.add(v.getLiteral());
 		return literals;
@@ -215,7 +215,7 @@ public class EnumerationClosedNode extends SimpleTypeProviders implements FacetI
 
 	@Override
 	public List<Node> getNavChildren(boolean deep) {
-		return new ArrayList<Node>();
+		return new ArrayList<>();
 	}
 
 	@Override
@@ -232,6 +232,13 @@ public class EnumerationClosedNode extends SimpleTypeProviders implements FacetI
 	public boolean isMergeSupported() {
 		return true;
 	}
+
+	// 1/3/2019 - dmh - closed enum does not support list attribute
+	// @Override
+	// public boolean isSimpleList() {
+	// TLClosedEnumeration tlCE = getTLModelObject();
+	// return getTLModelObject().isListTypeInd();
+	// }
 
 	@Override
 	public boolean isSimpleAssignable() {
@@ -297,7 +304,7 @@ public class EnumerationClosedNode extends SimpleTypeProviders implements FacetI
 
 	@Override
 	public List<PropertyNode> getProperties() {
-		List<PropertyNode> kids = new ArrayList<PropertyNode>();
+		List<PropertyNode> kids = new ArrayList<>();
 		for (Node n : getChildrenHandler().get())
 			kids.add((PropertyNode) n);
 		return kids;

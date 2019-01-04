@@ -230,6 +230,8 @@ public class AssignTypeAction extends OtmAbstractAction {
 	 *            - nodes selected to be assigned the type selected.
 	 */
 	public static void execute(TypeUser user) {
+		// Runs when the facet table type selection button activated
+
 		// OtmAbstractHandler handler = new OtmAbstractHandler() {
 		// @Override
 		// public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -260,9 +262,11 @@ public class AssignTypeAction extends OtmAbstractAction {
 		// Now run the wizard
 		ArrayList<Node> list = new ArrayList<>();
 		list.add((Node) user);
-		final TypeSelectionWizard wizard = new TypeSelectionWizard(list);
+		final TypeSelectionWizard wizard = new TypeSelectionWizard((Node) user);
 		if (wizard.run(OtmRegistry.getActiveShell()))
-			AssignTypeAction.execute(wizard.getList(), wizard.getSelection());
+			AssignTypeAction.execute(list, wizard.getSelection());
+		// TODO - eliminate need for list to be passed
+		// AssignTypeAction.execute(wizard.getList(), wizard.getSelection());
 		// else
 		// DialogUserNotifier.openInformation("No Selection", Messages.getString("OtmW.101")); //$NON-NLS-1$
 		// TODO - should the new owner be removed?

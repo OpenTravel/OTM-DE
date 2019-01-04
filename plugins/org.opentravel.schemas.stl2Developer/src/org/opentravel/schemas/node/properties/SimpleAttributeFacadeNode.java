@@ -29,6 +29,8 @@ import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.objectMembers.VWA_SimpleFacetFacadeNode;
 import org.opentravel.schemas.node.typeProviders.CoreSimpleFacetNode;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.trees.type.TypeSelectionFilter;
+import org.opentravel.schemas.trees.type.TypeTreeSimpleAssignableOnlyFilter;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUserHandler;
 
@@ -154,9 +156,14 @@ public abstract class SimpleAttributeFacadeNode extends TypedPropertyNode implem
 	}
 
 	@Override
-	public boolean isOnlySimpleTypeUser() {
-		return true;
+	public TypeSelectionFilter getTypeSelectionFilter() {
+		return new TypeTreeSimpleAssignableOnlyFilter();
 	}
+
+	// @Override
+	// public boolean isOnlySimpleTypeUser() {
+	// return true;
+	// }
 
 	@Override
 	public boolean isRenameable() {

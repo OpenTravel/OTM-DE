@@ -36,6 +36,8 @@ import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.IValueWithContextHandler;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.trees.type.TypeSelectionFilter;
+import org.opentravel.schemas.trees.type.TypeTreeSimpleAssignableOnlyFilter;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.TypeUserHandler;
@@ -70,6 +72,15 @@ public class SimpleTypeNode extends SimpleTypeProviders implements TypeUser, Lib
 	@Override
 	public TypeUserHandler getTypeHandler() {
 		return typeHandler;
+	}
+
+	// @Override
+	// public TypeSelectionFilter getTypeSelectionFilter() {
+	// return new TypeTreeSimpleTypeOnlyFilter();
+	// }
+	@Override
+	public TypeSelectionFilter getTypeSelectionFilter() {
+		return new TypeTreeSimpleAssignableOnlyFilter();
 	}
 
 	@Override
@@ -151,16 +162,17 @@ public class SimpleTypeNode extends SimpleTypeProviders implements TypeUser, Lib
 		return (TLSimple) tlObj;
 	}
 
-	@Override
-	public boolean isOnlySimpleTypeUser() {
-		return true;
-	}
-
+	// @Override
+	// public boolean isOnlySimpleTypeUser() {
+	// return true;
+	// }
+	//
 	@Override
 	public boolean isSimpleAssignable() {
 		return true;
 	}
 
+	@Override
 	public boolean isSimpleList() {
 		return getTLModelObject().isListTypeInd();
 	}

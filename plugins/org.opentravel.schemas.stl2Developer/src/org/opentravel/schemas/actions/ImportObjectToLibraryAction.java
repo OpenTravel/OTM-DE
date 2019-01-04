@@ -216,9 +216,9 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 	 * @return
 	 */
 	private ContextualFacetOwnerInterface askForNewCFOwner(ContextualFacetNode n) {
-		ArrayList<Node> nodeList = new ArrayList<>();
-		nodeList.add(n);
-		final TypeSelectionWizard wizard = new TypeSelectionWizard(nodeList);
+		// ArrayList<Node> nodeList = new ArrayList<>();
+		// nodeList.add(n);
+		final TypeSelectionWizard wizard = new TypeSelectionWizard(n);
 		Node owner = null;
 		if (wizard.run(OtmRegistry.getActiveShell()))
 			owner = wizard.getSelection();

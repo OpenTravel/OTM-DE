@@ -86,6 +86,8 @@ import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.trees.type.LibraryOnlyTypeFilter;
+import org.opentravel.schemas.trees.type.TypeSelectionFilter;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeProviderAndOwners;
 import org.opentravel.schemas.types.TypeResolver;
@@ -1447,6 +1449,11 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	@Override
 	public AbstractLibrary getTLModelObject() {
 		return absTLLibrary instanceof AbstractLibrary ? (AbstractLibrary) absTLLibrary : genTLLib;
+	}
+
+	@Override
+	public TypeSelectionFilter getTypeSelectionFilter() {
+		return new LibraryOnlyTypeFilter();
 	}
 
 	/**

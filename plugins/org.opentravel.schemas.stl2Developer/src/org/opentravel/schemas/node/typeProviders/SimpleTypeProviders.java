@@ -59,6 +59,10 @@ public abstract class SimpleTypeProviders extends TypeProviders implements Simpl
 		return true;
 	}
 
+	public boolean isSimpleList() {
+		return false;
+	}
+
 	@Override
 	public LibraryMemberInterface clone(LibraryNode targetLib, String nameSuffix) {
 		if (getLibrary() == null || !getLibrary().isEditable()) {

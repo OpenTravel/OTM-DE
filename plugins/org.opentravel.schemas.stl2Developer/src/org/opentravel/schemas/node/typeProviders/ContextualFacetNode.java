@@ -36,6 +36,8 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.InheritanceDependencyListener;
 import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.trees.type.ContextualFacetOwnersTypeFilter;
+import org.opentravel.schemas.trees.type.TypeSelectionFilter;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -324,6 +326,11 @@ public abstract class ContextualFacetNode extends AbstractContextualFacet implem
 	@Override
 	public LibraryMemberInterface getOwningComponent() {
 		return this;
+	}
+
+	@Override
+	public TypeSelectionFilter getTypeSelectionFilter() {
+		return new ContextualFacetOwnersTypeFilter(this);
 	}
 
 	/**

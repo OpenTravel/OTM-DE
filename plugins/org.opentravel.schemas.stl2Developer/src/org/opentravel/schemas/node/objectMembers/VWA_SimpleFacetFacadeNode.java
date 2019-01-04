@@ -33,6 +33,8 @@ import org.opentravel.schemas.node.listeners.SimpleFacetNodeListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.VWA_SimpleAttributeFacadeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.trees.type.TypeSelectionFilter;
+import org.opentravel.schemas.trees.type.TypeTreeSimpleAssignableOnlyFilter;
 import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,10 +180,15 @@ public class VWA_SimpleFacetFacadeNode extends FacadeBase implements FacetInterf
 	}
 
 	@Override
-	public boolean isOnlySimpleTypeUser() {
-		// 6/21/2013 - this was true in Node.java. I dont think it should be.
-		return false;
+	public TypeSelectionFilter getTypeSelectionFilter() {
+		return new TypeTreeSimpleAssignableOnlyFilter();
 	}
+
+	// @Override
+	// public boolean isOnlySimpleTypeUser() {
+	// // 6/21/2013 - this was true in Node.java. I dont think it should be.
+	// return false;
+	// }
 
 	/**
 	 * Facets assigned to core object list types have no model objects but may be page1-assignable.

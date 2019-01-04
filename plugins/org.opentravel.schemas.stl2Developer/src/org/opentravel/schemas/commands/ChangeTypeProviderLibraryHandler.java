@@ -83,16 +83,15 @@ public class ChangeTypeProviderLibraryHandler extends OtmAbstractHandler {
 		LibraryNode newLibProvidingTypes = null;
 
 		// Run the wizard
-		ArrayList<Node> list = new ArrayList<Node>();
-		list.add(libToUpdate);
-		final TypeSelectionWizard wizard = new TypeSelectionWizard(list);
-		if (wizard.run(OtmRegistry.getActiveShell()))
-			if (wizard.getSelection() instanceof LibraryNode)
-				newLibProvidingTypes = (LibraryNode) wizard.getSelection();
+		// ArrayList<Node> list = new ArrayList<Node>();
+		// list.add(libToUpdate);
+		final TypeSelectionWizard wizard = new TypeSelectionWizard(libToUpdate);
+		if (wizard.run(OtmRegistry.getActiveShell()) && (wizard.getSelection() instanceof LibraryNode))
+			newLibProvidingTypes = (LibraryNode) wizard.getSelection();
 
 		// Create list of impacted users and use library method to replace their assigned types
 		if (newLibProvidingTypes != null) {
-			List<TypeUser> impactedUsers = new ArrayList<TypeUser>();
+			List<TypeUser> impactedUsers = new ArrayList<>();
 			for (TypeUser user : libToUpdate.getDescendants_TypeUsers())
 				if (oldLibProvidingTypes.contains((Node) user.getAssignedType()))
 					impactedUsers.add(user);

@@ -538,6 +538,11 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 			listButton.setEnabled(true);
 			listButton.setSelection(((SimpleTypeNode) cn).isSimpleList());
 		}
+		// if (cn instanceof SimpleTypeProviders)
+		// if (!(cn instanceof ImpliedNode)) {
+		// listButton.setEnabled(true);
+		// listButton.setSelection(((SimpleTypeNode) cn).isSimpleList());
+		// }
 
 		// simpleTypeNode
 		ConstraintHandler ch = cn.getConstraintHandler();

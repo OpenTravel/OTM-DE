@@ -16,6 +16,7 @@
 package org.opentravel.schemas.controllers;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.widgets.Event;
@@ -229,22 +230,18 @@ public class OtmActions {
 		return clearExtends;
 	}
 
+	// Called when property view type selector is used
 	private void propertyTypeSelector(final OtmEventData wd) {
 		Node n = wd.getNode();
 		// If no node was saved with the event data, see if there is a current node selected.
-		if (n == null) {
-			if ((n = getPropertySelection()) == null) {
-				return;
-			}
-		}
+		if (n == null && ((n = getPropertySelection()) == null))
+			return;
 
-		ArrayList<Node> list = new ArrayList<>();
+		List<Node> list = new ArrayList<>();
 		list.add(n);
-		final TypeSelectionWizard wizard = new TypeSelectionWizard(list);
+		final TypeSelectionWizard wizard = new TypeSelectionWizard(n);
 		if (wizard.run(OtmRegistry.getActiveShell())) {
-			AssignTypeAction.execute(wizard.getList(), wizard.getSelection());
-		} else {
-			DialogUserNotifier.openInformation("No Selection", Messages.getString("OtmW.101")); //$NON-NLS-1$
+			AssignTypeAction.execute(list, wizard.getSelection());
 		}
 	}
 

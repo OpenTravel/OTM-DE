@@ -204,6 +204,8 @@ public class DocumentationHandler {
 
 	/**
 	 * Set value if it exists, create new one if it does not.
+	 * <p>
+	 * Only used in testing.
 	 */
 	public void setDeprecation(final String string, final int index) {
 		TLDocumentationItem di = setDocItem(getOrNewTL().getDeprecations(), string, index);

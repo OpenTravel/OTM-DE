@@ -26,12 +26,14 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
-import org.opentravel.schemas.node.facets.AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.trees.type.TypeSelectionFilter;
+import org.opentravel.schemas.trees.type.TypeTreeSimpleAssignableOnlyFilter;
+import org.opentravel.schemas.trees.type.TypeTreeVWASimpleTypeOnlyFilter;
 import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,6 +177,14 @@ public class AttributeNode extends TypedPropertyNode {
 	}
 
 	@Override
+	public TypeSelectionFilter getTypeSelectionFilter() {
+		if (getOwningComponent() instanceof VWA_Node)
+			return new TypeTreeVWASimpleTypeOnlyFilter();
+		else
+			return new TypeTreeSimpleAssignableOnlyFilter();
+	}
+
+	@Override
 	public String getAssignedTLTypeName() {
 		return getTLModelObject() != null ? getTLModelObject().getTypeName() : "";
 	}
@@ -190,11 +200,11 @@ public class AttributeNode extends TypedPropertyNode {
 		return getTLModelObject() != null ? getTLModelObject().isMandatory() : false;
 	}
 
-	@Override
-	public boolean isOnlySimpleTypeUser() {
-		// allow VWAs to be assigned to VWA Attributes.
-		return parent != null && parent instanceof AttributeFacetNode ? false : true;
-	}
+	// @Override
+	// public boolean isOnlySimpleTypeUser() {
+	// // allow VWAs to be assigned to VWA Attributes.
+	// return parent != null && parent instanceof AttributeFacetNode ? false : true;
+	// }
 
 	@Override
 	public boolean isRenameable() {

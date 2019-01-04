@@ -453,7 +453,11 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 		}
 
 		final TypeSelectionWizard wizard = new TypeSelectionWizard(node);
-		wizard.run(getShell(), true); // let the user select type then assign it
+		// if (wizard.run(getShell(), true)) // let the user select type then assign it
+		// let the user select type then assign it
+		if (wizard.run(getShell()))
+			((TypeUser) node).setAssignedType((TypeProvider) wizard.getSelection());
+
 		// Use the type name as the property name if the user has not already set one.
 		if (wizard.getSelection() != null && (getSelectedNode().getName().startsWith("Property")
 				|| getSelectedNode().getName().startsWith("property")))

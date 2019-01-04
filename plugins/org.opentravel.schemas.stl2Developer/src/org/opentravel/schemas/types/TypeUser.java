@@ -134,5 +134,4 @@ public interface TypeUser {
 	public TypeProvider setAssignedType(TypeProvider provider);
 
 	public void setName(String name);
-
 }

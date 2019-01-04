@@ -32,6 +32,8 @@ import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.trees.type.TypeSelectionFilter;
+import org.opentravel.schemas.trees.type.TypeTreeIdReferenceTypeOnlyFilter;
 import org.opentravel.schemas.types.TypeProvider;
 
 /**
@@ -101,6 +103,11 @@ public class AttributeReferenceNode extends AttributeNode {
 	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.ID_Attr_Reference);
+	}
+
+	@Override
+	public TypeSelectionFilter getTypeSelectionFilter() {
+		return new TypeTreeIdReferenceTypeOnlyFilter();
 	}
 
 	@Override

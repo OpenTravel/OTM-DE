@@ -87,6 +87,7 @@ import org.opentravel.schemas.node.typeProviders.QueryFacetNode;
 import org.opentravel.schemas.node.typeProviders.RoleFacetNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
+import org.opentravel.schemas.trees.type.TypeSelectionFilter;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeProviderAndOwners;
@@ -1166,6 +1167,13 @@ public abstract class Node implements INode {
 		return "";
 	}
 
+	/**
+	 * @return a type selection filter. May be overridden to provide node specific filter.
+	 */
+	public TypeSelectionFilter getTypeSelectionFilter() {
+		return new TypeSelectionFilter();
+	}
+
 	// /**
 	// * @return - list of unique TLContexts used by any child of this node. Empty list if none.
 	// */
@@ -1787,20 +1795,20 @@ public abstract class Node implements INode {
 		return !getOwningComponent().isVersioned();
 	}
 
-	/**
-	 * <p>
-	 * Used by type selection wizard to filter list.
-	 * <p>
-	 * Note: if parent is not known, attributes are assumed to not be part of a ValueWithAttribute and therefore are
-	 * simpleTypeUsers
-	 * 
-	 * Overridden where true.
-	 * 
-	 * @return true if <b>only</b> simple types can be assigned to this type user.
-	 */
-	public boolean isOnlySimpleTypeUser() {
-		return false;
-	}
+	// /**
+	// * <p>
+	// * ONLY Used by type selection wizard to filter list.
+	// * <p>
+	// * Note: if parent is not known, attributes are assumed to not be part of a ValueWithAttribute and therefore are
+	// * simpleTypeUsers
+	// *
+	// * Overridden where true.
+	// *
+	// * @return true if <b>only</b> simple types can be assigned to this type user.
+	// */
+	// public boolean isOnlySimpleTypeUser() {
+	// return false;
+	// }
 
 	@Override
 	public boolean isRenameable() {

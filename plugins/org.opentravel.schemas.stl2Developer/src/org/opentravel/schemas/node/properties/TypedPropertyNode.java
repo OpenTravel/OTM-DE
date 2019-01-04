@@ -26,6 +26,7 @@ import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.TypeUserListener;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.trees.type.TypeSelectionFilter;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.TypeUserHandler;
@@ -204,6 +205,11 @@ public abstract class TypedPropertyNode extends PropertyNode implements TypeUser
 	@Override
 	public String getTypeNameWithPrefix() {
 		return getTypeHandler() != null ? getTypeHandler().getAssignedTypeNameWithPrefix() : "";
+	}
+
+	@Override
+	public TypeSelectionFilter getTypeSelectionFilter() {
+		return null;
 	}
 
 	/**

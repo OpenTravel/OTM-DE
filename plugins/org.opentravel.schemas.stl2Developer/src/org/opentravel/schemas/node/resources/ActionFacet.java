@@ -33,6 +33,8 @@ import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
+import org.opentravel.schemas.trees.type.CoreAndChoiceObjectOnlyTypeFilter;
+import org.opentravel.schemas.trees.type.TypeSelectionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -256,6 +258,11 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	@Override
 	public String getTooltip() {
 		return Messages.getString(MSGKEY + ".tooltip");
+	}
+
+	@Override
+	public TypeSelectionFilter getTypeSelectionFilter() {
+		return new CoreAndChoiceObjectOnlyTypeFilter(null);
 	}
 
 	@Override
