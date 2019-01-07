@@ -216,7 +216,6 @@ public class TypeSelectionPage extends WizardPage {
 	}
 
 	private class CurrentNodeFilter extends ViewerFilter {
-
 		private List<Node> excluded;
 
 		public CurrentNodeFilter(List<Node> excluded) {
@@ -304,7 +303,7 @@ public class TypeSelectionPage extends WizardPage {
 		public void widgetSelected(final SelectionEvent e) {
 			if (e.widget instanceof Button) {
 				final Button b = (Button) e.widget;
-				// Namespaces radio button selected
+				// Namespace radio button selected
 				nsFilter.setLibrary(radioButtons.get(b));
 				treeViewer.expandAll();
 				treeViewer.refresh();
@@ -337,7 +336,6 @@ public class TypeSelectionPage extends WizardPage {
 		radio.setText("XSD Schemas");
 		radioButtons.put(radio, XSDLibrary.class);
 		radio.addSelectionListener(new ButtonSelectionHandler());
-
 	}
 
 	/**

@@ -35,7 +35,7 @@ public class BusinessObjectOnlyTypeFilter extends TypeSelectionFilter {
 
 	@Override
 	public boolean isValidSelection(Node n) {
-		return (n != null) && n instanceof BusinessObjectNode;
+		return n instanceof BusinessObjectNode;
 	}
 
 	/**
@@ -50,7 +50,7 @@ public class BusinessObjectOnlyTypeFilter extends TypeSelectionFilter {
 
 	@Override
 	public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
-		if (element == null || !(element instanceof Node))
+		if (!(element instanceof Node))
 			return false;
 
 		final Node n = (Node) element;

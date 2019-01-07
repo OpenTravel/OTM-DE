@@ -245,6 +245,8 @@ public class SimpleTypeNode extends SimpleTypeProviders implements TypeUser, Lib
 
 	@Override
 	public TypeProvider setAssignedType(TypeProvider provider) {
+		if (provider instanceof EnumerationClosedNode)
+			setList(true);
 		return getTypeHandler().set(provider) ? provider : null;
 	}
 

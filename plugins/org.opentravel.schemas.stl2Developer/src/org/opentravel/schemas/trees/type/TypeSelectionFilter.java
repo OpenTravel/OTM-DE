@@ -16,7 +16,6 @@
 package org.opentravel.schemas.trees.type;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jface.viewers.Viewer;
@@ -35,14 +34,22 @@ import org.opentravel.schemas.types.TypeProviderAndOwners;
  * 
  * @author S. Livezey
  */
+//
+// TODO - create JUnit test and use that to simplify and performane tune.
+// Note - test must include variations of isValidSelection()
+// Get rid of service node exception.
+// Consider using getDescendents_TypeProviders() instead or is recursion used here better?
+//
 public class TypeSelectionFilter extends ViewerFilter {
 
 	/**
 	 * Returns true if the given node is a valid selection for the type selection page.
+	 * <p>
+	 * Called directly from TypeSelectionPage
 	 * 
 	 * @param n
 	 *            the node instance to evaluate
-	 * @return boolean
+	 * @return true if instanceof TypeProvider
 	 */
 	public boolean isValidSelection(Node n) {
 		return n instanceof TypeProvider;
@@ -61,9 +68,11 @@ public class TypeSelectionFilter extends ViewerFilter {
 					return false;
 				else
 					return ((NavNode) n).isComplexRoot() || ((NavNode) n).isSimpleRoot();
-			if (n instanceof ImpliedNode)
-				return false;
-			return true;
+
+			return !(n instanceof ImpliedNode);
+			// if (n instanceof ImpliedNode)
+			// return false;
+			// return true;
 		}
 		return false;
 	}
@@ -71,6 +80,9 @@ public class TypeSelectionFilter extends ViewerFilter {
 	/**
 	 * Returns true if the given node has one or more immediate children that would be considered valid selections by
 	 * this filter.
+	 * <p>
+	 * Utility for use by other filters. Uses overridden isValidSelection() on all descendants (type providers or
+	 * containers that can hold type providers), returns true on finding first valid selection is found.
 	 * 
 	 * @param n
 	 *            the node to analyze
@@ -79,22 +91,23 @@ public class TypeSelectionFilter extends ViewerFilter {
 	protected boolean hasValidChildren(Node n) {
 		boolean hasValidChild = false;
 
-		if (n instanceof AggregateNode) // these extend NavNode
-			if (n instanceof VersionAggregateNode)
-				return true;
-			else
-				return false;
+		// these extend NavNode - only allow the version aggregates
+		if (n instanceof AggregateNode)
+			return n instanceof VersionAggregateNode;
 
 		// Only the top level member of an xsd type can be used.
 		if (n.isXsdType())
 			return false;
 
+		//
+		// Scan children and descendants to see if any of them are valid
 		for (TypeProviderAndOwners child : n.getChildren_TypeProviders()) {
 			if (isValidSelection((Node) child)) {
 				hasValidChild = true;
 				break;
 			}
 		}
+		// How can a service node have a valid selection? It only has properties not types.
 		if (!hasValidChild && n instanceof ServiceNode) {
 			for (Node child : n.getChildren()) {
 				if (isValidSelection(child)) {
@@ -108,21 +121,6 @@ public class TypeSelectionFilter extends ViewerFilter {
 		// deeper ancestors are valid
 		if (!hasValidChild) {
 			Set<TypeProviderAndOwners> children = new HashSet<>(n.getChildren_TypeProviders());
-			List<Node> navChildren = n.getNavChildren(false);
-
-			// if (navChildren != null)
-			// children.addAll(navChildren);
-
-			// if (n instanceof LibraryNode) {
-			// LibraryNode libNode = (LibraryNode) n;
-			//
-			// if (libNode.getServiceRoot() != null) {
-			// children.add(libNode.getServiceRoot());
-			// }
-			// } else if (n instanceof ServiceNode) {
-			// children.addAll(n.getChildren());
-			// }
-
 			for (TypeProviderAndOwners child : children) {
 				if (hasValidChildren((Node) child)) {
 					hasValidChild = true;

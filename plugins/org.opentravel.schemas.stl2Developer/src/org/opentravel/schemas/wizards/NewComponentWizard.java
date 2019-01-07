@@ -80,8 +80,8 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 	@Override
 	public void addPages() {
 		ImageDescriptor imageDesc = Images.getImageRegistry().getDescriptor("AddComponent");
-		ncPage1 = new NewComponentWizardPage("CreateComponent", Messages.getString("wizard.newObject.title"),
-				imageDesc, targetNode);
+		ncPage1 = new NewComponentWizardPage("CreateComponent", Messages.getString("wizard.newObject.title"), imageDesc,
+				targetNode);
 		addPage(ncPage1);
 
 		serviceSubjectSelectionPage = new TypeSelectionPage(
@@ -220,7 +220,8 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 		return cn;
 	}
 
-	private Node linkContextual(ContextualFacetNode cf, Node subject, LibraryNode lib, String name, String description) {
+	private Node linkContextual(ContextualFacetNode cf, Node subject, LibraryNode lib, String name,
+			String description) {
 		cf.setName(name);
 		cf.setDescription(description);
 		lib.addMember(cf);
@@ -229,7 +230,8 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 		return cf;
 	}
 
-	private Node linkNewNode(TLLibraryMember tlObj, final LibraryNode lib, final String name, final String description) {
+	private Node linkNewNode(TLLibraryMember tlObj, final LibraryNode lib, final String name,
+			final String description) {
 		LibraryMemberInterface cn = NodeFactory.newLibraryMember(tlObj);
 
 		if (cn != null) {
@@ -244,39 +246,4 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 		}
 		return (Node) cn;
 	}
-
-	// private static Node newComponent(ComponentNodeType type) {
-	// TLLibraryMember tlObj = null;
-	//
-	// switch (type) {
-	// case BUSINESS:
-	// tlObj = new TLBusinessObject();
-	// break;
-	// case CHOICE:
-	// tlObj = new TLChoiceObject();
-	// break;
-	// case CORE:
-	// tlObj = new TLCoreObject();
-	// break;
-	// case VWA:
-	// tlObj = new TLValueWithAttributes();
-	// break;
-	// case EXTENSION_POINT:
-	// tlObj = new TLExtensionPointFacet();
-	// break;
-	// case OPEN_ENUM:
-	// tlObj = new TLOpenEnumeration();
-	// break;
-	// case CLOSED_ENUM:
-	// tlObj = new TLClosedEnumeration();
-	// break;
-	// case SIMPLE:
-	// tlObj = new TLSimple();
-	// break;
-	// default:
-	// // LOGGER.debug("Unknown type in new component: "+type);
-	// }
-	// return NodeFactory.newComponent(tlObj);
-	// }
-
 }

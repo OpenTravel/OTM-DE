@@ -24,7 +24,6 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
-import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.node.ComponentNode;
@@ -216,8 +215,7 @@ public class CoreObjectNode extends FacetOwners
 	@Override
 	public Node setExtensible(boolean extensible) {
 		if (isEditable_newToChain())
-			if (getTLModelObject() instanceof TLComplexTypeBase)
-				((TLComplexTypeBase) getTLModelObject()).setNotExtendable(!extensible);
+			getTLModelObject().setNotExtendable(!extensible);
 		return this;
 	}
 

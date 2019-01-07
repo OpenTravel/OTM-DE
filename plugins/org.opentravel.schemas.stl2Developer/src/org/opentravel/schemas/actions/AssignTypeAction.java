@@ -88,7 +88,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 			LOGGER.warn("No type to assign. Early Exit.");
 			// return false;
 		}
-		if (toChange == null || toChange.size() <= 0) {
+		if (toChange == null || toChange.isEmpty()) {
 			LOGGER.warn("Nothing to assign to. Early Exit.");
 			// return false;
 		}
@@ -99,11 +99,9 @@ public class AssignTypeAction extends OtmAbstractAction {
 			ret = ((TypeUser) cn).setAssignedType((TypeProvider) newType);
 			if (ret == null)
 				DialogUserNotifier.openWarning("Warning", "Invalid type assignment");
-
-			if (last != null && cn.getParent() != last.getParent()) {
-				last = cn;
+			else if (last != null && cn.getParent() != last.getParent())
 				OtmRegistry.getNavigatorView().refresh(last.getParent());
-			}
+			last = cn;
 		}
 		OtmRegistry.getMainController().refresh();
 

@@ -21,7 +21,9 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 
 /**
- * 4/26/2012 - dmh - this is no longer used (I think) - see LibraryTreeLabelProvider
+ * @deprecated 4/26/2012 - dmh - this is no longer used (I think) - see LibraryTreeLabelProvider
+ * 
+ *             1/7/2019 - added asserts
  * 
  * @author Dave Hollander
  * 
@@ -34,11 +36,13 @@ public class TypeTreeLabelProvider extends LabelProvider {
 
 	@Override
 	public Image getImage(final Object element) {
+		assert false;
 		return ((Node) element).getImage();
 	}
 
 	@Override
 	public String getText(final Object element) {
+		assert false;
 		return ((INode) element).getName();
 	}
 

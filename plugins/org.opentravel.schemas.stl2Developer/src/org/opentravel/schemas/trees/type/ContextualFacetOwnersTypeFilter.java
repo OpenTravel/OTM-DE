@@ -66,8 +66,7 @@ public class ContextualFacetOwnersTypeFilter extends TypeSelectionFilter {
 	@Override
 	public boolean isValidSelection(Node n) {
 		if (n instanceof ContextualFacetOwnerInterface)
-			if (n instanceof ContextualFacetOwnerInterface)
-				return ((ContextualFacetOwnerInterface) n).canOwn(type);
+			return ((ContextualFacetOwnerInterface) n).canOwn(type);
 		return false;
 	}
 

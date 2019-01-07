@@ -70,7 +70,7 @@ public class TypeTreeExtensionSelectionFilter extends TypeSelectionFilter {
 
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		if (element == null || !(element instanceof Node))
+		if (!(element instanceof Node))
 			return false;
 
 		Node n = (Node) element;

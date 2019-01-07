@@ -20,7 +20,8 @@ import org.opentravel.schemas.node.AggregateNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionAggregateNode;
-import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeProviders;
 
 public class TypeTreeSimpleTypeOnlyFilter extends TypeSelectionFilter {
 
@@ -32,29 +33,30 @@ public class TypeTreeSimpleTypeOnlyFilter extends TypeSelectionFilter {
 		return (n != null) && n.isAssignable() && n.isSimpleAssignable();
 	}
 
-	/**
-	 * Establish the filter to select only nodes that are navigation or isSimpleAssignable()==true.
-	 */
-	public TypeTreeSimpleTypeOnlyFilter() {
-	}
+	// /**
+	// * Establish the filter to select only nodes that are navigation or isSimpleAssignable()==true.
+	// */
+	// public TypeTreeSimpleTypeOnlyFilter() {
+	// }
 
 	@Override
 	public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
-		if (element == null || !(element instanceof Node)) {
+		if (!(element instanceof Node))
 			return false;
-		}
+
 		final Node n = (Node) element;
 		if (n instanceof AggregateNode) // these extend NavNode
 			return n instanceof VersionAggregateNode;
 		if (n instanceof NavNode)
 			return ((NavNode) n).isComplexRoot() || ((NavNode) n).isSimpleRoot();
 
-		// Temporary Patch
-		return (n.isNavigation()) ? true : n instanceof SimpleTypeNode;
+		// // Temporary Patch
+		// return (n.isNavigation()) ? true : n instanceof SimpleTypeNode;
 
 		// This should be the real code when the compiler does not flag error when assigned.
-		// if (n instanceof ImpliedNode)
-		// return false;
+		if (n instanceof ImpliedNode)
+			return false;
+		return n.isNavigation() || n instanceof SimpleTypeProviders;
 		// return (n.isNavigation()) ? true : n instanceof SimpleTypeProviders;
 	}
 }

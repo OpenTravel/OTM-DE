@@ -455,8 +455,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 			updateConstraints((ComponentNode) cn.getType(), false);
 			updatePropertyTypeCombo((PropertyNode) cn);
 			if (cn instanceof ElementNode) {
-				if (cn.getType() != null && cn.getType() instanceof ListFacetNode
-						&& ((ListFacetNode) cn.getType()).isDetailListFacet()) {
+				if (cn.getType() instanceof ListFacetNode && ((ListFacetNode) cn.getType()).isDetailListFacet()) {
 					repeatNonValid.setVisible(true);
 					repeatNonValid.setText("---");
 					repeatSpinner.setVisible(false);
@@ -538,11 +537,6 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 			listButton.setEnabled(true);
 			listButton.setSelection(((SimpleTypeNode) cn).isSimpleList());
 		}
-		// if (cn instanceof SimpleTypeProviders)
-		// if (!(cn instanceof ImpliedNode)) {
-		// listButton.setEnabled(true);
-		// listButton.setSelection(((SimpleTypeNode) cn).isSimpleList());
-		// }
 
 		// simpleTypeNode
 		ConstraintHandler ch = cn.getConstraintHandler();

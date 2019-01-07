@@ -20,52 +20,57 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 
+/**
+ * Used in type trees to filter out non-matching named objects.
+ * 
+ * @author dmh
+ *
+ */
 public class TypeTreeNameFilter extends ViewerFilter {
-    private String txtFilter = "";
+	private String txtFilter = "";
 
-    @Override
-    public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
-        if (txtFilter == null || txtFilter.isEmpty()) {
-            return true;
-        }
-        if (element == null || !(element instanceof Node)) {
-            return false;
-        }
-        final Node n = (Node) element;
-        if (shouldBeDisplayed(n)) {
-            return true;
-        }
-        return childMatches(n);
-    }
+	@Override
+	public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
+		if (txtFilter == null || txtFilter.isEmpty())
+			return true;
 
-    private boolean childMatches(final INode cn) {
-        for (final Node n : cn.getChildren()) {
-            if (childMatches(n)) {
-                return true;
-            }
-            if (shouldBeDisplayed(n)) {
-                return true;
-            }
-        }
-        return false;
-    }
+		if (!(element instanceof Node))
+			return false;
 
-    private boolean shouldBeDisplayed(final Node cn) {
-        return (textMatches(cn) && cn.isAssignable())
-                || (cn.getParent() != null && textMatches(cn.getParent()));
-    }
+		final Node n = (Node) element;
+		if (shouldBeDisplayed(n))
+			return true;
 
-    private boolean textMatches(final INode cn) {
-        // return cn.getName().matches(txtFilter);
-        return cn.getName().toLowerCase().contains(txtFilter);
-    }
+		return childMatches(n);
+	}
 
-    public void setText(final String txt) {
-        // txtFilter = "(?i)*" + txt + "*";
-        if (txt == null) {
-            txtFilter = "";
-        } else {
-            txtFilter = txt.toLowerCase();
-        }
-    }
+	private boolean childMatches(final INode cn) {
+		for (final Node n : cn.getChildren()) {
+			if (childMatches(n)) {
+				return true;
+			}
+			if (shouldBeDisplayed(n)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean shouldBeDisplayed(final Node cn) {
+		return (textMatches(cn) && cn.isAssignable()) || (cn.getParent() != null && textMatches(cn.getParent()));
+	}
+
+	private boolean textMatches(final INode cn) {
+		// return cn.getName().matches(txtFilter);
+		return cn.getName().toLowerCase().contains(txtFilter);
+	}
+
+	public void setText(final String txt) {
+		// txtFilter = "(?i)*" + txt + "*";
+		if (txt == null) {
+			txtFilter = "";
+		} else {
+			txtFilter = txt.toLowerCase();
+		}
+	}
 }

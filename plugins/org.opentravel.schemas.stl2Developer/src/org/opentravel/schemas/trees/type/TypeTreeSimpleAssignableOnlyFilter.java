@@ -39,7 +39,7 @@ public class TypeTreeSimpleAssignableOnlyFilter extends TypeSelectionFilter {
 
 	@Override
 	public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
-		if (element == null || !(element instanceof Node)) {
+		if (!(element instanceof Node)) {
 			return false;
 		}
 		final Node n = (Node) element;

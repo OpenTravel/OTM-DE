@@ -116,10 +116,10 @@ public class ServiceNode extends ComponentNode implements LibraryMemberInterface
 		return null; // NO-OP
 	}
 
-	@Override
-	public Node clone(Node parent, String nameSuffix) {
-		return null; // NO-OP
-	}
+	// @Override
+	// public Node clone(Node parent, String nameSuffix) {
+	// return null; // NO-OP
+	// }
 
 	@Override
 	public LibraryElement cloneTLObj() {

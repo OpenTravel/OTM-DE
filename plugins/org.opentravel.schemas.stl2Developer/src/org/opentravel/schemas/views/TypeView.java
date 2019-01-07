@@ -38,7 +38,7 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
  * 
  */
 public class TypeView extends OtmAbstractView implements ISelectionListener {
-	public static String VIEW_ID = "org.opentravel.schemas.stl2Developer.TypeView";
+	public static final String VIEW_ID = "org.opentravel.schemas.stl2Developer.TypeView";
 	// private static final Logger LOGGER = LoggerFactory.getLogger(TypeView.class);
 
 	private FacetView facetView;
@@ -204,6 +204,7 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 
 	@Override
 	public void setFocus() {
+		// NO-OP
 	}
 
 	@Override

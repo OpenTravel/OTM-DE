@@ -193,6 +193,7 @@ public class VWA_SimpleFacetFacadeNode extends FacadeBase implements FacetInterf
 	/**
 	 * Facets assigned to core object list types have no model objects but may be page1-assignable.
 	 */
+	// FIXME - how can this be true but not isAssignable() ??
 	@Override
 	public boolean isSimpleAssignable() {
 		return true;
