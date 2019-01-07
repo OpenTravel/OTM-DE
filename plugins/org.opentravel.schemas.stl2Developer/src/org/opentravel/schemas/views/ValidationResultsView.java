@@ -173,6 +173,8 @@ public class ValidationResultsView extends OtmAbstractView {
 				findingsContent = findings.getAllFindingsAsList();
 				findingsViewer.setInput(findingsContent);
 				packTable();
+				findingsViewer.refresh();
+				mc.postStatus(findingsContent.size() + " Warnings or Errors found.");
 			} else {
 				mc.postStatus("No Warnings or Errors found.");
 			}

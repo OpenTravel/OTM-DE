@@ -51,6 +51,7 @@ import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
+import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
 import org.opentravel.schemas.node.typeProviders.ListFacetNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
@@ -534,7 +535,9 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 		if (cn == null)
 			return;
 		if (cn instanceof SimpleTypeNode) {
-			listButton.setEnabled(true);
+			// Simple objects with parent of closed enumeration MUST have list checked
+			if (!(((SimpleTypeNode) cn).getAssignedType() instanceof EnumerationClosedNode))
+				listButton.setEnabled(true);
 			listButton.setSelection(((SimpleTypeNode) cn).isSimpleList());
 		}
 
