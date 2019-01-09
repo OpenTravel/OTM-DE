@@ -59,7 +59,6 @@
 <unit id="org.springframework.spring-context" version="4.3.21.RELEASE"/>
 <unit id="org.glassfish.jaxb.core" version="2.3.0.1"/>
 <unit id="com.fasterxml.jackson.core.jackson-databind" version="2.4.5"/>
-<unit id="schema-compiler" version="4.0.0.20190109123358"/>
 <unit id="org.apache.commons.lang" version="2.4.0"/>
 <unit id="org.apache.commons.validator" version="1.4.1"/>
 <unit id="org.apache.aries.spifly.org.apache.aries.spifly.core-internal" version="1.0.2"/>
@@ -71,7 +70,6 @@
 <unit id="com.sun.istack.commons-runtime" version="3.0.5"/>
 <unit id="slf4j.api" version="1.7.10"/>
 <unit id="com.fasterxml.jackson.core.jackson-core" version="2.4.5"/>
-<unit id="org.opentravel.otm.schema-compiler-ext-ota2" version="4.0.0.20190109123400"/>
 <unit id="org.apache.commons.lang3" version="3.5.0"/>
 <unit id="org.apache.commons.collections" version="3.2.1"/>
 <unit id="jaxb-api" version="2.3.0"/>
