@@ -663,7 +663,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		List<ProjectItem> updated = pn.getTLProject().getProjectManager().refreshManagedProjectItems();
 		// pn.getProject().getProjectManager().refreshManagedProjectItems();
 
-		pn.getTLProject().getProjectManager().lock(getProjectItem(), dir);
+		pn.getTLProject().getProjectManager().lock(getProjectItem());
 		// LOGGER.debug("Locked library which created local file: " + path);
 		setEditable(isAbsLibEditable());
 	}
