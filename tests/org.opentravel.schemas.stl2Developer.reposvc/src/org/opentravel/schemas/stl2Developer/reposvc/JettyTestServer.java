@@ -33,7 +33,7 @@ import org.opentravel.schemacompiler.repository.RepositoryContentResource;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.schemacompiler.repository.RepositoryServlet;
-import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
+import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryUtils;
 
 /**
  * Encapsulates the configuration and run-time environment of an OTA2.0 repository that is launched as an embedded Jetty
@@ -139,7 +139,7 @@ public class JettyTestServer {
 	 * Pings the Jetty service with a meta-data request that forces the initialization of the repository web service.
 	 */
 	private void initializeRepositoryServices() throws Exception {
-		RemoteRepositoryClient.getRepositoryMetadata("http://localhost:" + port + "/ota2-repository-service");
+		new RemoteRepositoryUtils().getRepositoryMetadata("http://localhost:" + port + "/ota2-repository-service");
 	}
 
 	/**

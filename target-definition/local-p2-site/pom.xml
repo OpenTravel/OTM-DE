@@ -11,7 +11,7 @@
 	</parent>
 	
 	<artifactId>org.opentravel.schemas.stl2Developer.p2Site</artifactId>
-	<packaging>pom</packaging>
+	<packaging>war</packaging>
 
 	<build>
 		<plugins>
@@ -59,18 +59,44 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.mortbay.jetty</groupId>
+				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
-				<version>8.1.16.v20140903</version>
+				<version>9.4.14.v20181114</version>
 				<configuration>
 					<scanIntervalSeconds>10</scanIntervalSeconds>
 					<webAppSourceDirectory>${basedir}/target/repository/</webAppSourceDirectory>
 					<webApp>
 						<contextPath>/site</contextPath>
 					</webApp>
+					<httpConnector>
+						<port>6161</port>
+					</httpConnector>
+					<daemon>true</daemon>
+					<stopPort>6162</stopPort>
+					<stopKey>stop-otm-p2</stopKey>
+					<stopWait>10</stopWait>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.2.2</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.1.1</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			
 		</plugins>
 	</build>
-
+	
 </project>
