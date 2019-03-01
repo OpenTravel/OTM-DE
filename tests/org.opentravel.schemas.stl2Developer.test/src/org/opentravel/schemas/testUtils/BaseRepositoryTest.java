@@ -204,7 +204,7 @@ public abstract class BaseRepositoryTest extends BaseTest {
 	 * @throws Exception
 	 */
 	protected static RepositoryManager startEmptyServer() throws Exception {
-		System.setProperty("ota2.repository.realTimeIndexing", "true");
+		FreeTextSearchServiceFactory.setRealTimeIndexing( true );
 		File emptySnapshot = new File(FileLocator
 				.resolve(BaseRepositoryTest.class.getResource("/Resources/repo-snapshots/empty-repository")).toURI());
 		File ota2config = new File(FileLocator

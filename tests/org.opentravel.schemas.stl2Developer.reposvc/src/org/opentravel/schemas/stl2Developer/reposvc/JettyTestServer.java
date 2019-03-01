@@ -29,6 +29,7 @@ import org.opentravel.schemacompiler.index.FreeTextSearchServiceFactory;
 import org.opentravel.schemacompiler.providers.JAXBContextResolver;
 import org.opentravel.schemacompiler.providers.RepositoryServiceExceptionMapper;
 import org.opentravel.schemacompiler.repository.RemoteRepository;
+import org.opentravel.schemacompiler.repository.RepositoryComponentFactory;
 import org.opentravel.schemacompiler.repository.RepositoryContentResource;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
@@ -146,7 +147,12 @@ public class JettyTestServer {
 	 * Indexes the contents of the server's test repository.
 	 */
 	private void indexTestRepository() throws Exception {
+        FreeTextSearchServiceFactory.initializeSingleton( RepositoryComponentFactory.getDefault().getRepositoryManager() );
 		FreeTextSearchService service = FreeTextSearchServiceFactory.getInstance();
+		
+		if (!service.isRunning()) {
+			service.startService();
+		}
 
 		while (!service.isRunning()) {
 			try {
