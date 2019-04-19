@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.opentravel.schemas.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.stl2developer.Activator;
 
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
-	public PreferenceInitializer() {
-	}
+    public PreferenceInitializer() {}
 
-	@Override
-	public void initializeDefaultPreferences() {
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		store.setDefault(GeneralPreferencePage.NAMESPACE_MANAGED, true);
-		store.setDefault(GeneralPreferencePage.OTMV16, OTM16Upgrade.otm16Enabled);
-	}
+    @Override
+    public void initializeDefaultPreferences() {
+        IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+        store.setDefault( GeneralPreferencePage.NAMESPACE_MANAGED, true );
+    }
 
 }

@@ -16,12 +16,10 @@
 /**
  * 
  */
+
 package org.opentravel.schemas.commands;
 
 import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +29,6 @@ import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
@@ -53,6 +50,9 @@ import org.opentravel.schemas.utils.BaseProjectTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Test close() methods and commands.
  * 
@@ -60,337 +60,317 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Close_Tests extends BaseProjectTest {
-	static final Logger LOGGER = LoggerFactory.getLogger(MockLibrary.class);
+    static final Logger LOGGER = LoggerFactory.getLogger( MockLibrary.class );
 
-	MockLibrary ml = null;
-	LibraryNode ln = null;
-	ModelNode model = null;
-	LoadFiles lf = null;
+    MockLibrary ml = null;
+    LibraryNode ln = null;
+    ModelNode model = null;
+    LoadFiles lf = null;
 
-	// From baseProjecTest
-	// rc, mc, pc, testProject
+    // From baseProjecTest
+    // rc, mc, pc, testProject
 
-	@Before
-	public void beforeAllTests() {
-		ml = new MockLibrary();
-		lf = new LoadFiles();
-	}
+    @Before
+    public void beforeAllTests() {
+        ml = new MockLibrary();
+        lf = new LoadFiles();
+    }
 
-	/**
-	 * Run tests against default project with loaded files.
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void closeTestGroupA_DefaultProject_Test() throws Exception {
-		model = mc.getModelNode();
+    /**
+     * Run tests against default project with loaded files.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void closeTestGroupA_DefaultProject_Test() throws Exception {
+        model = mc.getModelNode();
 
-		lf.loadTestGroupA(mc);
+        lf.loadTestGroupA( mc );
 
-		// When each library is closed
-		for (LibraryNode ln : model.getUserLibraries()) {
-			ln.getParent().close();
-		}
+        // When each library is closed
+        for (LibraryNode ln : model.getUserLibraries()) {
+            ln.getParent().close();
+        }
 
-		// Then the model can not contain libraries
-		assertTrue(model.getUserLibraries().isEmpty());
-	}
+        // Then the model can not contain libraries
+        assertTrue( model.getUserLibraries().isEmpty() );
+    }
 
-	/**
-	 * Close unmanaged libraries in new project
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void closeTestGroupA_Test() throws Exception {
+    /**
+     * Close unmanaged libraries in new project
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void closeTestGroupA_Test() throws Exception {
 
-		// Given a new project
-		ProjectNode project = createProject("Project1", rc.getLocalRepository(), "IT1");
-		TLModel tlModel = project.getTLProject().getModel();
+        // Given a new project
+        ProjectNode project = createProject( "Project1", rc.getLocalRepository(), "IT1" );
+        TLModel tlModel = project.getTLProject().getModel();
 
-		// Given libraries in the new project
-		lf.loadTestGroupA(project);
-		assertTrue("Must have user libraries.", tlModel.getUserDefinedLibraries().size() > 0);
+        // Given libraries in the new project
+        lf.loadTestGroupA( project );
+        assertTrue( "Must have user libraries.", tlModel.getUserDefinedLibraries().size() > 0 );
 
-		// When project is closed
-		boolean result = pc.close(project);
+        // When project is closed
+        boolean result = pc.close( project );
 
-		// Then
-		assert result == true;
-		assertTrue("Children handler must have no children.", project.getChildrenHandler().get().isEmpty());
-		assertTrue("Must NOT have user libraries.", tlModel.getUserDefinedLibraries().size() == 0);
-		assertTrue("Project Manager must not have items.", project.getTLProject().getProjectManager()
-				.getAllProjectItems().isEmpty());
+        // Then
+        assert result == true;
+        assertTrue( "Children handler must have no children.", project.getChildrenHandler().get().isEmpty() );
+        assertTrue( "Must NOT have user libraries.", tlModel.getUserDefinedLibraries().size() == 0 );
+        assertTrue( "Project Manager must not have items.",
+            project.getTLProject().getProjectManager().getAllProjectItems().isEmpty() );
 
-		// TL Project will have items, but not in the model
-		// List<ProjectItem> items = project.getTLProject().getProjectItems();
-	}
+        // TL Project will have items, but not in the model
+        // List<ProjectItem> items = project.getTLProject().getProjectItems();
+    }
 
-	/**
-	 * Close managed libraries in new project
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void closeManagedLibraries_Tests() throws Exception {
+    /**
+     * Close managed libraries in new project
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void closeManagedLibraries_Tests() throws Exception {
 
-		// Given libraries in the default project
-		ProjectNode defaultProj = createProject("DP1", rc.getLocalRepository(), "IT0");
-		// FIXME - when default project is used, the model has no user libraries.
-		// ProjectNode defaultProj = pc.getDefaultProject();
+        // Given libraries in the default project
+        ProjectNode defaultProj = createProject( "DP1", rc.getLocalRepository(), "IT0" );
+        // FIXME - when default project is used, the model has no user libraries.
+        // ProjectNode defaultProj = pc.getDefaultProject();
 
-		// Given managed libraries in new project
-		ProjectNode project = createProject("Project1", rc.getLocalRepository(), "IT1");
-		TLModel tlModel = project.getTLProject().getModel();
-		assert project != null;
+        // Given managed libraries in new project
+        ProjectNode project = createProject( "Project1", rc.getLocalRepository(), "IT1" );
+        TLModel tlModel = project.getTLProject().getModel();
+        assert project != null;
 
-		// Given test files loaded in to default project
-		lf.loadTestGroupA(defaultProj);
-		List<TLLibrary> tlLibs = defaultProj.getTLProject().getModel().getUserDefinedLibraries();
-		assertTrue("TLModel must have user libraries.", !tlLibs.isEmpty());
+        // Given test files loaded in to default project
+        lf.loadTestGroupA( defaultProj );
+        List<TLLibrary> tlLibs = defaultProj.getTLProject().getModel().getUserDefinedLibraries();
+        assertTrue( "TLModel must have user libraries.", !tlLibs.isEmpty() );
 
-		// Given managed libraries are created
-		LibraryChainNode lcn1 = ml.createNewManagedLibrary("Lib1", project);
-		LibraryChainNode lcn2 = ml.createNewManagedLibrary("Lib2", project);
-		LibraryChainNode lcn3 = ml.createNewManagedLibrary("Lib3", project);
-		AbstractLibrary tlLib1 = lcn1.get().getTLModelObject();
-		tlLibs = tlModel.getUserDefinedLibraries();
-		assertTrue(tlLibs.contains(tlLib1));
+        // Given managed libraries are created
+        LibraryChainNode lcn1 = ml.createNewManagedLibrary( "Lib1", project );
+        LibraryChainNode lcn2 = ml.createNewManagedLibrary( "Lib2", project );
+        LibraryChainNode lcn3 = ml.createNewManagedLibrary( "Lib3", project );
+        AbstractLibrary tlLib1 = lcn1.get().getTLModelObject();
+        tlLibs = tlModel.getUserDefinedLibraries();
+        assertTrue( tlLibs.contains( tlLib1 ) );
 
-		// When new project is closed
-		boolean result = pc.close(project);
+        // When new project is closed
+        boolean result = pc.close( project );
 
-		// Then
-		assert result == true;
-		tlLibs = tlModel.getUserDefinedLibraries();
-		assertTrue("Lib1 must not be in tl libraries.", !tlLibs.contains(tlLib1));
-		assertTrue("TLModel must still have user libraries.", !tlLibs.isEmpty());
-		assertTrue("Children handler must have no children.", project.getChildrenHandler().get().isEmpty());
+        // Then
+        assert result == true;
+        tlLibs = tlModel.getUserDefinedLibraries();
+        assertTrue( "Lib1 must not be in tl libraries.", !tlLibs.contains( tlLib1 ) );
+        assertTrue( "TLModel must still have user libraries.", !tlLibs.isEmpty() );
+        assertTrue( "Children handler must have no children.", project.getChildrenHandler().get().isEmpty() );
 
-		// When default project is closed
-		pc.close(defaultProj);
+        // When default project is closed
+        pc.close( defaultProj );
 
-		// Then
-		assert result == true;
-		tlLibs = tlModel.getUserDefinedLibraries();
-		assertTrue("Project Manager must not have items.", project.getTLProject().getProjectManager()
-				.getAllProjectItems().isEmpty());
-		assertTrue("All users libraries must be closed.", Node.getModelNode().getUserLibraries().isEmpty());
-		assertTrue("Must NOT have user libraries.", tlLibs.isEmpty());
-	}
+        // Then
+        assert result == true;
+        tlLibs = tlModel.getUserDefinedLibraries();
+        assertTrue( "Project Manager must not have items.",
+            project.getTLProject().getProjectManager().getAllProjectItems().isEmpty() );
+        assertTrue( "All users libraries must be closed.", Node.getModelNode().getUserLibraries().isEmpty() );
+        assertTrue( "Must NOT have user libraries.", tlLibs.isEmpty() );
+    }
 
-	/**
-	 * Close Libraries in multiple projects
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void closeLibrariesInMultipleProjects_Tests() throws Exception {
-		OTM16Upgrade.otm16Enabled = true;
+    /**
+     * Close Libraries in multiple projects
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void closeLibrariesInMultipleProjects_Tests() throws Exception {
+        // Given - same libraries in multiple projects
+        ProjectNode project1 = createProject( "Project1", rc.getLocalRepository(), "IT1" );
+        ProjectNode project2 = createProject( "Project2", rc.getLocalRepository(), "IT2" );
+        lf.loadFile_FacetBase( project1 );
+        lf.loadFile_FacetBase( project2 );
 
-		// Given - same libraries in multiple projects
-		ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
-		ProjectNode project2 = createProject("Project2", rc.getLocalRepository(), "IT2");
-		lf.loadFile_FacetBase(project1);
-		lf.loadFile_FacetBase(project2);
+        // Assure the library Nav Nodes are unique and have same library
+        LibraryNavNode lnn1 = (LibraryNavNode) project1.getChildren().get( 0 );
+        LibraryNavNode lnn2 = (LibraryNavNode) project2.getChildren().get( 0 );
+        assert lnn1 != null;
+        assert lnn2 != null;
+        assert lnn1 != lnn2;
+        LibraryNode lib1 = (LibraryNode) lnn1.get();
+        LibraryNode lib2 = (LibraryNode) lnn2.get();
+        assertTrue( "Both libraryNavNodes contain the same library.", lib1 == lib2 );
+        List<LibraryMemberInterface> p1Kids = lib1.getDescendants_LibraryMembers();
 
-		// Assure the library Nav Nodes are unique and have same library
-		LibraryNavNode lnn1 = (LibraryNavNode) project1.getChildren().get(0);
-		LibraryNavNode lnn2 = (LibraryNavNode) project2.getChildren().get(0);
-		assert lnn1 != null;
-		assert lnn2 != null;
-		assert lnn1 != lnn2;
-		LibraryNode lib1 = (LibraryNode) lnn1.get();
-		LibraryNode lib2 = (LibraryNode) lnn2.get();
-		assertTrue("Both libraryNavNodes contain the same library.", lib1 == lib2);
-		List<LibraryMemberInterface> p1Kids = lib1.getDescendants_LibraryMembers();
+        // When - library is closed from project 1
+        lnn1.close();
+        assertTrue( "Project 1 must not have library.", project1.getLibraries().isEmpty() );
 
-		// When - library is closed from project 1
-		lnn1.close();
-		assertTrue("Project 1 must not have library.", project1.getLibraries().isEmpty());
+        // Then - project 2 still has libraries
+        assertTrue( "Project 2 must still have library.", !project2.getLibraries().isEmpty() );
+        assertTrue( "Project 2 must contain lnn2.", project2.contains( lnn2 ) );
 
-		// Then - project 2 still has libraries
-		assertTrue("Project 2 must still have library.", !project2.getLibraries().isEmpty());
-		assertTrue("Project 2 must contain lnn2.", project2.contains(lnn2));
+        // When - project 2 is closed
+        project2.close();
+        // Then
+        assertTrue( "Project 2 must not have library.", project2.getLibraries().isEmpty() );
+        // Then - assure everything is closed
+        assertTrue( "Project 1 must not have library.", project1.getLibraries().isEmpty() );
+        assert lnn1.isDeleted();
+        assert lnn2.isDeleted();
+        assert lib1.isDeleted();
+        assert lib2.isDeleted();
+        for (LibraryMemberInterface kid : p1Kids)
+            assert kid.isDeleted();
+        assert Node.getLibraryModelManager().getUserLibraries().isEmpty();
+    }
 
-		// When - project 2 is closed
-		project2.close();
-		// Then
-		assertTrue("Project 2 must not have library.", project2.getLibraries().isEmpty());
-		// Then - assure everything is closed
-		assertTrue("Project 1 must not have library.", project1.getLibraries().isEmpty());
-		assert lnn1.isDeleted();
-		assert lnn2.isDeleted();
-		assert lib1.isDeleted();
-		assert lib2.isDeleted();
-		for (LibraryMemberInterface kid : p1Kids)
-			assert kid.isDeleted();
-		assert Node.getLibraryModelManager().getUserLibraries().isEmpty();
+    /**
+     * Test internal logic in Close Visitor
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void closeVisitor_Tests() throws Exception {
+        NodeVisitor visitor = new NodeVisitors().new closeVisitor();
 
-		OTM16Upgrade.otm16Enabled = false;
-	}
+        // Given a project and library
+        ProjectNode project = createProject( "Project1", rc.getLocalRepository(), "IT1" );
+        LibraryChainNode lcn = ml.createNewManagedLibrary( "Lib1", project );
 
-	/**
-	 * Test internal logic in Close Visitor
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void closeVisitor_Tests() throws Exception {
-		OTM16Upgrade.otm16Enabled = true;
-		NodeVisitor visitor = new NodeVisitors().new closeVisitor();
+        // Must be null safe
+        visitor.visit( null );
 
-		// Given a project and library
-		ProjectNode project = createProject("Project1", rc.getLocalRepository(), "IT1");
-		LibraryChainNode lcn = ml.createNewManagedLibrary("Lib1", project);
+        // Special handling
+        // LibraryNode
+        // Only when parent is null ???
 
-		// Must be null safe
-		visitor.visit(null);
+        // ContextualFacetNode - local
+        BusinessObjectNode bo = ml.addBusinessObjectToLibrary( lcn.get(), "TBO", true );
+        CustomFacetNode cf = (CustomFacetNode) bo.addFacet( "CF1", TLFacetType.CUSTOM );
+        assert bo.contains( cf );
+        cf = (CustomFacetNode) bo.addFacet( "CF2", TLFacetType.CUSTOM );
+        assert bo.contains( cf );
+        visitor.visit( cf );
+        assertTrue( cf.isDeleted() );
+        assertTrue( "Contextual Facet must be removed from BO.", !bo.contains( cf ) );
 
-		// Special handling
-		// LibraryNode
-		// Only when parent is null ???
+        // VersionNode
+        // FIXME - do these tests
 
-		// ContextualFacetNode - local
-		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(lcn.get(), "TBO", true);
-		CustomFacetNode cf = (CustomFacetNode) bo.addFacet("CF1", TLFacetType.CUSTOM);
-		assert bo.contains(cf);
-		cf = (CustomFacetNode) bo.addFacet("CF2", TLFacetType.CUSTOM);
-		assert bo.contains(cf);
-		visitor.visit(cf);
-		assertTrue(cf.isDeleted());
-		assertTrue("Contextual Facet must be removed from BO.", !bo.contains(cf));
+        // Type Providers
 
-		// VersionNode
-		// FIXME - do these tests
+        // Type Users
 
-		// Type Providers
+        // Children handlers
+    }
 
-		// Type Users
+    @Test
+    public void closeBaseTypes_Tests() throws Exception {
+        // Given a project, library and BO
+        ProjectNode project = createProject( "Project1", rc.getLocalRepository(), "IT1" );
+        LibraryChainNode lcn1 = ml.createNewManagedLibrary( "Lib1", project );
+        LibraryChainNode lcn2 = ml.createNewManagedLibrary( "Lib2", project );
+        BusinessObjectNode bo = ml.addBusinessObjectToLibrary_Empty( lcn1.get(), "TBO" );
+    }
 
-		// Children handlers
-		OTM16Upgrade.otm16Enabled = false;
-	}
+    /**
+     * Closing a library containing type providers to type users in different libraries must leave the TL Type unchanged
+     * but us the unassigned node.
+     * 
+     * @see org.opentravel.schemas.commands.Delete_Tests#deleteTypeUsers_Test()
+     * @throws Exception
+     */
+    @Test
+    public void closeAssignedTypes_Tests() throws Exception {
+        // Given a project, libraries
+        ProjectNode project = createProject( "Project1", rc.getLocalRepository(), "IT1" );
+        LibraryChainNode userLib = ml.createNewManagedLibrary( "Lib1", project );
+        LibraryChainNode providerLib = ml.createNewManagedLibrary( "Lib2", project );
 
-	@Test
-	public void closeBaseTypes_Tests() throws Exception {
-		OTM16Upgrade.otm16Enabled = true;
+        // Given - all type providers
+        ml.addOneOfEach( providerLib.getHead(), "PL1" );
 
-		// Given a project, library and BO
-		ProjectNode project = createProject("Project1", rc.getLocalRepository(), "IT1");
-		LibraryChainNode lcn1 = ml.createNewManagedLibrary("Lib1", project);
-		LibraryChainNode lcn2 = ml.createNewManagedLibrary("Lib2", project);
-		BusinessObjectNode bo = ml.addBusinessObjectToLibrary_Empty(lcn1.get(), "TBO");
+        // Given - a BO
+        BusinessObjectNode bo = ml.addBusinessObjectToLibrary_Empty( userLib.get(), "TBO" );
 
-		// FIXME - add tests
-		OTM16Upgrade.otm16Enabled = false;
-	}
+        // Given - a type user for each provider
+        List<TypeUser> users = new ArrayList<TypeUser>();
+        int i = 1;
+        for (TypeProvider tp : providerLib.getDescendants_TypeProviders()) {
+            if (tp.isAssignableToSimple())
+                users.add( new AttributeNode( bo.getFacet_Summary(), "E" + i, tp ) );
+            else
+                users.add( new ElementNode( bo.getFacet_Summary(), "E" + i, tp ) );
+            i++;
+        }
+        // Verify Givens
+        for (Node u : bo.getFacet_Summary().getChildren())
+            assert providerLib.contains( (Node) ((TypeUser) u).getAssignedType() );
 
-	/**
-	 * Closing a library containing type providers to type users in different libraries must leave the TL Type unchanged
-	 * but us the unassigned node.
-	 * 
-	 * @see org.opentravel.schemas.commands.Delete_Tests#deleteTypeUsers_Test()
-	 * @throws Exception
-	 */
-	@Test
-	public void closeAssignedTypes_Tests() throws Exception {
-		OTM16Upgrade.otm16Enabled = true;
+        // When one provider directly closed
+        TypeProvider provider = providerLib.getDescendants_TypeProviders().get( 0 );
+        TypeUser assignedTo = null;
+        for (TypeUser u : provider.getWhereAssigned())
+            assignedTo = u;
+        ((Node) provider).close();
 
-		// Given a project, libraries
-		ProjectNode project = createProject("Project1", rc.getLocalRepository(), "IT1");
-		LibraryChainNode userLib = ml.createNewManagedLibrary("Lib1", project);
-		LibraryChainNode providerLib = ml.createNewManagedLibrary("Lib2", project);
+        // Then
+        LOGGER.debug( assignedTo + " " + assignedTo.getAssignedType() );
 
-		// Given - all type providers
-		ml.addOneOfEach(providerLib.getHead(), "PL1");
+        // When provider lib is closed
+        providerLib.close();
 
-		// Given - a BO
-		BusinessObjectNode bo = ml.addBusinessObjectToLibrary_Empty(userLib.get(), "TBO");
+        for (Node u : bo.getFacet_Summary().getChildren()) {
+            TypeProvider type = ((TypeUser) u).getAssignedType();
+            TLModelElement tlType = ((TypeUser) u).getAssignedTLObject();
+            LOGGER.debug( u + " " + type + " " );
+        }
+    }
 
-		// Given - a type user for each provider
-		List<TypeUser> users = new ArrayList<TypeUser>();
-		int i = 1;
-		for (TypeProvider tp : providerLib.getDescendants_TypeProviders()) {
-			if (tp.isAssignableToSimple())
-				users.add(new AttributeNode(bo.getFacet_Summary(), "E" + i, tp));
-			else
-				users.add(new ElementNode(bo.getFacet_Summary(), "E" + i, tp));
-			i++;
-		}
-		// Verify Givens
-		for (Node u : bo.getFacet_Summary().getChildren())
-			assert providerLib.contains((Node) ((TypeUser) u).getAssignedType());
+    /**
+     * Test closing contextual facets which may be in different libraries.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void closeContextualFacet_Tests() throws Exception {
+        // Given a project, library and BO
+        ProjectNode project = createProject( "Project1", rc.getLocalRepository(), "IT1" );
+        LibraryChainNode lcn1 = ml.createNewManagedLibrary( "Lib1", project );
+        LibraryChainNode lcn2 = ml.createNewManagedLibrary( "Lib2", project );
+        BusinessObjectNode bo = ml.addBusinessObjectToLibrary_Empty( lcn1.get(), "TBO" );
 
-		// When one provider directly closed
-		TypeProvider provider = providerLib.getDescendants_TypeProviders().get(0);
-		TypeUser assignedTo = null;
-		for (TypeUser u : provider.getWhereAssigned())
-			assignedTo = u;
-		((Node) provider).close();
+        // ContextualFacetNode - local
+        CustomFacetNode localCf = (CustomFacetNode) bo.addFacet( "CF1", TLFacetType.CUSTOM );
+        assert bo.contains( localCf );
+        TLContextualFacet tlCF1 = bo.getTLModelObject().getCustomFacet( "CF1" );
+        assert tlCF1.getOwningEntity() == bo.getTLModelObject();
 
-		// Then
-		LOGGER.debug(assignedTo + " " + assignedTo.getAssignedType());
+        // ContextualFacetNode - in library 2
+        CustomFacetNode lib2Cf = (CustomFacetNode) bo.addFacet( "CF2", TLFacetType.CUSTOM );
+        lcn2.getHead().addMember( lib2Cf );
+        assert bo.contains( lib2Cf );
+        assert lcn2.contains( lib2Cf );
 
-		// When provider lib is closed
-		providerLib.close();
+        // Save the project so the OTM file can be examined
+        pc.save( project );
+        String path = lcn1.getLibrary().getTLModelObject().getLibraryUrl().getPath();
+        LOGGER.debug( "Examine OTM file: " + path );
 
-		for (Node u : bo.getFacet_Summary().getChildren()) {
-			TypeProvider type = ((TypeUser) u).getAssignedType();
-			TLModelElement tlType = ((TypeUser) u).getAssignedTLObject();
-			LOGGER.debug(u + " " + type + " ");
-		}
+        //
+        // When - local is closed
+        localCf.close();
 
-		// FIXME - test reference types
-		OTM16Upgrade.otm16Enabled = false;
-	}
+        // Then - TL business object does not have tlContextualFacet
+        tlCF1 = bo.getTLModelObject().getCustomFacet( "CF1" );
+        assert tlCF1 == null;
+        // Where contributed removed
+        assertTrue( "Contextual Facet must be removed from BO.", !bo.contains( localCf ) );
 
-	/**
-	 * Test closing contextual facets which may be in different libraries.
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void closeContextualFacet_Tests() throws Exception {
-		OTM16Upgrade.otm16Enabled = true;
-
-		// Given a project, library and BO
-		ProjectNode project = createProject("Project1", rc.getLocalRepository(), "IT1");
-		LibraryChainNode lcn1 = ml.createNewManagedLibrary("Lib1", project);
-		LibraryChainNode lcn2 = ml.createNewManagedLibrary("Lib2", project);
-		BusinessObjectNode bo = ml.addBusinessObjectToLibrary_Empty(lcn1.get(), "TBO");
-
-		// ContextualFacetNode - local
-		CustomFacetNode localCf = (CustomFacetNode) bo.addFacet("CF1", TLFacetType.CUSTOM);
-		assert bo.contains(localCf);
-		TLContextualFacet tlCF1 = bo.getTLModelObject().getCustomFacet("CF1");
-		assert tlCF1.getOwningEntity() == bo.getTLModelObject();
-
-		// ContextualFacetNode - in library 2
-		CustomFacetNode lib2Cf = (CustomFacetNode) bo.addFacet("CF2", TLFacetType.CUSTOM);
-		lcn2.getHead().addMember(lib2Cf);
-		assert bo.contains(lib2Cf);
-		assert lcn2.contains(lib2Cf);
-
-		// Save the project so the OTM file can be examined
-		pc.save(project);
-		String path = lcn1.getLibrary().getTLModelObject().getLibraryUrl().getPath();
-		LOGGER.debug("Examine OTM file: " + path);
-
-		//
-		// When - local is closed
-		localCf.close();
-
-		// Then - TL business object does not have tlContextualFacet
-		tlCF1 = bo.getTLModelObject().getCustomFacet("CF1");
-		assert tlCF1 == null;
-		// Where contributed removed
-		assertTrue("Contextual Facet must be removed from BO.", !bo.contains(localCf));
-
-		lib2Cf.close();
-		assertTrue("Contextual Facet must be removed from BO.", !bo.contains(lib2Cf));
-
-		OTM16Upgrade.otm16Enabled = false;
-	}
+        lib2Cf.close();
+        assertTrue( "Contextual Facet must be removed from BO.", !bo.contains( lib2Cf ) );
+    }
 
 }

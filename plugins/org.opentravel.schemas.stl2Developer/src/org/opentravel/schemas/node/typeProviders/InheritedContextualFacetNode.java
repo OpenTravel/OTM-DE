@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.opentravel.schemas.node.typeProviders;
 
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
@@ -40,123 +40,115 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class InheritedContextualFacetNode extends ContextualFacetNode implements InheritedInterface {
-	private static final Logger LOGGER = LoggerFactory.getLogger(InheritedContextualFacetNode.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger( InheritedContextualFacetNode.class );
 
-	private ContextualFacetNode inheritedFrom = null;
+    private ContextualFacetNode inheritedFrom = null;
 
-	/**
-	 * Create a facade for an inherited contextual facet.
-	 * 
-	 * @param tlObj
-	 *            the TL object unique to this inheritance
-	 * @param from
-	 *            the contextual facet inherited from
-	 * @param library
-	 *            the library of the owner
-	 */
-	public InheritedContextualFacetNode(TLContextualFacet tlGhost, ContextualFacetNode from, Node parent) {
-		super();
-		tlObj = tlGhost;
-		inheritedFrom = from;
-		this.parent = parent;
-		setLibrary(parent.getLibrary());
+    /**
+     * Create a facade for an inherited contextual facet.
+     * 
+     * @param tlObj the TL object unique to this inheritance
+     * @param from the contextual facet inherited from
+     * @param library the library of the owner
+     */
+    public InheritedContextualFacetNode(TLContextualFacet tlGhost, ContextualFacetNode from, Node parent) {
+        super();
+        tlObj = tlGhost;
+        inheritedFrom = from;
+        this.parent = parent;
+        setLibrary( parent.getLibrary() );
 
-		// Set two listeners - one on this and one on the base
-		ListenerFactory.setIdentityListner(this);
-		new InheritanceDependencyListener(this);
+        // Set two listeners - one on this and one on the base
+        ListenerFactory.setIdentityListner( this );
+        new InheritanceDependencyListener( this );
 
-		assert tlGhost != from.getTLModelObject(); // must be a TL object unique to this parent object
-		assert OTM16Upgrade.otm16Enabled;
-	}
+        assert tlGhost != from.getTLModelObject(); // must be a TL object unique to this parent object
+    }
 
-	@Override
-	public ContextualFacetNode getInheritedFrom() {
-		return inheritedFrom;
-	}
+    @Override
+    public ContextualFacetNode getInheritedFrom() {
+        return inheritedFrom;
+    }
 
-	@Override
-	public LibraryNode getLibrary() {
-		return getInheritedFrom().getLibrary();
-	}
+    @Override
+    public LibraryNode getLibrary() {
+        return getInheritedFrom().getLibrary();
+    }
 
-	@Override
-	public boolean canOwn(TLFacetType type) {
-		return false;
-	}
+    @Override
+    public boolean canOwn(TLFacetType type) {
+        return false;
+    }
 
-	/**
-	 * Don't show these in the nav tree.
-	 * 
-	 * @param deep
-	 * @return
-	 */
-	@Override
-	public boolean isNavChild(boolean deep) {
-		return false;
-	}
+    /**
+     * Don't show these in the nav tree.
+     * 
+     * @param deep
+     * @return
+     */
+    @Override
+    public boolean isNavChild(boolean deep) {
+        return false;
+    }
 
-	@Override
-	protected void removeFromTLParent() {
-	}
+    @Override
+    protected void removeFromTLParent() {}
 
-	@Override
-	public boolean canOwn(AbstractContextualFacet targetCF) {
-		return false;
-	}
+    @Override
+    public boolean canOwn(AbstractContextualFacet targetCF) {
+        return false;
+    }
 
-	@Override
-	protected void addToTLParent(ContextualFacetOwnerInterface owner) {
-	}
+    @Override
+    protected void addToTLParent(ContextualFacetOwnerInterface owner) {}
 
-	@Override
-	public ContextualFacetNode copy(LibraryNode destLib) throws IllegalArgumentException {
-		return null;
-	}
+    @Override
+    public ContextualFacetNode copy(LibraryNode destLib) throws IllegalArgumentException {
+        return null;
+    }
 
-	@Override
-	public void delete() {
-		close();
-	}
+    @Override
+    public void delete() {
+        close();
+    }
 
-	@Override
-	public String getDecoration() {
-		return "  Inherited" + getInheritedFrom().getDecoration();
-	}
+    @Override
+    public String getDecoration() {
+        return "  Inherited" + getInheritedFrom().getDecoration();
+    }
 
-	@Override
-	public boolean isEditable() {
-		return false;
-	}
+    @Override
+    public boolean isEditable() {
+        return false;
+    }
 
-	@Override
-	public boolean isEnabled_AddProperties() {
-		return false;
-	}
+    @Override
+    public boolean isEnabled_AddProperties() {
+        return false;
+    }
 
-	@Override
-	public void print() {
-		super.print();
-		LOGGER.debug("Inherited from: " + inheritedFrom);
-	}
+    @Override
+    public void print() {
+        super.print();
+        LOGGER.debug( "Inherited from: " + inheritedFrom );
+    }
 
-	/**
-	 * Set the name of this contextual (custom or query) facet. Name is simply the facet name and not its global type
-	 * name.
-	 */
-	@Override
-	public void setName(String n) {
-	}
+    /**
+     * Set the name of this contextual (custom or query) facet. Name is simply the facet name and not its global type
+     * name.
+     */
+    @Override
+    public void setName(String n) {}
 
-	/**
-	 * Add this contextual facet to the owner.
-	 * <p>
-	 * if it can be a library member (v1.6 and later) then create contributed facet. Removes existing contributed facet
-	 * if needed.
-	 * 
-	 * @param owner
-	 * @param newFacet
-	 */
-	@Override
-	public void add(ContextualFacetOwnerInterface owner) {
-	}
+    /**
+     * Add this contextual facet to the owner.
+     * <p>
+     * if it can be a library member (v1.6 and later) then create contributed facet. Removes existing contributed facet
+     * if needed.
+     * 
+     * @param owner
+     * @param newFacet
+     */
+    @Override
+    public void add(ContextualFacetOwnerInterface owner) {}
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.opentravel.schemas.node.typeProviders.facetOwners;
 
 import org.opentravel.schemacompiler.model.LibraryMember;
@@ -20,7 +21,6 @@ import org.opentravel.schemacompiler.model.TLAbstractFacet;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
@@ -49,126 +49,120 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class FacetOwners extends TypeProviders implements FacetOwner {
-	private static final Logger LOGGER = LoggerFactory.getLogger(FacetOwners.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger( FacetOwners.class );
 
-	public FacetOwners() {
-		whereAssignedHandler = new WhereAssignedHandler(this);
-	}
+    public FacetOwners() {
+        whereAssignedHandler = new WhereAssignedHandler( this );
+    }
 
-	public FacetOwners(final TLModelElement obj) {
-		super(obj);
-		whereAssignedHandler = new WhereAssignedHandler(this);
-		if (!isInherited())
-			assert Node.GetNode(getTLModelObject()) == this;
-	}
+    public FacetOwners(final TLModelElement obj) {
+        super( obj );
+        whereAssignedHandler = new WhereAssignedHandler( this );
+        if (!isInherited())
+            assert Node.GetNode( getTLModelObject() ) == this;
+    }
 
-	/**
-	 * Add a facet to this owner. Only contextual facets can be added and only in unmanaged or head versions.
-	 * 
-	 * @param name
-	 * @param type
-	 *            a contextual facet type that can be owned by this facet owner
-	 * @return the new contextual facet (not contributed)
-	 */
-	// TODO - consider allowing them in minor and use createMinorVersionOfComponent()
-	public AbstractContextualFacet addFacet(String name, TLFacetType type) {
-		if (!isEditable_newToChain()) {
-			isEditable_newToChain();
-			throw new IllegalArgumentException("Not editable - Can not add facet to " + this);
-		}
-		if (!type.isContextual() || !canOwn(type))
-			return null;
-		if (!(this instanceof ContextualFacetOwnerInterface))
-			return null;
+    /**
+     * Add a facet to this owner. Only contextual facets can be added and only in unmanaged or head versions.
+     * 
+     * @param name
+     * @param type a contextual facet type that can be owned by this facet owner
+     * @return the new contextual facet (not contributed)
+     */
+    // TODO - consider allowing them in minor and use createMinorVersionOfComponent()
+    public AbstractContextualFacet addFacet(String name, TLFacetType type) {
+        if (!isEditable_newToChain()) {
+            isEditable_newToChain();
+            throw new IllegalArgumentException( "Not editable - Can not add facet to " + this );
+        }
+        if (!type.isContextual() || !canOwn( type ))
+            return null;
+        if (!(this instanceof ContextualFacetOwnerInterface))
+            return null;
 
-		TLContextualFacet tlCf = ContextualFacetNode.createTL(name, type);
-		AbstractContextualFacet cf = NodeFactory.createContextualFacet(tlCf);
-		cf.add((ContextualFacetOwnerInterface) this);
+        TLContextualFacet tlCf = ContextualFacetNode.createTL( name, type );
+        AbstractContextualFacet cf = NodeFactory.createContextualFacet( tlCf );
+        cf.add( (ContextualFacetOwnerInterface) this );
 
-		if (OTM16Upgrade.otm16Enabled) {
-			assert cf.getParent() instanceof NavNode;
-			assert getChildren().contains(((ContextualFacetNode) cf).getWhereContributed());
-			assert getLibrary().contains(cf);
-		} else {
-			assert cf.getParent() == this;
-			assert getChildren().contains(cf);
-		}
-		return cf;
-	}
+        assert cf.getParent() instanceof NavNode;
+        assert getChildren().contains( ((ContextualFacetNode) cf).getWhereContributed() );
+        assert getLibrary().contains( cf );
+        return cf;
+    }
 
-	public abstract boolean canOwn(TLFacetType type);
+    public abstract boolean canOwn(TLFacetType type);
 
-	@Override
-	public LibraryMemberInterface clone(LibraryNode targetLib, String nameSuffix) {
-		if (getLibrary() == null || !getLibrary().isEditable()) {
-			LOGGER.warn("Could not clone node because library " + getLibrary() + " it is not editable.");
-			return null;
-		}
+    @Override
+    public LibraryMemberInterface clone(LibraryNode targetLib, String nameSuffix) {
+        if (getLibrary() == null || !getLibrary().isEditable()) {
+            LOGGER.warn( "Could not clone node because library " + getLibrary() + " it is not editable." );
+            return null;
+        }
 
-		LibraryMemberInterface clone = null;
+        LibraryMemberInterface clone = null;
 
-		// Use the compiler to create a new TL src object.
-		TLModelElement newLM = (TLModelElement) cloneTLObj();
-		if (newLM != null) {
-			clone = NodeFactory.newLibraryMember((LibraryMember) newLM);
-			assert clone != null;
-			if (nameSuffix != null)
-				clone.setName(clone.getName() + nameSuffix);
-			for (AliasNode alias : clone.getAliases())
-				alias.setName(alias.getName() + nameSuffix);
-			if (targetLib != null)
-				targetLib.addMember(clone);
-		}
-		return clone;
-	}
+        // Use the compiler to create a new TL src object.
+        TLModelElement newLM = (TLModelElement) cloneTLObj();
+        if (newLM != null) {
+            clone = NodeFactory.newLibraryMember( (LibraryMember) newLM );
+            assert clone != null;
+            if (nameSuffix != null)
+                clone.setName( clone.getName() + nameSuffix );
+            for (AliasNode alias : clone.getAliases())
+                alias.setName( alias.getName() + nameSuffix );
+            if (targetLib != null)
+                targetLib.addMember( clone );
+        }
+        return clone;
+    }
 
-	@Override
-	public FacetInterface getFacet(final TLFacetType facetType) {
-		for (final Node n : getChildren()) {
-			if (n instanceof FacetInterface) {
-				TLFacetType type = ((FacetInterface) n).getFacetType();
-				if (type != null && type.equals(facetType))
-					return (FacetInterface) n;
-			}
-		}
-		return null;
-	}
+    @Override
+    public FacetInterface getFacet(final TLFacetType facetType) {
+        for (final Node n : getChildren()) {
+            if (n instanceof FacetInterface) {
+                TLFacetType type = ((FacetInterface) n).getFacetType();
+                if (type != null && type.equals( facetType ))
+                    return (FacetInterface) n;
+            }
+        }
+        return null;
+    }
 
-	@Override
-	public AttributeFacetNode getFacet_Attributes() {
-		return null;
-	}
+    @Override
+    public AttributeFacetNode getFacet_Attributes() {
+        return null;
+    }
 
-	@Override
-	public abstract FacetInterface getFacet_Default();
+    @Override
+    public abstract FacetInterface getFacet_Default();
 
-	@Override
-	public FacetProviderNode getFacet_Detail() {
-		return (FacetProviderNode) getFacet(TLFacetType.DETAIL);
-	}
+    @Override
+    public FacetProviderNode getFacet_Detail() {
+        return (FacetProviderNode) getFacet( TLFacetType.DETAIL );
+    }
 
-	@Override
-	public FacetProviderNode getFacet_ID() {
-		return (FacetProviderNode) getFacet(TLFacetType.ID);
-	}
+    @Override
+    public FacetProviderNode getFacet_ID() {
+        return (FacetProviderNode) getFacet( TLFacetType.ID );
+    }
 
-	@Override
-	public FacetInterface getFacet_Simple() {
-		return getFacet(TLFacetType.SIMPLE);
-	}
+    @Override
+    public FacetInterface getFacet_Simple() {
+        return getFacet( TLFacetType.SIMPLE );
+    }
 
-	@Override
-	public FacetProviderNode getFacet_Summary() {
-		return (FacetProviderNode) getFacet(TLFacetType.SUMMARY);
-	}
+    @Override
+    public FacetProviderNode getFacet_Summary() {
+        return (FacetProviderNode) getFacet( TLFacetType.SUMMARY );
+    }
 
-	@Override
-	public TLFacetType getFacetType() {
-		return getTLModelObject() instanceof TLAbstractFacet ? ((TLAbstractFacet) getTLModelObject()).getFacetType()
-				: null;
-	}
+    @Override
+    public TLFacetType getFacetType() {
+        return getTLModelObject() instanceof TLAbstractFacet ? ((TLAbstractFacet) getTLModelObject()).getFacetType()
+            : null;
+    }
 
-	public SharedFacetNode getFacet_Shared() {
-		return (SharedFacetNode) getFacet(TLFacetType.SHARED);
-	}
+    public SharedFacetNode getFacet_Shared() {
+        return (SharedFacetNode) getFacet( TLFacetType.SHARED );
+    }
 }
