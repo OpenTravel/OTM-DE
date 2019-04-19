@@ -69,10 +69,10 @@
 						<contextPath>/site</contextPath>
 					</webApp>
 					<httpConnector>
-						<port>6161</port>
+						<port>9090</port>
 					</httpConnector>
 					<daemon>true</daemon>
-					<stopPort>6162</stopPort>
+					<stopPort>9091</stopPort>
 					<stopKey>stop-otm-p2</stopKey>
 					<stopWait>10</stopWait>
 				</configuration>
