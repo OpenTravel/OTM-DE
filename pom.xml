@@ -161,4 +161,38 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+	
+	<repositories>
+		<repository>
+			<id>otm-nexus-releases</id>
+			<name>OTM Nexus Releases Repository</name>
+			<url>http://ec2-18-191-4-96.us-east-2.compute.amazonaws.com:8081/repository/maven-releases/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<layout>default</layout>
+		</repository>
+		<repository>
+			<id>otm-nexus-snapshots</id>
+			<name>OTM Nexus Snapshots Repository</name>
+			<url>http://ec2-18-191-4-96.us-east-2.compute.amazonaws.com:8081/repository/maven-snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<layout>default</layout>
+		</repository>
+		<repository>
+			<id>jboss-eap-repository</id>
+			<name>JBoss EAP Maven repository</name>
+			<url>https://maven.repository.redhat.com/ga/</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+
 </project>

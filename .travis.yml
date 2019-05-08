@@ -1,0 +1,21 @@
+language: java
+jdk: oraclejdk8
+install: true
+script: mvn clean install -DskipTests=true
+cache:
+  directories:
+  - "$HOME/.m2"
+deploy:
+  provider: releases
+  api_key:
+    secure: ncM77BcOHwbOutkrWwT6HlJ5QuwDaLL8lX9Dj78XHNBRXxqRAuv03XkDq28u6IN/cO5Pr7trlqgKrCnCUl0t3Zf5NeRkkhycgLVnu3J+iJUfREqstkHzSvbjSKniw3k3QAdF2kLd2V7mLHTyeD/rhKo4WI6ZUyMW70/gfza+PtOjlDb7LDmQmlbDsbMOoJjaVjV1ZaxBqIhWCL6xgMtb8W9at8RlktmWSJOhgBGwxLeDahY60+710DWGsmdOxry2j6Mvcv27U/rL5IbXwvBRNGekyhcLiQ311InuUZ4eFufrnEiTieC5WiUk9xFDtglkck242ukZ8HghXb2jXoeiTvS6BhxRFcHSUn+FUxbs5/x91Oa+MlzPSh6qUKtiWNhkCk79bdzMmiJZFunjsezUxLREnjjpuy36yWHcgloU7Lj+0F6zFCr+YCCGdb8XujcKJFMnbnzhqScfOBSBMzTrXtfVY8a8ZrkzJmU+xW7CMvNagDDRH2uLboR/gyJqj9kBQEy2Ek1pkVMGSZFGzVJqlodloWL+Pf6CjuGTOz4bkuphKEi/RZiv9qrPrhBtguzdl5S8eJ6Rxev1xqzCmgtx87XS7TDtpUfOY4ydDRtvFHdZOhBtub+yVWc1soHl7sRr1F04QavnXZBz+Z5bqYH+KbWGxdzVa8YsKS3HvU6bSbM=
+  file:
+  - product/target/products/OTM-DE-4.0.0-linux.gtk.x86_64.zip
+  - product/target/products/OTM-DE-4.0.0-linux.gtk.x86.zip
+  - product/target/products/OTM-DE-4.0.0-macosx.cocoa.x86_64.zip
+  - product/target/products/OTM-DE-4.0.0-win32.win32.x86_64.zip
+  - product/target/products/OTM-DE-4.0.0-win32.win32.x86.zip
+  skip_cleanup: true
+  on:
+    repo: OpenTravel/OTM-DE
+    tags: true

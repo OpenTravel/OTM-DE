@@ -52,7 +52,7 @@
 						<product>
 							<id>${product-id}</id>
 							<rootFolder>${product-id}-${project.version}-${buildQualifier}</rootFolder>
-							<archiveFileName>${product-id}-${unqualifiedVersion}-${buildQualifier}</archiveFileName>
+							<archiveFileName>${product-id}-${unqualifiedVersion}</archiveFileName>
 						</product>
 					</products>
 				</configuration>
