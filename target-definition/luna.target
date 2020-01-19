@@ -81,7 +81,7 @@
 <unit id="org.springframework.spring-expression" version="4.3.21.RELEASE"/>
 <unit id="slf4j.api" version="1.7.10"/>
 <unit id="slf4j.log4j12" version="1.7.10"/>
-<repository location="http://ec2-18-191-4-96.us-east-2.compute.amazonaws.com/otm-de/p2site/"/>
+<repository location="http://www.opentravelmodel.net/otm-de/p2site/"/>
 	<unit id="javax.activation-api" version="1.2.0"/>
 </location>
 </locations>
